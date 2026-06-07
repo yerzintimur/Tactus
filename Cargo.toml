@@ -1,0 +1,33 @@
+# Rust workspace for the shared, platform-agnostic core.
+# Layout & rationale: docs/DEVELOPMENT.md §4, AGENTS.md.
+[workspace]
+resolver = "3"
+members = [
+    "core/crates/sysex",
+    "core/crates/device",
+    "core/crates/model",
+    "core/crates/engine",
+    "core/crates/ffi",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.93"
+license = "Apache-2.0"
+authors = ["The V31 Vision contributors"]
+
+# Internal crates referenced as `{ workspace = true }` from member Cargo.toml files.
+[workspace.dependencies]
+sysex = { path = "core/crates/sysex" }
+device = { path = "core/crates/device" }
+model = { path = "core/crates/model" }
+engine = { path = "core/crates/engine" }
+
+# Release profile tuned for small mobile artifacts (no unwinding across the FFI).
+[profile.release]
+lto = "fat"
+panic = "abort"
+strip = true
+opt-level = "z"
+codegen-units = 1

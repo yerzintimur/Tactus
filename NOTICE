@@ -1,0 +1,23 @@
+V31 Vision
+Copyright 2026 The V31 Vision contributors
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+────────────────────────────────────────────────────────────────────────
+Trademark and affiliation disclaimer
+────────────────────────────────────────────────────────────────────────
+"Roland", "V-Drums", "V31", "TD-313", "TD-316", and "VAD316" are trademarks
+or registered trademarks of Roland Corporation. This project is an
+independent, community-built accessibility tool. It is NOT affiliated with,
+endorsed by, sponsored by, or supported by Roland Corporation. Product names
+are used only to describe interoperability.
+
+────────────────────────────────────────────────────────────────────────
+Third-party documentation (not redistributed)
+────────────────────────────────────────────────────────────────────────
+This project interoperates with the Roland V31 using the publicly published
+"V31 MIDI Implementation" (v2.00) and "V31 Data List" documents, which are
+© Roland Corporation. Those documents are NOT included in this repository.
+The repository contains only independently authored data and notes derived
+from publicly documented facts (SysEx addresses, parameter ranges, instrument
+numbers). See docs/vendor/README.md for how to obtain the official documents.

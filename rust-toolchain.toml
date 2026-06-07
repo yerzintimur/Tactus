@@ -1,0 +1,6 @@
+# Pins the toolchain so CI, local dev, and the Gradle/Xcode builds agree.
+# Currently pinned to the installed stable (1.93.0). iOS/Android targets are
+# added when switching to a rustup-managed toolchain (see Task: iOS toolchain).
+[toolchain]
+channel = "1.93.0"
+components = ["rustfmt", "clippy"]

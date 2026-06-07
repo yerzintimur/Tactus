@@ -1,0 +1,63 @@
+# ─────────────────────────────────────────────────────────────
+#  Vendor documentation (Roland) — DO NOT COMMIT
+#  These PDFs are © Roland Corporation. Redistributing them in a
+#  public repo would infringe copyright. Keep them locally for
+#  reference; the repo only ships our own derived data (JSON, docs).
+#  See docs/vendor/README.md for where to download the originals.
+# ─────────────────────────────────────────────────────────────
+docs/vendor/*.pdf
+docs/vendor/*.PDF
+reference/**
+!reference/.gitkeep
+
+# ── Rust core ──
+/core/target/
+**/target/
+# Cargo.lock IS committed — we ship apps/libraries and want reproducible builds.
+**/*.rs.bk
+*.pdb
+
+# ── UniFFI / generated bindings ──
+**/generated/
+*.uniffi.swift
+*.uniffi.kt
+
+# ── Android ──
+*.iml
+.gradle/
+/android/local.properties
+/android/.idea/
+/android/build/
+/android/app/build/
+/android/captures/
+/android/.cxx/
+*.apk
+*.aab
+*.keystore
+*.jks
+
+# ── iOS / Xcode ──
+/ios/build/
+/ios/DerivedData/
+*.xcuserstate
+**/xcuserdata/
+*.xcscmblueprint
+Pods/
+*.ipa
+
+# ── Web MIDI PoC (Node/TS) ──
+node_modules/
+dist/
+*.tsbuildinfo
+.env
+.env.local
+
+# ── Claude Code (local/personal) ──
+.claude/settings.local.json
+
+# ── macOS / editors ──
+.DS_Store
+.vscode/
+!.vscode/extensions.json
+*.swp
+*~

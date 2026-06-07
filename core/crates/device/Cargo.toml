@@ -1,0 +1,11 @@
+[package]
+name = "device"
+description = "Device profiles: schema, registry, and auto-detection (multi-device support)."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+sysex = { workspace = true }
