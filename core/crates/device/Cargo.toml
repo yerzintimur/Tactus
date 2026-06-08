@@ -9,3 +9,5 @@ authors.workspace = true
 
 [dependencies]
 sysex = { workspace = true }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
