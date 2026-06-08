@@ -166,6 +166,7 @@ fn parse_roland(b: &[u8], model_id: &[u8]) -> Result<SysexMessage, ParseError> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use proptest::prelude::*;
 
     const V31_MODEL: [u8; 3] = [0x01, 0x06, 0x01];
 
@@ -213,5 +214,16 @@ mod tests {
     #[test]
     fn parse_too_short_errs() {
         assert_eq!(parse(&[0xF0], &V31_MODEL), Err(ParseError::TooShort));
+    }
+
+    proptest! {
+        /// Robustness: parsing arbitrary bytes must never panic, for any Model ID.
+        #[test]
+        fn parse_never_panics(
+            bytes in proptest::collection::vec(any::<u8>(), 0..256),
+            model_id in proptest::collection::vec(0u8..128, 0..4),
+        ) {
+            let _ = parse(&bytes, &model_id);
+        }
     }
 }
