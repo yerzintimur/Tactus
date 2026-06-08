@@ -1,16 +1,25 @@
-# V31 Vision
+# Tactus
 
-> **Working name** — not final (see [SPEC §14](docs/SPEC.md#14-risks-and-open-questions)).
-> The starter doc called it "V31 Voice".
-
-**An accessible companion app for blind and low-vision drummers using the Roland
-V31 drum module.** Choose kits, read and edit settings, and build custom kits —
-all by ear, through your phone's screen reader and speech, without ever needing to
-see the module's screen.
+**An accessibility-first companion app for blind and low-vision drummers**,
+starting with the Roland V31 drum module. Choose kits, read and edit settings, and
+build custom kits — all by ear, through your phone's screen reader, speech, and
+voice, without ever needing to see the module's screen.
 
 The Roland V31 (TD-313 / TD-316 / VAD316 kits) has a colour screen and **no
-built-in accessibility**. This project makes the phone the accessible interface
-and the module a headless sound engine, talking over MIDI SysEx.
+built-in accessibility**. Tactus makes the phone the accessible interface and the
+module a headless sound engine, talking over MIDI SysEx.
+
+## What "Tactus" means
+
+Tactus takes its name from two meeting ideas. In Renaissance music, the tactus was
+the steady beat a conductor marked with the hand — the felt pulse that held an
+ensemble together before anyone wrote it on a page. In Latin, the same word simply
+means touch: perception through the body rather than the eye. That intersection is
+the whole point. Tactus is built blind-first, for drummers who play by ear and feel
+rather than by reading a screen. It turns your drum module into something you can
+hear and control by voice, so the instrument speaks back to you — its kits, its
+settings, its sound — and gets out of the way so you can keep time. The name isn't
+about what's missing. It's about the senses that were always doing the real work.
 
 ## ⭐ Philosophy: Nonvisual-first
 
@@ -72,11 +81,34 @@ and the reasoning. The repo ships only our own derived data and notes.
 
 ---
 
+## Free, forever
+
+Tactus is free, and it will stay free. Sighted musicians have never had to pay a
+toll to read the screen on their own gear — that access is simply built in. Blind
+and visually impaired drummers deserve the same: not a charity, not a premium tier,
+not a subscription standing between a person and the instrument they already own.
+Accessibility shouldn't be a paid upgrade. Tactus exists to close that gap, so that
+a blind drummer can browse kits, change settings, and build their own sound with
+exactly the independence everyone else takes for granted. No paywalls, no ads, no
+locked features — just equal access to the instrument, full stop.
+
+Running the project does carry real costs, though — developer accounts, hosting for
+the instrument catalog, and the ongoing work of supporting more modules. That's
+where supporters come in. If you believe blind and visually impaired musicians
+deserve the same access to their instruments as everyone else, and you'd like to
+help keep Tactus alive and growing, donations are welcome and deeply appreciated.
+This is aimed at people who want to back the cause — not at the musicians who rely
+on the app. If Tactus is your tool for playing, you owe nothing, ever. The app is
+yours in full, exactly as it is for everyone else.
+
+> _Donation links: TBD — to be added before public release._
+
 ## Status
 
-Specification draft. No code yet. Next concrete step: a throwaway **Web MIDI PoC**
-to prove the SysEx round-trip and answer the persistence question
-([ROADMAP](ROADMAP.md)).
+Early development, **iOS-first**, targeting the **Roland V31**. The Rust core is
+scaffolded and the device-agnostic **SysEx codec is implemented and tested**
+against the spec's golden vectors. Next up: value encodings + address arithmetic,
+then the device profile and the session engine. See [ROADMAP.md](ROADMAP.md).
 
 ## License
 

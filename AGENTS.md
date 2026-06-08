@@ -7,20 +7,21 @@ short, authoritative orientation; the deep design lives in [docs/](docs/).
 
 ## What this is
 
-An **accessibility-first companion app** for **blind and low-vision drummers** who
-use Roland electronic drum modules. The phone becomes the accessible interface
-(screen reader + speech) and the module is driven over **MIDI SysEx**. Targets
-**iOS + Android**, sharing a single **Rust core**.
+**Tactus** — an **accessibility-first companion app** for **blind and low-vision
+drummers** who use Roland electronic drum modules. The phone becomes the accessible
+interface (screen reader + speech + voice) and the module is driven over **MIDI
+SysEx**. Targets **iOS + Android**, sharing a single **Rust core**. (Name origin &
+mission: see [README](README.md).)
 
-Originally built for the **Roland V31**, but the architecture is **device-agnostic
-by design** (see [Multi-device](#multi-device-architecture)) — V51/V71 and future,
-unreleased modules are added as **data (device profiles)**, ideally with no code
-changes.
+Built **iOS-first**, for the **Roland V31** for now — but the architecture is
+**device-agnostic by design** (see [Multi-device](#multi-device-architecture)):
+V51/V71 and future, unreleased modules are added as **data (device profiles)**,
+ideally with no code changes.
 
-> The working repo name is `v31-vision`. Because the project is multi-device, a
-> **device-agnostic product name is recommended** before going public (e.g.
-> "DrumVoice", "Percura", "VDrum Vision" — TBD). Keep code namespaces neutral
-> (`sysex`, `device`, `model`, `engine`, `ffi`), never `v31`.
+> The repo directory is still `v31-vision` (cosmetic rename to `tactus` deferred).
+> The shared core library builds as **`libtactus`** (FFI crate `tactus`). Keep code
+> namespaces neutral/brand-based (`sysex`, `device`, `model`, `engine`, `tactus`),
+> never `v31`.
 
 ---
 
@@ -75,6 +76,10 @@ mechanics (code) from the per-device model (data).**
 - On connect, the app sends an **Identity Request**; the **Identity Reply's Model
   ID** selects the matching profile (auto-detect). Unknown module → graceful
   generic/degraded mode + an invitation to contribute a profile.
+- **Firmware:** the Identity Reply also carries the **4-byte firmware version**.
+  Each profile lists the firmware it was **tested** against; an untested version is
+  **announced at connect but never blocked** — the app keeps working
+  ([ADR-0009](docs/adr/0009-firmware-compatibility-policy.md)).
 - **Future modules** ship as a new profile (data), downloadable as a "profile
   pack" without an app update where possible.
 
@@ -123,7 +128,7 @@ I/O. This makes the core fully deterministic and unit-testable.
 
 | Area | Choice | Version (verify) |
 |------|--------|------------------|
-| Rust | toolchain, edition 2024 | 1.95.x |
+| Rust | toolchain, edition 2024 | 1.93.x (installed; pinned in `rust-toolchain.toml`) |
 | FFI | **UniFFI** (proc-macro, library mode) | 0.31.x · keep `uniffi`/`uniffi-bindgen` identical |
 | Android pkg | cargo-ndk + NDK (16 KB pages) | cargo-ndk 4.1.2 · NDK r28+ |
 | Android FFI | JNA direct mapping (UniFFI default) | JNA ≥ 5.12.0 `@aar` |
@@ -141,9 +146,34 @@ See full rationale, alternatives, and exact build commands in
 
 ## Conventions
 
+- **Builds run in Docker.** All Rust core builds/tests/lints — and later Android
+  and tooling — run in the pinned image (`docker/Dockerfile`, Rust 1.93.0) via
+  **`scripts/cargo-docker.sh`** (or `just test-core` / `just build-core`). Don't
+  invoke host `cargo` for core work; keep the host clean and builds reproducible.
+  Caches + build dir live in `.docker/` (git-ignored). **Exception — the iOS leg**
+  (Xcode, XCFramework, the `*-apple-ios` targets, simulator, device) runs on
+  **host macOS + Xcode**: Apple's toolchain cannot run in Docker.
 - **Rust:** `cargo fmt` + `cargo clippy -D warnings`; release profile uses
   `lto`, `panic = "abort"`, `strip`, `opt-level = "z"`. Pure logic in `core`,
   thin platform code in `apps/*`.
+- **Code layout (idiomatic Rust, not "one item per file"):** the *crates*
+  (`sysex`/`device`/`model`/`engine`/`tactus`) are the architectural layers —
+  the compiler enforces the dependency direction (lower crates can't see higher
+  ones). *Inside* a crate, decompose by **cohesive module/concern** (`src/lib.rs`
+  stays thin: module declarations + `pub use` re-exports + crate docs; each
+  concern is its own `src/<concern>.rs`, e.g. `sysex` → `checksum.rs`,
+  `message.rs`). Split when a file grows past one clear concern — **don't**
+  over-shard into a file per function/type.
+- **Testing (cover the maximum):**
+  - **Unit tests** inline as `#[cfg(test)] mod tests` in the same file (can see
+    private items).
+  - **Integration tests** in `<crate>/tests/*.rs` pin the **public** contract
+    (e.g. `sysex/tests/golden_vectors.rs`).
+  - **Doc tests** on public functions (runnable examples).
+  - **Property tests** (`proptest`) and **fuzz** (`cargo-fuzz`) for codecs/parsers
+    (encodings, address math, SysEx reassembly).
+  - Everything stays green: `cargo fmt --check`, `cargo clippy -D warnings`,
+    `cargo test` (see `just test-core`); CI enforces this on every push.
 - **Speech strings** come from the core (localized via Fluent), not hardcoded in
   the UI — single tested source of phrasing across platforms.
 - **Anything device-specific → a profile, not code.**
@@ -165,6 +195,7 @@ See full rationale, alternatives, and exact build commands in
 - [0006](docs/adr/0006-nonvisual-first.md) Nonvisual-first philosophy.
 - [0007](docs/adr/0007-device-profile-abstraction.md) Device-profile abstraction for multi-device support.
 - [0008](docs/adr/0008-sans-io-core-and-i18n.md) Sans-I/O core + i18n (Fluent) in the core.
+- [0009](docs/adr/0009-firmware-compatibility-policy.md) Firmware compatibility — detect, announce, never block.
 
 ## Deep design
 

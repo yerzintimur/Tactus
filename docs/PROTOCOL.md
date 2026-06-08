@@ -155,6 +155,11 @@ parameter-map JSON, §13 of SPEC, cross-checked against the Data List.)
   → announce. This keeps the app in sync with physical knob-turning.
 - The module also pushes DT1 in response to RQ1 (normal read), and sends Identity
   Reply to an Identity Request.
+- **Identity Reply carries the firmware version** — the 4-byte software-revision
+  field (`F0 7E dd 06 02 mm ff ff nn nn vv vv vv vv F7`, the `vv vv vv vv`). This
+  is how we read the connected module's firmware (no separate request). The exact
+  mapping of those 4 bytes to a human version string is **verify-on-HW**. Used by
+  the firmware-compatibility policy ([ADR-0009](adr/0009-firmware-compatibility-policy.md)).
 
 ---
 

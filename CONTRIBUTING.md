@@ -1,4 +1,4 @@
-# Contributing to V31 Vision
+# Contributing to Tactus
 
 Thank you for helping make drumming gear accessible. **One rule shapes everything
 here:**

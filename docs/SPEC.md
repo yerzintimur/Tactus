@@ -1,9 +1,8 @@
-# V31 Vision — Project Specification
+# Tactus — Project Specification
 
-> Working name. The repo directory is `v31-vision`; the starter doc called it
-> "V31 Voice". Name is **not final** — see [Open question N-1](#naming).
-> Status: **Specification draft.** This document is the source of truth for
-> *what* we build and *why*. Companion docs:
+> Project name: **Tactus** (the repo directory is still `v31-vision`; rename is
+> cosmetic and deferred). Status: **Specification draft.** This document is the
+> source of truth for *what* we build and *why*. Companion docs:
 > [ACCESSIBILITY.md](ACCESSIBILITY.md) (how we serve blind users),
 > [PROTOCOL.md](PROTOCOL.md) (V31 MIDI/SysEx, derived facts + golden vectors).
 
@@ -288,6 +287,10 @@ points that shape the app:
 - **Current kit:** Program Change on kit change is **unreliable** (≤128, depends
   on PROG CHG mapping) → **poll `Current`** as the source of truth; treat any
   inbound PC as a hint to re-poll.
+- **Firmware version:** the **Identity Reply** carries a 4-byte firmware version.
+  Each device profile records the firmware it was tested against; an **untested
+  firmware is announced at connect but never blocks** the app
+  ([ADR-0009](adr/0009-firmware-compatibility-policy.md), [DEVELOPMENT §3.4](DEVELOPMENT.md#34-совместимость-прошивки-firmware)).
 
 ---
 
@@ -430,8 +433,9 @@ Detailed rules and the screen-reader coexistence strategy live in
    TalkBack while also speaking live events (§11).
 6. **Voice recognition in noise** — confirms voice is a convenience layer, not a
    foundation (§5).
-7. <a name="naming"></a>**Naming** — "V31 Voice" vs "V31 Vision" vs other. Must
-   avoid implying Roland affiliation (see NOTICE).
+7. <a name="naming"></a>**Naming** — ✅ resolved: the project is **Tactus**
+   (device-agnostic; avoids implying Roland affiliation, see NOTICE). The repo
+   directory rename (`v31-vision` → `tactus`) is cosmetic and deferred.
 
 ---
 
