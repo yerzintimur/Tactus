@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "profile_id": "roland-v31",
+  "display_name": "Roland V31",
+  "family": "roland-vdrums",
+  "model_id": [1, 6, 1],
+  "device_id_default": 16,
+  "source": "Derived from Roland 'V31 MIDI Implementation' v2.00 (2025-11-11) and 'V31 Data List' (eng02), (c) Roland. Facts only; see docs/PROTOCOL.md. Verify writes/persistence and the firmware version-byte format on hardware (tasks #14).",
+  "firmware": {
+    "tested": [],
+    "version_format": "raw4"
+  },
+  "capabilities": {
+    "kit_count": 200,
+    "fx_slots": 4,
+    "features": ["transmit_edit_data", "ambience", "bus_fx", "set_lists"]
+  },
+  "areas": {
+    "current": { "address": [0, 0, 0, 0] },
+    "setup":   { "address": [1, 0, 0, 0] },
+    "trigger": { "address": [2, 0, 0, 0], "stride": [0, 1, 0, 0], "count": 16 },
+    "setlist": { "address": [3, 0, 0, 0], "stride": [0, 0, 16, 0], "count": 32 },
+    "kit":     { "address": [4, 0, 0, 0], "stride": [0, 4, 0, 0], "count": 200 }
+  },
+  "parameters": [
+    {
+      "id": "current.kit_num",
+      "area": "current",
+      "offset": [0, 0],
+      "len": 4,
+      "encoding": "nibble",
+      "range": { "min": 0, "max": 199 },
+      "i18n_key": "param.kit_num"
+    },
+    {
+      "id": "kit.common.name",
+      "area": "kit",
+      "offset": [0, 0],
+      "len": 16,
+      "encoding": "ascii",
+      "i18n_key": "param.kit_name"
+    },
+    {
+      "id": "kit.common.sub_name",
+      "area": "kit",
+      "offset": [0, 16],
+      "len": 16,
+      "encoding": "ascii",
+      "i18n_key": "param.kit_sub_name"
+    },
+    {
+      "id": "kit.common.tempo",
+      "area": "kit",
+      "offset": [0, 108],
+      "len": 4,
+      "encoding": "nibble",
+      "scale": 10,
+      "unit": "bpm",
+      "range": { "min": 200, "max": 2600 },
+      "i18n_key": "param.tempo"
+    },
+    {
+      "id": "kit.common.tempo_switch",
+      "area": "kit",
+      "offset": [0, 112],
+      "len": 1,
+      "encoding": "plain7",
+      "range": { "min": 0, "max": 1 },
+      "i18n_key": "param.tempo_switch"
+    }
+  ],
+  "catalogs": {}
+}

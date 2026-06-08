@@ -3,6 +3,9 @@
 
 use crate::profile::DeviceProfile;
 
+/// Built-in profile JSON, embedded at compile time from `profiles/`.
+const ROLAND_V31_JSON: &str = include_str!("../../../../profiles/roland-v31.json");
+
 /// A collection of device profiles, looked up by Model ID.
 ///
 /// Built-in profiles are registered at startup (task #6 embeds the V31 profile);
@@ -15,6 +18,18 @@ pub struct ProfileRegistry {
 impl ProfileRegistry {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// A registry preloaded with all built-in profiles (currently the V31).
+    ///
+    /// Panics only if a compiled-in profile is malformed — a build-time bug caught
+    /// by tests, not a runtime condition.
+    pub fn with_builtin() -> Self {
+        let mut reg = Self::new();
+        reg.register(
+            DeviceProfile::from_json(ROLAND_V31_JSON).expect("built-in V31 profile must be valid"),
+        );
+        reg
     }
 
     /// Add a profile (built-in or downloaded).
