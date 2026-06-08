@@ -13,6 +13,8 @@ reference/**
 # ── Rust core ──
 /core/target/
 **/target/
+# Docker-based build caches + isolated target dir (see scripts/cargo-docker.sh)
+.docker/
 # Cargo.lock IS committed — we ship apps/libraries and want reproducible builds.
 **/*.rs.bk
 *.pdb

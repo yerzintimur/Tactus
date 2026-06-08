@@ -1,0 +1,11 @@
+# Keep the Docker build context tiny (the image COPYs nothing; this just speeds
+# the context transfer and avoids leaking large/private files).
+.git/
+target/
+.docker/
+node_modules/
+reference/
+docs/vendor/*.pdf
+apps/ios/build/
+apps/ios/DerivedData/
+**/.DS_Store
