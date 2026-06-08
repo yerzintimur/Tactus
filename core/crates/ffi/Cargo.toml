@@ -1,6 +1,6 @@
 [package]
-name = "drumcore"
-description = "UniFFI public API for the shared core (lib name avoids clashing with system libffi)."
+name = "tactus"
+description = "Tactus core: the UniFFI public API for the shared Rust core (builds libtactus)."
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

@@ -10,13 +10,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "drumcore"
-version = "0.1.0"
-dependencies = [
- "engine",
-]
-
-[[package]]
 name = "engine"
 version = "0.1.0"
 dependencies = [
@@ -36,3 +29,10 @@ dependencies = [
 [[package]]
 name = "sysex"
 version = "0.1.0"
+
+[[package]]
+name = "tactus"
+version = "0.1.0"
+dependencies = [
+ "engine",
+]

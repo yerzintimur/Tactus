@@ -15,7 +15,7 @@ version = "0.1.0"
 edition = "2024"
 rust-version = "1.93"
 license = "Apache-2.0"
-authors = ["The V31 Vision contributors"]
+authors = ["The Tactus contributors"]
 
 # Internal crates referenced as `{ workspace = true }` from member Cargo.toml files.
 [workspace.dependencies]

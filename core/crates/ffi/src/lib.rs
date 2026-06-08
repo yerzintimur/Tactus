@@ -1,5 +1,5 @@
 //! UniFFI public API surface for the shared core (Session, callback interfaces,
-//! records/enums). Kept thin — it wraps `engine`. Built as `libdrumcore`.
+//! records/enums). Kept thin — it wraps `engine`. Built as `libtactus`.
 //!
 //! See docs/DEVELOPMENT.md §6 (FFI contract). UniFFI scaffolding is added in the
 //! "Define the UniFFI public API" task.
