@@ -13,10 +13,17 @@ interface (screen reader + speech + voice) and the module is driven over **MIDI
 SysEx**. Targets **iOS + Android**, sharing a single **Rust core**. (Name origin &
 mission: see [README](README.md).)
 
-Built **iOS-first**, for the **Roland V31** for now — but the architecture is
-**device-agnostic by design** (see [Multi-device](#multi-device-architecture)):
-V51/V71 and future, unreleased modules are added as **data (device profiles)**,
-ideally with no code changes.
+Built **iOS-first**, for the **Roland V31** for now. The architecture is
+**device-agnostic _across Roland modules_** (see [Multi-device](#multi-device-architecture)):
+V51/V71 and future Roland modules are added as **data (device profiles)**, ideally
+with no code changes.
+
+> **North star (deferred, not built yet):** Tactus is meant to grow into a
+> **data-driven platform delivering nonvisual interfaces to _any_ electronic
+> instrument** — beyond drums, beyond Roland — with **profiles served from a
+> backend and downloaded on demand**. We deliberately keep that out of scope now
+> but keep the seams cheap. So the precise claim today is "Roland-device-agnostic",
+> **not** vendor/instrument-agnostic. See [ADR-0012](docs/adr/0012-scope-and-generalization-path.md).
 
 > The repo directory is still `v31-vision` (cosmetic rename to `tactus` deferred).
 > The shared core library builds as **`libtactus`** (FFI crate `tactus`). Keep code
@@ -198,6 +205,7 @@ See full rationale, alternatives, and exact build commands in
 - [0009](docs/adr/0009-firmware-compatibility-policy.md) Firmware compatibility — detect, announce, never block.
 - [0010](docs/adr/0010-device-instances-and-source-of-truth.md) Device instances vs types; device is the source of truth.
 - [0011](docs/adr/0011-mixed-language-speech.md) Mixed-language speech — per-segment language tagging.
+- [0012](docs/adr/0012-scope-and-generalization-path.md) Scope now = Roland drums; vision = any instrument/vendor, server-delivered profiles (deferred).
 
 ## Deep design
 

@@ -87,13 +87,18 @@ UI/cursor/menu state is not in the MIDI model. Instead:
 
 See [ADR-0001](adr/0001-replace-not-mirror.md).
 
-**Device-agnostic by design.** We start with the Roland V31, but the app is built
-for **multiple modules** (V51/V71 and future, unreleased ones). Roland's SysEx
-mechanics are shared across modules; only the data differs (Model ID, address map,
-catalogs, capabilities). So everything module-specific is a **`DeviceProfile`**
-(data), auto-selected from the device's Identity Reply, and the code stays generic
-— never hardcode V31. See [ADR-0007](adr/0007-device-profile-abstraction.md) and
-[DEVELOPMENT.md §3](DEVELOPMENT.md#3-мульти-девайс-профили-устройств).
+**Device-agnostic across Roland modules.** We start with the Roland V31, but the
+app is built for **multiple Roland modules** (V51/V71 and future, unreleased ones).
+Roland's SysEx mechanics are shared across modules; only the data differs (Model ID,
+address map, catalogs, capabilities). So everything module-specific is a
+**`DeviceProfile`** (data), auto-selected from the device's Identity Reply, and the
+code stays generic — never hardcode V31. See [ADR-0007](adr/0007-device-profile-abstraction.md)
+and [DEVELOPMENT.md §3](DEVELOPMENT.md#3-мульти-девайс-профили-устройств).
+
+> This is **not** vendor- or instrument-agnostic *yet*. The longer-term vision —
+> nonvisual interfaces for any electronic instrument, any vendor, with
+> server-delivered profiles — is a deliberately deferred north star with cheap
+> seams kept open. See [ADR-0012](adr/0012-scope-and-generalization-path.md).
 
 ---
 
