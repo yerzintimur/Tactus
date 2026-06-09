@@ -15,7 +15,8 @@ final class CoreSession: ObservableObject {
     @Published private(set) var connection: ConnectionState = .disconnected
     @Published private(set) var device: DeviceInfo?
     @Published private(set) var currentKit: String?
-    /// Most recent spoken announcement (the future speech layer reads this).
+    @Published private(set) var currentKitNumber: UInt32?
+    /// Most recent spoken announcement, mirrored for the UI.
     @Published private(set) var lastSpoken: String = ""
     @Published private(set) var log: [String] = []
 
@@ -51,6 +52,15 @@ final class CoreSession: ObservableObject {
     func disconnected() { perform(core.onDisconnected()) }
     func receive(_ bytes: Data) { perform(core.handleMidiInput(bytes: bytes)) }
     func selectKit(_ number: UInt32) { perform(core.selectKit(number: number)) }
+    func renameKit(_ number: UInt32, to name: String) { perform(core.renameKit(number: number, name: name)) }
+
+    /// Step to the adjacent kit. The core verifies the result and announces the
+    /// actual kit; an out-of-range request just fails (reported via EditFailed).
+    func nextKit() { selectKit((currentKitNumber ?? 0) + 1) }
+    func previousKit() {
+        guard let number = currentKitNumber, number > 0 else { return }
+        selectKit(number - 1)
+    }
     func setLocale(_ locale: String) {
         core.setLocale(locale: locale)
         speech.setLocale(locale)
@@ -83,7 +93,8 @@ final class CoreSession: ObservableObject {
         case .deviceIdentified(let info):
             device = info
             append("device: \(info.name) — fw \(info.firmware)")
-        case .currentKitChanged(_, let name):
+        case .currentKitChanged(let number, let name):
+            currentKitNumber = number
             currentKit = name
         case .editConfirmed(_, let display):
             append("✓ \(display)")
