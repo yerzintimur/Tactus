@@ -21,6 +21,8 @@ final class CoreSession: ObservableObject {
 
     private let core: TactusSession
     private let transport = MidiTransport()
+    private let speech: SpeechService
+    private let earcons = EarconService()
 
     /// Set by `startMidi()` to the transport's sender. When nil (e.g. before
     /// startup, or in previews), outbound MIDI is logged instead of sent.
@@ -28,6 +30,7 @@ final class CoreSession: ObservableObject {
 
     init(locale: String = CoreSession.currentLanguage()) {
         core = TactusSession(locale: locale)
+        speech = SpeechService(locale: locale)
     }
 
     /// Wire up CoreMIDI and start listening. Call once when the app appears.
@@ -48,7 +51,10 @@ final class CoreSession: ObservableObject {
     func disconnected() { perform(core.onDisconnected()) }
     func receive(_ bytes: Data) { perform(core.handleMidiInput(bytes: bytes)) }
     func selectKit(_ number: UInt32) { perform(core.selectKit(number: number)) }
-    func setLocale(_ locale: String) { core.setLocale(locale: locale) }
+    func setLocale(_ locale: String) {
+        core.setLocale(locale: locale)
+        speech.setLocale(locale)
+    }
     func tick() { perform(core.tick(nowMs: Self.nowMs())) }
 
     // MARK: - Effect handling
@@ -85,8 +91,10 @@ final class CoreSession: ObservableObject {
             append("✗ \(reason)")
         case .speak(let speech):
             lastSpoken = speech.text
+            self.speech.speak(speech)
             append("🔊 \(speech.text)")
         case .earcon(let earcon):
+            earcons.play(earcon)
             append("🔔 \(earcon)")
         case .error(let message):
             append("error: \(message)")
