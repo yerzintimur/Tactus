@@ -50,6 +50,7 @@ inverse of "build it visual, then bolt on accessibility." Litmus test:
 | **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** | Deep development/architecture spec: device profiles, core crates, UniFFI contract, i18n, build/CI, versions, trade-offs. *(Russian, temporary.)* |
 | **[docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md)** | How we serve blind users; the input-modality decision; concrete a11y requirements & testing. **Read if you've never built for blind users.** |
 | **[docs/PROTOCOL.md](docs/PROTOCOL.md)** | V31 MIDI/SysEx: framing, checksum, addresses, value encodings, **golden test vectors**. |
+| **[docs/HARDWARE_TESTING.md](docs/HARDWARE_TESTING.md)** | Is testing against a real V31 safe? (yes) + the per-session safety/debug protocol. |
 | **[ROADMAP.md](ROADMAP.md)** | Phased plan: PoC → MVP → V1. |
 | **[CONTRIBUTING.md](CONTRIBUTING.md)** | The Nonvisual-first contributor gate + PR checklist. |
 | **[docs/adr/](docs/adr/)** | Architecture decision records (incl. [ADR-0006: Nonvisual-first](docs/adr/0006-nonvisual-first.md)). |

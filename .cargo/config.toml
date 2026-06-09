@@ -1,0 +1,6 @@
+# Absolute path to the workspace root, exposed to the compiler so crates can embed
+# shared data files (e.g. `profiles/`) with a root-anchored path instead of a
+# fragile `../../../../` chain. `relative = true` resolves the value against the
+# directory that contains this `.cargo/` folder — i.e. the repo root.
+[env]
+WORKSPACE_DIR = { value = "", relative = true }

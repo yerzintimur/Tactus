@@ -3,8 +3,10 @@
 
 use crate::profile::DeviceProfile;
 
-/// Built-in profile JSON, embedded at compile time from `profiles/`.
-const ROLAND_V31_JSON: &str = include_str!("../../../../profiles/roland-v31.json");
+/// Built-in profile JSON, embedded at compile time from the workspace-root
+/// `profiles/` dir. `WORKSPACE_DIR` is defined in `.cargo/config.toml`.
+const ROLAND_V31_JSON: &str =
+    include_str!(concat!(env!("WORKSPACE_DIR"), "/profiles/roland-v31.json"));
 
 /// A collection of device profiles, looked up by Model ID.
 ///
