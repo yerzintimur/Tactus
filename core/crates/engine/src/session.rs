@@ -328,6 +328,15 @@ impl Session {
     }
 
     fn poll_current(&mut self) -> Vec<Effect> {
+        // Don't poll over an in-flight edit: a Current poll would clobber an edit's
+        // pending read-back (they key the same address) and lose the verification.
+        if self
+            .pending
+            .values()
+            .any(|p| matches!(p, Pending::EditVerify(_)))
+        {
+            return Vec::new();
+        }
         self.request_read("current.kit_num", &[], Pending::CurrentKitNum)
             .into_iter()
             .collect()
@@ -893,6 +902,50 @@ mod tests {
             events
                 .iter()
                 .any(|e| matches!(e, CoreEvent::Speak(sp) if sp.text == "Kit 1: Rock"))
+        );
+    }
+
+    #[test]
+    fn rename_kit_confirmed_by_readback() {
+        let mut fake = FakeModule::v31();
+        let mut s = Session::new("en");
+        let init = s.on_connected();
+        drive(&mut s, &mut fake, init); // Ready, kit 4
+
+        let fx = s.rename_kit(4, "Funk".to_string());
+        let events = drive(&mut s, &mut fake, fx);
+        assert!(events.iter().any(|e| matches!(e,
+            CoreEvent::EditConfirmed { display, .. } if display == "Funk")));
+    }
+
+    #[test]
+    fn disconnect_resets_and_earcons() {
+        let mut fake = FakeModule::v31();
+        let mut s = Session::new("en");
+        let init = s.on_connected();
+        drive(&mut s, &mut fake, init); // Ready
+
+        let fx = s.on_disconnected();
+        assert_eq!(s.state(), ConnectionState::Disconnected);
+        assert!(
+            fx.iter()
+                .any(|e| matches!(e, Effect::Emit(CoreEvent::Earcon(Earcon::Disconnected))))
+        );
+    }
+
+    #[test]
+    fn poll_does_not_clobber_an_in_flight_edit() {
+        let mut fake = FakeModule::v31();
+        let mut s = Session::new("en");
+        let init = s.on_connected();
+        drive(&mut s, &mut fake, init); // Ready
+
+        let _ = s.select_kit(0); // leaves an edit-verify pending on Current
+        // A tick must NOT issue a Current poll (which would clobber that pending).
+        let tick_fx = s.tick(1000);
+        assert!(
+            !tick_fx.iter().any(|e| matches!(e, Effect::SendMidi(_))),
+            "poll must be skipped while an edit is in flight"
         );
     }
 }
