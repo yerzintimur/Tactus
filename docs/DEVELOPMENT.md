@@ -378,7 +378,14 @@ pub struct DeviceInfo {
 pub struct KitRef { pub number: u32, pub name: String }
 
 #[derive(uniffi::Record)]
-pub struct LocalizedText { pub key: String, pub text: String } // text уже отрендерен core под текущую локаль
+pub struct SpeechSpan { pub text: String, pub lang: String } // lang = BCP-47 (для смешанной озвучки)
+
+#[derive(uniffi::Record)]
+pub struct LocalizedText {
+    pub key: String,
+    pub text: String,            // плоская строка (для дисплея) — конкатенация spans
+    pub spans: Vec<SpeechSpan>,  // сегменты с языком: имена устройства помечены "en" (ADR-0011)
+}
 
 #[derive(uniffi::Enum)]
 pub enum SpeechPriority { Low, Default, High } // маппинг на платформенные приоритеты анонсов

@@ -196,6 +196,8 @@ See full rationale, alternatives, and exact build commands in
 - [0007](docs/adr/0007-device-profile-abstraction.md) Device-profile abstraction for multi-device support.
 - [0008](docs/adr/0008-sans-io-core-and-i18n.md) Sans-I/O core + i18n (Fluent) in the core.
 - [0009](docs/adr/0009-firmware-compatibility-policy.md) Firmware compatibility — detect, announce, never block.
+- [0010](docs/adr/0010-device-instances-and-source-of-truth.md) Device instances vs types; device is the source of truth.
+- [0011](docs/adr/0011-mixed-language-speech.md) Mixed-language speech — per-segment language tagging.
 
 ## Deep design
 

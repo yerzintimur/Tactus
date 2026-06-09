@@ -187,6 +187,24 @@ the screen reader is *also* speaking. Rules:
   (do not force a slow rate — power users run fast), and their volume.
 - **Performance mode** = terse speech + earcons, to stay out of the way.
 
+### Mixed-language speech (the spoken sentence is localized, the kit name isn't)
+
+The sentence is in the user's language ("Кит 5: …") but device-sourced names
+(kits, instruments) are usually **English ASCII** ("Jazz Funk"). One voice reading
+both mispronounces the foreign part. Fix = **per-segment language tagging**
+(ADR-0011):
+
+- **Screen reader (primary, works in MVP):** build an attributed accessibility
+  label and tag the foreign range with its language — iOS
+  `.accessibilitySpeechLanguage = "en-US"` on the kit-name range; Android
+  `LocaleSpan(Locale.ENGLISH)`. VoiceOver/TalkBack then voice "Кит 5:" in Russian
+  and "Jazz" in English. (Verify the Android `LocaleSpan` path on a device.)
+- **Own TTS:** **split into one utterance per language segment**, each with the
+  matching voice. Do *not* rely on mid-utterance SSML `<lang>` switching — on iOS
+  it's unreliable (utterance text and voice must share a language).
+- The core supplies the segments: `LocalizedText.spans` marks each run's language;
+  device content defaults to `en`.
+
 ---
 
 ## 5. Onboarding & help (don't assume sight anywhere)
