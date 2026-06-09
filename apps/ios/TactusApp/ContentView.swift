@@ -49,6 +49,7 @@ struct ContentView: View {
                 }
             }
             .navigationTitle("Tactus")
+            .task { session.startMidi() }
         }
     }
 

@@ -20,13 +20,26 @@ final class CoreSession: ObservableObject {
     @Published private(set) var log: [String] = []
 
     private let core: TactusSession
+    private let transport = MidiTransport()
 
-    /// Injected by the transport layer (task #13). Until then, outbound MIDI is
-    /// logged instead of sent.
+    /// Set by `startMidi()` to the transport's sender. When nil (e.g. before
+    /// startup, or in previews), outbound MIDI is logged instead of sent.
     var sendMidi: ((Data) -> Void)?
 
     init(locale: String = CoreSession.currentLanguage()) {
         core = TactusSession(locale: locale)
+    }
+
+    /// Wire up CoreMIDI and start listening. Call once when the app appears.
+    /// Endpoint availability drives connect/disconnect; inbound bytes are fed to
+    /// the core; the core's outbound MIDI is sent through the transport.
+    func startMidi() {
+        transport.onReceive = { [weak self] bytes in self?.receive(bytes) }
+        transport.onConnectionChange = { [weak self] available in
+            if available { self?.connected() } else { self?.disconnected() }
+        }
+        sendMidi = { [weak self] bytes in self?.transport.send(bytes) }
+        transport.start()
     }
 
     // MARK: - Inbound events (call these from the transport / UI)
