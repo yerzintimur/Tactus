@@ -124,4 +124,53 @@ mod tests {
                 if device.recognized && device.name == "Roland V31"
         )));
     }
+
+    #[test]
+    fn wrapper_surface_and_failure_conversions() {
+        let session = TactusSession::new("en".to_string());
+        let _ = session.on_connected();
+        // While identifying, a tick retries the handshake.
+        assert!(
+            session
+                .tick(0)
+                .iter()
+                .any(|e| matches!(e, Effect::SendMidi { .. }))
+        );
+
+        // An edit before a device is identified -> EditFailed + Speak + Earcon
+        // (exercises those From conversions through the FFI boundary).
+        let fx = session.set_parameter("kit.common.tempo".to_string(), vec![0], 1200);
+        assert!(fx.iter().any(|e| matches!(
+            e,
+            Effect::Emit {
+                event: CoreEvent::EditFailed { .. }
+            }
+        )));
+        assert!(fx.iter().any(|e| matches!(
+            e,
+            Effect::Emit {
+                event: CoreEvent::Speak { .. }
+            }
+        )));
+        assert!(fx.iter().any(|e| matches!(
+            e,
+            Effect::Emit {
+                event: CoreEvent::Earcon { .. }
+            }
+        )));
+
+        // Smoke the rest of the surface — no panics; exercises the wrappers.
+        let _ = session.select_kit(0);
+        let _ = session.rename_kit(0, "X".to_string());
+        session.set_locale("ru".to_string());
+        let fx = session.on_disconnected();
+        assert!(fx.iter().any(|e| matches!(
+            e,
+            Effect::Emit {
+                event: CoreEvent::Earcon {
+                    earcon: Earcon::Disconnected
+                }
+            }
+        )));
+    }
 }

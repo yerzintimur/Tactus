@@ -216,6 +216,34 @@ mod tests {
         assert_eq!(parse(&[0xF0], &V31_MODEL), Err(ParseError::TooShort));
     }
 
+    #[test]
+    fn parse_identity_reply_wrong_length_is_unknown() {
+        // The 06 02 marker but not the 15-byte single-manufacturer layout.
+        let bytes = [0xF0, 0x7E, 0x10, 0x06, 0x02, 0x41, 0xF7];
+        assert_eq!(parse(&bytes, &[]), Ok(SysexMessage::Unknown));
+    }
+
+    #[test]
+    fn parse_roland_non_dt1_command_is_unknown() {
+        // A valid Roland frame whose command isn't DT1 (here RQ1) -> Unknown.
+        let msg = build_rq1(0x10, &V31_MODEL, [0x04, 0x00, 0x00, 0x00], [0, 0, 0, 4]);
+        assert_eq!(parse(&msg, &V31_MODEL), Ok(SysexMessage::Unknown));
+    }
+
+    #[test]
+    fn parse_roland_truncated_errs() {
+        // F0 41 dev <model> cmd then immediately EOX — too short for a payload.
+        let bytes = [0xF0, 0x41, 0x10, 0x01, 0x06, 0x01, 0x12, 0xF7];
+        assert_eq!(parse(&bytes, &V31_MODEL), Err(ParseError::TooShort));
+    }
+
+    #[test]
+    fn parse_roland_foreign_model_id_is_unknown() {
+        // Right framing, different Model ID -> not ours.
+        let msg = build_dt1(0x10, &V31_MODEL, [0x04, 0x00, 0x52, 0x21], &[0x01]);
+        assert_eq!(parse(&msg, &[0x02, 0x03, 0x04]), Ok(SysexMessage::Unknown));
+    }
+
     proptest! {
         /// Robustness: parsing arbitrary bytes must never panic, for any Model ID.
         #[test]
