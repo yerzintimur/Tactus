@@ -248,6 +248,13 @@ shared (the Rust core, §6.1). No cross-platform UI framework.
 **Trade-off accepted:** two UI codebases to maintain. Mitigated by the thin-UI /
 shared-core split and a shared design spec so the two stay consistent.
 
+**Future (deferred):** per-device UI becomes **downloadable data** — a declarative
+description rendered by a **generic native renderer** per platform (you can't ship
+downloadable native code; WebView would hurt a11y). Native renderers keep the
+accessibility this decision is about. The core exposes a generic declarative
+view-model to make this additive, not a rewrite. See
+[ADR-0013](adr/0013-data-driven-ui-renderer.md).
+
 ---
 
 ## 7. Domain model

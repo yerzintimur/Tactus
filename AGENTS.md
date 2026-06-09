@@ -24,6 +24,13 @@ with no code changes.
 > backend and downloaded on demand**. We deliberately keep that out of scope now
 > but keep the seams cheap. So the precise claim today is "Roland-device-agnostic",
 > **not** vendor/instrument-agnostic. See [ADR-0012](docs/adr/0012-scope-and-generalization-path.md).
+>
+> Not only the profile — the **per-device UI is data too**: a declarative
+> description (downloadable per device) rendered by a **generic native renderer per
+> platform** (you can't download native code, and WebView would hurt a11y). The
+> core therefore exposes a **generic, declarative view-model**. MVP builds V31
+> screens by hand, but the FFI view-model stays renderer-friendly. See
+> [ADR-0013](docs/adr/0013-data-driven-ui-renderer.md).
 
 > The repo directory is still `v31-vision` (cosmetic rename to `tactus` deferred).
 > The shared core library builds as **`libtactus`** (FFI crate `tactus`). Keep code
@@ -206,6 +213,7 @@ See full rationale, alternatives, and exact build commands in
 - [0010](docs/adr/0010-device-instances-and-source-of-truth.md) Device instances vs types; device is the source of truth.
 - [0011](docs/adr/0011-mixed-language-speech.md) Mixed-language speech — per-segment language tagging.
 - [0012](docs/adr/0012-scope-and-generalization-path.md) Scope now = Roland drums; vision = any instrument/vendor, server-delivered profiles (deferred).
+- [0013](docs/adr/0013-data-driven-ui-renderer.md) Per-device UI = downloadable declarative description + generic native renderer (deferred).
 
 ## Deep design
 
