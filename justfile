@@ -54,3 +54,22 @@ build-ios:
 
 # cargo-swift fuses bindgen + packaging into one step.
 gen-bindings: build-ios
+
+# Generate apps/ios/Tactus.xcodeproj from project.yml (XcodeGen).
+# One-time host setup:  brew install xcodegen
+ios-gen:
+    cd apps/ios && xcodegen generate
+
+# Full iOS bootstrap: (re)build the core package, then (re)generate the project.
+ios-bootstrap: build-ios ios-gen
+    @echo "✅ open apps/ios/Tactus.xcodeproj in Xcode (scheme: TactusApp)"
+
+# Build the iOS app for the simulator (headless verification).
+ios-build:
+    xcodebuild -project apps/ios/Tactus.xcodeproj -scheme TactusApp \
+        -destination 'generic/platform=iOS Simulator' \
+        -derivedDataPath .docker/ios-derived build
+
+# Open the project in Xcode.
+ios-open:
+    open apps/ios/Tactus.xcodeproj

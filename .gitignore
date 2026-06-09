@@ -42,6 +42,9 @@ reference/**
 *.jks
 
 # ── iOS / Xcode ──
+# The .xcodeproj is generated from apps/ios/project.yml by `just ios-gen`
+# (XcodeGen) — commit the spec, not the generated project.
+/apps/ios/*.xcodeproj
 /ios/build/
 /ios/DerivedData/
 *.xcuserstate
