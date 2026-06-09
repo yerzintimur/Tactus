@@ -3,7 +3,8 @@
 //! model emits a [`Message`] (id + args) and the [`Localizer`] renders it for a
 //! locale. The OS provides only the TTS voice.
 
-use fluent::{FluentArgs, FluentBundle, FluentResource, FluentValue};
+use fluent::concurrent::FluentBundle; // Send + Sync — required so the core/FFI is thread-safe
+use fluent::{FluentArgs, FluentResource, FluentValue};
 use std::collections::HashMap;
 use unic_langid::LanguageIdentifier;
 
@@ -132,7 +133,7 @@ impl Localizer {
 fn build_bundle(lang: &str, ftl: &str) -> FluentBundle<FluentResource> {
     let langid: LanguageIdentifier = lang.parse().expect("valid language identifier");
     let resource = FluentResource::try_new(ftl.to_string()).expect("embedded FTL parses");
-    let mut bundle = FluentBundle::new(vec![langid]);
+    let mut bundle = FluentBundle::new_concurrent(vec![langid]);
     bundle
         .add_resource(resource)
         .expect("embedded FTL has no conflicts");
@@ -171,6 +172,13 @@ mod tests {
             .arg("number", 2u32)
             .arg("name", "Funk");
         assert_eq!(loc.format(&msg, "ru-RU"), "Кит 2: Funk");
+    }
+
+    #[test]
+    fn localizer_is_send_and_sync() {
+        // The FFI wraps the engine (which holds a Localizer) in a Send+Sync object.
+        fn assert_send_sync<T: Send + Sync>() {}
+        assert_send_sync::<Localizer>();
     }
 
     #[test]
