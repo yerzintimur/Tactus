@@ -5,6 +5,7 @@
   "family": "roland-vdrums",
   "model_id": [1, 6, 1],
   "device_id_default": 16,
+  "identity": { "manufacturer": 65, "family": [1, 6], "member": [3, 0] },
   "source": "Derived from Roland 'V31 MIDI Implementation' v2.00 (2025-11-11) and 'V31 Data List' (eng02), (c) Roland. Facts only; see docs/PROTOCOL.md. Verify writes/persistence and the firmware version-byte format on hardware (tasks #14).",
   "firmware": {
     "tested": [],

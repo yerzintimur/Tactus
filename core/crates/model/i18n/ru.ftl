@@ -12,4 +12,6 @@ param-tempo-switch = Переключатель темпа: { $value }
 instrument-name = { $name }
 instrument-unknown = Инструмент №{ $number } (неизвестен)
 
-device-connected = Подключено: { $device }
+device-connected = Подключено: { $device }, прошивка { $firmware }.
+device-firmware-untested = Эта прошивка не в списке протестированных Tactus — должно работать; сообщите о проблемах.
+device-unrecognized = Подключён нераспознанный модуль. Часть функций может быть недоступна.

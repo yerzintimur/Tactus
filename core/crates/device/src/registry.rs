@@ -39,10 +39,25 @@ impl ProfileRegistry {
         self.profiles.push(profile);
     }
 
-    /// Find the profile whose Model ID matches the connected module's Identity
-    /// Reply. `None` => unknown module (the engine falls back to a degraded mode).
+    /// Find the profile whose **Model ID** matches (used for DT1/RQ1 framing).
     pub fn match_model(&self, model_id: &[u8]) -> Option<&DeviceProfile> {
         self.profiles.iter().find(|p| p.model_id == model_id)
+    }
+
+    /// Find the profile that matches a module's **Identity Reply** fingerprint
+    /// (manufacturer + family + member). This is how we auto-detect on connect.
+    /// `None` => unknown module (the engine falls back to a degraded mode).
+    pub fn match_identity(
+        &self,
+        manufacturer: u8,
+        family: [u8; 2],
+        member: [u8; 2],
+    ) -> Option<&DeviceProfile> {
+        self.profiles.iter().find(|p| {
+            p.identity.as_ref().is_some_and(|id| {
+                id.manufacturer == manufacturer && id.family == family && id.member == member
+            })
+        })
     }
 
     pub fn len(&self) -> usize {

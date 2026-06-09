@@ -37,6 +37,22 @@ fn builtin_v31_loads_and_resolves_mvp_addresses() {
 }
 
 #[test]
+fn matches_by_identity_reply_fingerprint() {
+    // V31 Identity Reply: manufacturer 0x41, family [01 06], member [03 00].
+    let reg = ProfileRegistry::with_builtin();
+    assert_eq!(
+        reg.match_identity(0x41, [0x01, 0x06], [0x03, 0x00])
+            .unwrap()
+            .profile_id,
+        "roland-v31"
+    );
+    assert!(
+        reg.match_identity(0x41, [0x09, 0x09], [0x00, 0x00])
+            .is_none()
+    );
+}
+
+#[test]
 fn unknown_module_is_not_matched() {
     let reg = ProfileRegistry::with_builtin();
     assert!(reg.match_model(&[0x7F, 0x7F, 0x7F]).is_none());

@@ -12,7 +12,9 @@ mod profile;
 mod registry;
 
 pub use firmware::{FirmwareSupport, FirmwareVersion};
-pub use profile::{AreaDef, Capabilities, DeviceProfile, FirmwareConfig, ParameterDef, ValueRange};
+pub use profile::{
+    AreaDef, Capabilities, DeviceProfile, FirmwareConfig, Identity, ParameterDef, ValueRange,
+};
 pub use registry::ProfileRegistry;
 
 /// Crate version, exposed so higher layers can sanity-check linkage.

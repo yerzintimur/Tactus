@@ -20,6 +20,10 @@ pub struct DeviceProfile {
     pub model_id: Vec<u8>,
     #[serde(default)]
     pub device_id_default: Option<u8>,
+    /// How to recognise this module from its Identity Reply (manufacturer +
+    /// device family/member codes). Distinct from `model_id`, which frames DT1/RQ1.
+    #[serde(default)]
+    pub identity: Option<Identity>,
     /// Citation of the source documents the data was derived from.
     #[serde(default)]
     pub source: Option<String>,
@@ -44,6 +48,15 @@ pub struct FirmwareConfig {
     /// How to render the 4 version bytes (verified on hardware).
     #[serde(default)]
     pub version_format: Option<String>,
+}
+
+/// The Universal Identity Reply fingerprint that identifies this module
+/// (`F0 7E dd 06 02 <manufacturer> <family×2> <member×2> <version×4> F7`).
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+pub struct Identity {
+    pub manufacturer: u8,
+    pub family: [u8; 2],
+    pub member: [u8; 2],
 }
 
 /// Coarse module capabilities, so the UI/engine can adapt without hardcoding.

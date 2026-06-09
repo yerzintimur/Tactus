@@ -155,11 +155,17 @@ parameter-map JSON, §13 of SPEC, cross-checked against the Data List.)
   → announce. This keeps the app in sync with physical knob-turning.
 - The module also pushes DT1 in response to RQ1 (normal read), and sends Identity
   Reply to an Identity Request.
-- **Identity Reply carries the firmware version** — the 4-byte software-revision
-  field (`F0 7E dd 06 02 mm ff ff nn nn vv vv vv vv F7`, the `vv vv vv vv`). This
-  is how we read the connected module's firmware (no separate request). The exact
-  mapping of those 4 bytes to a human version string is **verify-on-HW**. Used by
-  the firmware-compatibility policy ([ADR-0009](adr/0009-firmware-compatibility-policy.md)).
+- **Identity Reply** identifies the module *and* carries its firmware. For the
+  V31 the doc gives:
+  `F0 7E dd 06 02 41 01 06 03 00 00 02 00 00 F7` —
+  `41` = Roland, **device family code `01 06`**, **family member `03 00`**,
+  **software revision `00 02 00 00`** (4 bytes).
+  - **Auto-detect** matches on manufacturer + family + member (`41` / `01 06` /
+    `03 00`) — *not* on the Model ID `01 06 01` (that's only for DT1/RQ1 framing).
+    The device profile stores both.
+  - The 4 version bytes are the firmware; the exact mapping to a human version
+    string is **verify-on-HW**. Used by the firmware-compatibility policy
+    ([ADR-0009](adr/0009-firmware-compatibility-policy.md)).
 
 ---
 

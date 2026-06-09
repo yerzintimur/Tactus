@@ -13,4 +13,6 @@ param-tempo-switch = Tempo switch: { $value }
 instrument-name = { $name }
 instrument-unknown = Instrument #{ $number } (unknown)
 
-device-connected = Connected to { $device }
+device-connected = Connected to { $device }, firmware { $firmware }.
+device-firmware-untested = This firmware isn't in Tactus's tested list — it should work; please report any problems.
+device-unrecognized = Connected to an unrecognised module. Some features may be unavailable.
