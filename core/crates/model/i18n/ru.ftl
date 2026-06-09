@@ -12,6 +12,11 @@ param-tempo-switch = Переключатель темпа: { $value }
 instrument-name = { $name }
 instrument-unknown = Инструмент №{ $number } (неизвестен)
 
+edit-mismatch = Не удалось изменить — осталось { $value }.
+edit-timeout = Нет ответа — значение неизвестно. Проверьте подключение.
+edit-out-of-range = Значение вне диапазона.
+edit-not-ready = Нет подключения к устройству.
+
 device-connected = Подключено: { $device }, прошивка { $firmware }.
 device-firmware-untested = Эта прошивка не в списке протестированных Tactus — должно работать; сообщите о проблемах.
 device-unrecognized = Подключён нераспознанный модуль. Часть функций может быть недоступна.

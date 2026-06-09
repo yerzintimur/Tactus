@@ -13,6 +13,11 @@ param-tempo-switch = Tempo switch: { $value }
 instrument-name = { $name }
 instrument-unknown = Instrument #{ $number } (unknown)
 
+edit-mismatch = Couldn't change it — it's still { $value }.
+edit-timeout = No response — the value is unknown. Check the connection.
+edit-out-of-range = That value is out of range.
+edit-not-ready = Not connected to a device.
+
 device-connected = Connected to { $device }, firmware { $firmware }.
 device-firmware-untested = This firmware isn't in Tactus's tested list — it should work; please report any problems.
 device-unrecognized = Connected to an unrecognised module. Some features may be unavailable.

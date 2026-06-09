@@ -55,7 +55,21 @@ pub enum Earcon {
 pub enum CoreEvent {
     ConnectionChanged(ConnectionState),
     DeviceIdentified(DeviceInfo),
-    CurrentKitChanged { number: u32, name: String },
+    CurrentKitChanged {
+        number: u32,
+        name: String,
+    },
+    /// An edit was applied and verified by read-back (`display` = the actual value).
+    EditConfirmed {
+        param_id: String,
+        display: String,
+    },
+    /// An edit could not be confirmed (mismatch, timeout, or out of range);
+    /// `reason` is a localized, spoken-friendly explanation.
+    EditFailed {
+        param_id: String,
+        reason: String,
+    },
     Speak(Speech),
     Earcon(Earcon),
     Error(String),
