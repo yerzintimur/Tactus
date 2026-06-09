@@ -8,5 +8,6 @@ license.workspace = true
 authors.workspace = true
 
 [dependencies]
-sysex = { workspace = true }
 device = { workspace = true }
+fluent = "0.16"
+unic-langid = "0.9"

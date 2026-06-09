@@ -1,17 +1,19 @@
-//! Domain model: typed parameters/areas and aggregates (kit, pads, FX, ambience),
-//! edit intents, and localizable value formatting (`Message { id, args }`).
+//! Domain model + localization: turns device-profile parameters and raw values
+//! into localizable, spoken/UI [`Message`]s, and defines user [`Intent`]s.
 //!
-//! See docs/DEVELOPMENT.md §4.3, §8 and ADR-0008 (i18n in the core via Fluent).
+//! Localization is done here, in the core, via Fluent — one tested source of
+//! phrasing for both platforms (ADR-0008). See docs/DEVELOPMENT.md §4.3, §8.
 #![forbid(unsafe_code)]
+
+mod catalog;
+mod format;
+mod i18n;
+mod intent;
+
+pub use catalog::InstrumentCatalog;
+pub use format::{format_kit, format_parameter};
+pub use i18n::{Arg, Localizer, Message};
+pub use intent::Intent;
 
 /// Crate version, exposed so higher layers can sanity-check linkage.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn links_against_lower_crates() {
-        assert_eq!(sysex::roland_checksum(&[]), 0x00);
-        assert_eq!(device::SCHEMA_VERSION, 1);
-    }
-}
