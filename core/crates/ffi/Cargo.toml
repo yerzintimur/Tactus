@@ -13,3 +13,4 @@ crate-type = ["cdylib", "staticlib", "lib"]
 
 [dependencies]
 engine = { workspace = true }
+uniffi = "0.31"

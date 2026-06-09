@@ -1,17 +1,127 @@
-//! UniFFI public API surface for the shared core (Session, callback interfaces,
-//! records/enums). Kept thin — it wraps `engine`. Built as `libtactus`.
+//! UniFFI public API for the Tactus core — built as `libtactus`, consumed by the
+//! native apps via generated Swift/Kotlin bindings.
 //!
-//! See docs/DEVELOPMENT.md §6 (FFI contract). UniFFI scaffolding is added in the
-//! "Define the UniFFI public API" task.
-#![forbid(unsafe_code)]
+//! Design: every method returns `Vec<Effect>` and the host performs them (send
+//! MIDI, schedule a tick, forward events). This is faithful to the sans-I/O engine
+//! (ADR-0008) — no callback interfaces needed; the host drives execution.
+//!
+//! This is the one crate that can't `#![forbid(unsafe_code)]`: UniFFI's generated
+//! scaffolding uses `unsafe extern "C"`. Our own code here stays unsafe-free.
 
-/// Crate version, exposed for a binding smoke test.
-pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+mod types;
+
+pub use types::{
+    ConnectionState, CoreEvent, DeviceInfo, Earcon, Effect, FirmwareSupport, Speech, SpeechPriority,
+};
+
+use std::sync::{Arc, Mutex};
+
+uniffi::setup_scaffolding!();
+
+/// The Tactus session — a thin, thread-safe wrapper over the sans-I/O engine.
+#[derive(uniffi::Object)]
+pub struct TactusSession {
+    inner: Mutex<engine::Session>,
+}
+
+#[uniffi::export]
+impl TactusSession {
+    /// Create a session for the given UI/speech locale (e.g. "en" or "ru").
+    #[uniffi::constructor]
+    pub fn new(locale: String) -> Arc<Self> {
+        Arc::new(Self {
+            inner: Mutex::new(engine::Session::new(locale)),
+        })
+    }
+
+    /// Change the UI/speech locale.
+    pub fn set_locale(&self, locale: String) {
+        self.locked().set_locale(locale);
+    }
+
+    /// The transport opened.
+    pub fn on_connected(&self) -> Vec<Effect> {
+        self.run(engine::Session::on_connected)
+    }
+
+    /// The transport closed.
+    pub fn on_disconnected(&self) -> Vec<Effect> {
+        self.run(engine::Session::on_disconnected)
+    }
+
+    /// Feed inbound MIDI bytes (may be fragmented across calls).
+    pub fn handle_midi_input(&self, bytes: Vec<u8>) -> Vec<Effect> {
+        self.run(|s| s.handle_midi_input(&bytes))
+    }
+
+    /// Drive timers/polling; `now_ms` is a monotonic millisecond clock.
+    pub fn tick(&self, now_ms: u64) -> Vec<Effect> {
+        self.run(|s| s.tick(now_ms))
+    }
+
+    /// Switch the active kit (0-based), verified by read-back.
+    pub fn select_kit(&self, number: u32) -> Vec<Effect> {
+        self.run(|s| s.select_kit(number))
+    }
+
+    /// Set a numeric parameter (raw value), verified by read-back.
+    pub fn set_parameter(&self, param_id: String, indices: Vec<u32>, value: i64) -> Vec<Effect> {
+        self.run(|s| s.set_parameter(param_id, indices, value))
+    }
+
+    /// Rename a kit, verified by read-back.
+    pub fn rename_kit(&self, number: u32, name: String) -> Vec<Effect> {
+        self.run(|s| s.rename_kit(number, name))
+    }
+}
+
+impl TactusSession {
+    fn locked(&self) -> std::sync::MutexGuard<'_, engine::Session> {
+        self.inner
+            .lock()
+            .expect("Tactus session mutex is not poisoned")
+    }
+
+    /// Run an engine call under the lock and map its effects to FFI types.
+    fn run(&self, f: impl FnOnce(&mut engine::Session) -> Vec<engine::Effect>) -> Vec<Effect> {
+        let mut guard = self.locked();
+        f(&mut guard).into_iter().map(Effect::from).collect()
+    }
+}
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+
     #[test]
-    fn links_against_engine() {
-        assert!(!engine::VERSION.is_empty());
+    fn on_connected_requests_identity() {
+        let session = TactusSession::new("en".to_string());
+        let effects = session.on_connected();
+        assert!(effects.iter().any(|e| matches!(e, Effect::SendMidi { .. })));
+        assert!(effects.iter().any(|e| matches!(
+            e,
+            Effect::Emit {
+                event: CoreEvent::ConnectionChanged {
+                    state: ConnectionState::Identifying
+                }
+            }
+        )));
+    }
+
+    #[test]
+    fn identity_reply_yields_recognized_device() {
+        let session = TactusSession::new("en".to_string());
+        let _ = session.on_connected();
+        // V31 Identity Reply: Roland 0x41, family 01 06, member 03 00.
+        let reply = vec![
+            0xF0, 0x7E, 0x10, 0x06, 0x02, 0x41, 0x01, 0x06, 0x03, 0x00, 0x00, 0x02, 0x00, 0x00,
+            0xF7,
+        ];
+        let effects = session.handle_midi_input(reply);
+        assert!(effects.iter().any(|e| matches!(
+            e,
+            Effect::Emit { event: CoreEvent::DeviceIdentified { device } }
+                if device.recognized && device.name == "Roland V31"
+        )));
     }
 }
