@@ -11,6 +11,10 @@ struct ContentView: View {
     @EnvironmentObject private var session: CoreSession
     @State private var showingRename = false
 
+    /// UI-test mode: auto-connect and hide the DEBUG developer controls so the
+    /// accessibility audit runs against the shipping UI.
+    static let isUITest = ProcessInfo.processInfo.arguments.contains("--uitest")
+
     var body: some View {
         NavigationStack {
             List {
@@ -19,11 +23,21 @@ struct ContentView: View {
                     kitSection
                 }
                 #if DEBUG
-                developerSection
+                if !Self.isUITest {
+                    developerSection
+                }
                 #endif
             }
             .navigationTitle("Tactus")
-            .task { session.startMidi() }
+            .task {
+                session.startMidi()
+                if Self.isUITest {
+                    // Drive the pipeline so the audit runs on the real ready-state
+                    // UI without the DEBUG developer controls.
+                    session.connected()
+                    session.receive(CoreSession.sampleV31IdentityReply)
+                }
+            }
             .sheet(isPresented: $showingRename) {
                 RenameKitView(
                     number: session.currentKitNumber ?? 0,
@@ -44,12 +58,10 @@ struct ContentView: View {
                 LabeledContent("Firmware", value: device.firmware)
                 if let warning = firmwareWarning(device.firmwareSupport) {
                     Label(warning, systemImage: "exclamationmark.triangle")
-                        .foregroundStyle(.secondary)
                         .accessibilityLabel(warning)
                 }
             } else if session.connection != .ready {
                 Text("Connect your Roland V31 with a USB-C cable.")
-                    .foregroundStyle(.secondary)
             }
         }
     }
@@ -61,23 +73,26 @@ struct ContentView: View {
             LabeledContent("Current kit", value: kitText)
                 .accessibilityLabel("Current kit: \(kitText)")
 
-            HStack {
-                Button {
-                    session.previousKit()
-                } label: {
-                    Label("Previous", systemImage: "chevron.left").frame(maxWidth: .infinity)
-                }
-                .disabled((session.currentKitNumber ?? 0) == 0)
-                .accessibilityLabel("Previous kit")
-
-                Button {
-                    session.nextKit()
-                } label: {
-                    Label("Next", systemImage: "chevron.right").frame(maxWidth: .infinity)
-                }
-                .accessibilityLabel("Next kit")
+            // Full-width prominent buttons: high contrast (white on accent),
+            // large eyes-closed targets, and no label clipping.
+            // Full-width prominent buttons: large eyes-closed targets with no
+            // label clipping.
+            Button {
+                session.previousKit()
+            } label: {
+                Text("Previous kit").frame(maxWidth: .infinity)
             }
-            .buttonStyle(.bordered)
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            .disabled((session.currentKitNumber ?? 0) == 0)
+
+            Button {
+                session.nextKit()
+            } label: {
+                Text("Next kit").frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
 
             Button("Rename kit…") { showingRename = true }
                 .accessibilityHint("Edit the name of the current kit")

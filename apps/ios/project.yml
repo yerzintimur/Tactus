@@ -26,10 +26,9 @@ targets:
         product: Tactus
     settings:
       base:
-        PRODUCT_NAME: Tactus
-        # Keep the app's Swift module distinct from the core package's "Tactus"
-        # module, else both emit a colliding Tactus.swiftmodule.
-        PRODUCT_MODULE_NAME: TactusApp
+        # Product/module stay "TactusApp" (the target name) so they don't collide
+        # with the core package's "Tactus" module and TEST_HOST resolves. The
+        # user-facing name is "Tactus" via CFBundleDisplayName below.
         PRODUCT_BUNDLE_IDENTIFIER: app.tactus.app
         CURRENT_PROJECT_VERSION: "1"
         MARKETING_VERSION: "0.1.0"
@@ -45,3 +44,43 @@ targets:
         INFOPLIST_KEY_UILaunchScreen_Generation: "YES"
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: "YES"
         INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait"
+
+  TactusAppTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: TactusAppTests
+    dependencies:
+      - target: TactusApp
+    settings:
+      base:
+        SWIFT_VERSION: "6.0"
+        GENERATE_INFOPLIST_FILE: "YES"
+        "EXCLUDED_ARCHS[sdk=iphonesimulator*]": x86_64
+
+  TactusAppUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: TactusAppUITests
+    dependencies:
+      - target: TactusApp
+    settings:
+      base:
+        SWIFT_VERSION: "6.0"
+        GENERATE_INFOPLIST_FILE: "YES"
+        "EXCLUDED_ARCHS[sdk=iphonesimulator*]": x86_64
+
+schemes:
+  TactusApp:
+    build:
+      targets:
+        TactusApp: all
+        TactusAppTests: [test]
+        TactusAppUITests: [test]
+    test:
+      targets:
+        - TactusAppTests
+        - TactusAppUITests
+    run:
+      config: Debug

@@ -70,6 +70,12 @@ ios-build:
         -destination 'generic/platform=iOS Simulator' \
         -derivedDataPath .docker/ios-derived build
 
+# Run the iOS unit + UI tests (incl. the accessibility audit gate) on a sim.
+ios-test sim="iPhone 17":
+    xcodebuild test -project apps/ios/Tactus.xcodeproj -scheme TactusApp \
+        -destination 'platform=iOS Simulator,name={{sim}}' \
+        -derivedDataPath .docker/ios-derived
+
 # Open the project in Xcode.
 ios-open:
     open apps/ios/Tactus.xcodeproj

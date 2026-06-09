@@ -35,6 +35,26 @@ just ios-open        # open in Xcode (scheme: TactusApp)
 just ios-build       # build for the iOS Simulator
 ```
 
+## Tests
+
+```sh
+just ios-test            # unit + UI tests on the iPhone 17 simulator
+just ios-test "iPhone 16e"
+```
+
+- **Unit** (`TactusAppTests`) pin the Swift↔Rust boundary: feeding a canned V31
+  identity reply must surface the device and reach the ready state.
+- **UI** (`TactusAppUITests`) drive the flow and run an **accessibility audit
+  gate** (`performAccessibilityAudit`) against the shipping UI (`--uitest`
+  auto-connects and hides the DEBUG developer controls).
+
+The audit enforces the actionable, deterministic checks — text clipping, missing
+labels, traits, hit regions, element detection. `contrast` and `dynamicType` are
+**deliberately excluded for now**: standard iOS tinted controls (systemBlue ≈
+3–4:1) fall below WCAG 4.5:1 and the audit flags them non-deterministically, so
+they're unfit for a strict gate. A dedicated low-vision pass (high-contrast theme
++ Dynamic Type hardening) will re-enable them.
+
 ## Layout
 
 ```
