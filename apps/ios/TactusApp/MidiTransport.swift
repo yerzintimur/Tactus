@@ -24,6 +24,9 @@ final class MidiTransport {
     var onReceive: ((Data) -> Void)?
     /// `true` when at least one source and one destination are present.
     var onConnectionChange: ((Bool) -> Void)?
+    /// Reports the current endpoint names (sources, destinations) after each scan
+    /// — used for the debug MIDI diagnostics panel.
+    var onDevices: (([String], [String]) -> Void)?
 
     private var client = MIDIClientRef()
     private var inputPort = MIDIPortRef()
@@ -61,6 +64,10 @@ final class MidiTransport {
         rescan()
     }
 
+    /// Manually re-scan endpoints (debug affordance, in case a setup-change
+    /// notification was missed).
+    func rescanNow() { rescan() }
+
     /// Send raw bytes (a complete SysEx message) to the chosen destination.
     func send(_ bytes: Data) {
         guard destination != 0, outputPort != 0 else {
@@ -90,9 +97,11 @@ final class MidiTransport {
         // Connect any newly-appeared sources to our input port (idempotent set).
         let sourceCount = MIDIGetNumberOfSources()
         var liveSources = Set<MIDIEndpointRef>()
+        var sourceNames: [String] = []
         for i in 0..<sourceCount {
             let source = MIDIGetSource(i)
             liveSources.insert(source)
+            sourceNames.append(Self.displayName(source))
             if !connectedSources.contains(source) {
                 if check(MIDIPortConnectSource(inputPort, source, nil), "MIDIPortConnectSource") {
                     connectedSources.insert(source)
@@ -105,6 +114,12 @@ final class MidiTransport {
         // comes in task #20.
         let destinationCount = MIDIGetNumberOfDestinations()
         destination = destinationCount > 0 ? MIDIGetDestination(0) : 0
+        let destinationNames = (0..<destinationCount).map { Self.displayName(MIDIGetDestination($0)) }
+
+        log.info(
+            "MIDI scan: sources=\(sourceNames, privacy: .public) destinations=\(destinationNames, privacy: .public)"
+        )
+        onDevices?(sourceNames, destinationNames)
 
         let nowAvailable = sourceCount > 0 && destinationCount > 0
         if nowAvailable != available {
@@ -115,6 +130,16 @@ final class MidiTransport {
     }
 
     // MARK: - Helpers
+
+    /// Human-readable endpoint name (e.g. the module's USB MIDI port name).
+    private static func displayName(_ endpoint: MIDIEndpointRef) -> String {
+        var value: Unmanaged<CFString>?
+        let status = MIDIObjectGetStringProperty(endpoint, kMIDIPropertyDisplayName, &value)
+        if status == noErr, let name = value?.takeRetainedValue() {
+            return name as String
+        }
+        return "endpoint \(endpoint)"
+    }
 
     /// Flatten a CoreMIDI packet list into a single byte buffer.
     private static func bytes(from packetList: UnsafePointer<MIDIPacketList>) -> Data {

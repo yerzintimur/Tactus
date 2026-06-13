@@ -110,6 +110,16 @@ struct ContentView: View {
             }
             Button("Simulate disconnect") { session.disconnected() }
         }
+        Section("MIDI (debug)") {
+            Button("Rescan MIDI") { session.rescanMidi() }
+            LabeledContent(
+                "Sources",
+                value: session.midiSources.isEmpty ? "none" : session.midiSources.joined(separator: ", "))
+            LabeledContent(
+                "Destinations",
+                value: session.midiDestinations.isEmpty
+                    ? "none" : session.midiDestinations.joined(separator: ", "))
+        }
         Section("Event log") {
             if session.log.isEmpty {
                 Text("No events yet.").foregroundStyle(.secondary)

@@ -19,6 +19,9 @@ final class CoreSession: ObservableObject {
     /// Most recent spoken announcement, mirrored for the UI.
     @Published private(set) var lastSpoken: String = ""
     @Published private(set) var log: [String] = []
+    /// Debug MIDI diagnostics: the endpoint names CoreMIDI currently reports.
+    @Published private(set) var midiSources: [String] = []
+    @Published private(set) var midiDestinations: [String] = []
 
     private let core: TactusSession
     private let transport = MidiTransport()
@@ -42,9 +45,16 @@ final class CoreSession: ObservableObject {
         transport.onConnectionChange = { [weak self] available in
             if available { self?.connected() } else { self?.disconnected() }
         }
+        transport.onDevices = { [weak self] sources, destinations in
+            self?.midiSources = sources
+            self?.midiDestinations = destinations
+        }
         sendMidi = { [weak self] bytes in self?.transport.send(bytes) }
         transport.start()
     }
+
+    /// Manually re-scan MIDI endpoints (debug affordance).
+    func rescanMidi() { transport.rescanNow() }
 
     // MARK: - Inbound events (call these from the transport / UI)
 
