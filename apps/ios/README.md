@@ -35,6 +35,39 @@ just ios-open        # open in Xcode (scheme: TactusApp)
 just ios-build       # build for the iOS Simulator
 ```
 
+## Connecting a module (hardware requirements)
+
+USB MIDI only for now (no Bluetooth MIDI yet). The Simulator has no MIDI
+endpoints, so a real module needs a physical device.
+
+**On the module:** set the USB MIDI driver to **GENERIC** (class-compliant) — not
+"Vendor"; iOS ships no vendor driver. Connect via the module's USB **COMPUTER**
+port.
+
+**The iPhone/iPad must be the USB _host_.** USB is asymmetric — one host, one
+device. The module is a device, so the iDevice has to act as host:
+
+- **USB-C iPhone (15/16) or iPad** — a USB-C cable straight to the module's port
+  (USB-C↔USB-C, or USB-C↔USB-B as the module requires). iOS negotiates host mode
+  over USB-C; **no adapter needed**.
+- **Lightning iPhone (≤ 14)** — requires an **Apple Lightning to USB Camera
+  Adapter** (the *USB 3* version with a power input is recommended — MIDI gear can
+  draw more than Lightning alone supplies). Chain: `iPhone → adapter → USB cable →
+  module`. A plain USB-C↔Lightning **charge cable does _not_ work**: it keeps the
+  phone a peripheral and never enters host mode, so the module never enumerates
+  (Sources/Destinations stay empty). This is a USB-role limitation of Lightning,
+  not a connector-shape one — USB-C does the role negotiation a passive Lightning
+  cable can't.
+
+**Verify the link:** open the app → **MIDI (debug)** → **Rescan MIDI**. The
+module's port name should appear under Sources/Destinations (also logged as
+`MIDI scan: …`, subsystem `app.tactus`). Once it appears the transport
+auto-connects and identification runs.
+
+**Signing note (free Apple ID):** a personal-team build must be trusted on the
+device (Settings → General → VPN & Device Management) and expires after 7 days —
+rebuild from Xcode to renew. A paid Developer Program account lasts a year.
+
 ## Tests
 
 ```sh
@@ -60,15 +93,20 @@ they're unfit for a strict gate. A dedicated low-vision pass (high-contrast them
 ```
 apps/ios/
 ├── project.yml            # XcodeGen spec (committed)
-└── TactusApp/
-    ├── TactusApp.swift     # @main App entry point
-    ├── CoreSession.swift   # bridge to the Rust core: drains Effects → @Published state
-    └── ContentView.swift   # skeleton screen (real MVP UI: task #16)
+├── TactusApp/
+│   ├── TactusApp.swift     # @main App entry point
+│   ├── CoreSession.swift   # bridge to the Rust core: drains Effects → @Published state
+│   ├── ContentView.swift   # accessible MVP UI (connection, kit nav, rename)
+│   ├── MidiTransport.swift # CoreMIDI I/O (USB)
+│   ├── SpeechService.swift # VoiceOver announcements / AVSpeechSynthesizer
+│   └── EarconService.swift # haptic earcons
+├── TactusAppTests/         # unit tests (Swift↔Rust boundary)
+└── TactusAppUITests/       # UI flow + accessibility audit gate
 ```
 
 `CoreSession` is the one place that talks to the core. The core is sans-I/O: each
 call returns `[Effect]` (send MIDI / schedule a tick / emit an event) that the app
-performs. The CoreMIDI transport (task #13) will inject `sendMidi` and feed inbound
-bytes into `receive(_:)`; speech (`.speak`) routes to `AVSpeechSynthesizer` in task
-#15. Until then, the **Developer** section drives the pipeline with a canned V31
-identity reply.
+performs — `MidiTransport` sends/receives the MIDI, `SpeechService` and
+`EarconService` voice the speech/earcon events. In `--uitest` and via the DEBUG
+**Developer** section the pipeline can be driven with a canned V31 identity reply
+(no hardware).
