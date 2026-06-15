@@ -1,0 +1,3 @@
+{"v":1,"meta":{"profile_id":"roland-v31","firmware":"0.2.10","fw_bytes":[0,2,1,0],"device_id":16,"recorder":"synthetic","notes":"Identity handshake only; hand-authored (Universal messages carry no Roland checksum). Replace with a real-hardware capture in Phase 3."}}
+{"t_us":0,"dir":"out","action":"connect","hex":"F0 7E 7F 06 01 F7"}
+{"t_us":21000,"dir":"in","hex":"F0 7E 10 06 02 41 01 06 03 00 00 02 01 00 F7"}

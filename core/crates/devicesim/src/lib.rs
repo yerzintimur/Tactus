@@ -13,10 +13,15 @@
 //! See the device-mock plan and ADR-0008 (sans-I/O core).
 #![forbid(unsafe_code)]
 
+mod cassette;
 mod device;
 mod state;
 mod timing;
 
+pub use cassette::{
+    Cassette, CassetteError, CassetteEvent, CassetteMeta, Direction, Exchange, bytes_to_hex,
+    parse_hex,
+};
 pub use device::{EditValue, VirtualDevice};
 pub use state::DeviceState;
 pub use timing::{TimingProfile, VirtualClock};
