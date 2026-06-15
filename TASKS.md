@@ -63,6 +63,28 @@ and verified; keep this file honest about real state.
   build & tests (incl. the a11y audit) on a macOS runner. Add Android later.
 - [ ] **`P3` Make engine timings tunable** (poll 300 ms, identity-retry 900 ms,
   edit-timeout) — currently hardcoded in `engine/src/session.rs`.
+- [x] **`P1` Device-mock e2e foundation (Phases 1–2).** A profile-driven
+  `VirtualDevice` (a dumb, address-keyed byte store that answers Identity/RQ1/DT1,
+  persists writes, and emits unsolicited hardware pushes — works for any profile by
+  data) + a virtual-clock `Harness` that interleaves delayed device replies and
+  scheduled ticks on one deterministic timeline, so **timing** bugs are first-class:
+  bug B ([PROTOCOL §6](docs/PROTOCOL.md)) is reproduced as a passing test the old
+  synchronous `drive()` could not express. Plus a **cassette** format (NDJSON under
+  [tools/cassettes/](tools/cassettes/)) with golden-replay. New crates
+  [devicesim](core/crates/devicesim/) + [e2e](core/crates/e2e/) (`just test-e2e`);
+  the engine's `FakeModule`/`drive()` is removed and its tests ported.
+- [ ] **`P2` Device-mock recorder (Phase 3, needs hardware).** Authoritative in-app
+  `RecordingTransport` tap (true CoreMIDI timestamps + fragmentation + action
+  annotations) writing cassettes, plus a `tools/` `log stream` parser (lossy
+  fallback). Record real V31 sessions into [tools/cassettes/](tools/cassettes/); the
+  Phase-2 golden replay then validates `VirtualDevice` against hardware (fix until
+  byte-for-byte) and calibrates `TimingProfile` from the captures.
+- [ ] **`P2` Device-mock platform sims (Phases 4–5).** **B1:** a Swift
+  `SimulatedTransport` backed by `VirtualDevice` over a debug-only `simffi` FFI
+  object, driving eyes-closed XCUITest/VoiceOver in CI. **B2:** a real virtual
+  CoreMIDI endpoint the production `MidiTransport` connects to as if it were hardware
+  (exercises packetization, enumeration, hot-plug, the 256-byte cap; Mac/device
+  only, manual/nightly).
 
 ## M3 — Data pipeline (catalogs)
 
