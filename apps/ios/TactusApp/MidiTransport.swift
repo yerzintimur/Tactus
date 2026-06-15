@@ -36,6 +36,9 @@ final class MidiTransport {
     private var available = false
 
     private let log = Logger(subsystem: "app.tactus", category: "midi")
+    /// Raw MIDI I/O, hex-dumped at debug level for hardware diagnostics. Stream
+    /// with: `log stream --level debug --predicate 'category == "midi.io"'`.
+    private nonisolated static let ioLog = Logger(subsystem: "app.tactus", category: "midi.io")
 
     /// Create the client and ports, then scan existing endpoints. Idempotent.
     func start() {
@@ -52,6 +55,7 @@ final class MidiTransport {
         let readBlock: MIDIReadBlock = { [weak self] packetList, _ in
             let data = Self.bytes(from: packetList)
             guard !data.isEmpty else { return }
+            Self.ioLog.debug("← \(Self.hexDump(data), privacy: .public)")
             Task { @MainActor in self?.onReceive?(data) }
         }
         check(
@@ -81,6 +85,7 @@ final class MidiTransport {
             log.error("send dropped: \(payload.count) bytes exceeds single-packet limit")
             return
         }
+        Self.ioLog.debug("→ \(Self.hexDump(bytes), privacy: .public)")
         var packet = MIDIPacket()
         packet.timeStamp = 0
         packet.length = UInt16(payload.count)
@@ -218,6 +223,11 @@ final class MidiTransport {
     }
 
     // MARK: - Helpers
+
+    /// Hex dump of a byte buffer for the diagnostic I/O log.
+    nonisolated private static func hexDump(_ data: Data) -> String {
+        data.map { String(format: "%02X", $0) }.joined(separator: " ")
+    }
 
     /// Human-readable endpoint name (e.g. the module's USB MIDI port name).
     private static func displayName(_ endpoint: MIDIEndpointRef) -> String {
