@@ -24,14 +24,39 @@ import AppKit
 final class SpeechService {
     private let synth = AVSpeechSynthesizer()
     private var voiceLanguage: String
+    private var voice: AVSpeechSynthesisVoice?
 
     init(locale: String) {
         voiceLanguage = Self.bcp47(locale)
+        selectVoice()
         configureAudioSession()
     }
 
     func setLocale(_ locale: String) {
         voiceLanguage = Self.bcp47(locale)
+        selectVoice()
+    }
+
+    /// Prefer the highest-quality installed voice for the language (Premium >
+    /// Enhanced); fall back to the system default if none is downloaded. The good
+    /// voices are opt-in downloads (System Settings → Accessibility → Spoken
+    /// Content → System Voice → Manage Voices); the bundled Compact voice is the
+    /// robotic one. The default-quality tier is skipped to avoid novelty voices.
+    private func selectVoice() {
+        let language = voiceLanguage
+        let prefix = String(language.prefix(2))
+        let best = AVSpeechSynthesisVoice.speechVoices()
+            .filter {
+                ($0.language == language || $0.language.hasPrefix(prefix))
+                    && $0.quality.rawValue > AVSpeechSynthesisVoiceQuality.default.rawValue
+            }
+            .sorted {
+                $0.quality.rawValue != $1.quality.rawValue
+                    ? $0.quality.rawValue > $1.quality.rawValue
+                    : ($0.language == language && $1.language != language)
+            }
+            .first
+        voice = best ?? AVSpeechSynthesisVoice(language: language)
     }
 
     func speak(_ speech: Speech) {
@@ -102,7 +127,7 @@ final class SpeechService {
             break
         }
         let utterance = AVSpeechUtterance(string: speech.text)
-        utterance.voice = AVSpeechSynthesisVoice(language: voiceLanguage)
+        utterance.voice = voice ?? AVSpeechSynthesisVoice(language: voiceLanguage)
         synth.speak(utterance)
     }
 
