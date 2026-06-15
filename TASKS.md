@@ -36,16 +36,19 @@ and verified; keep this file honest about real state.
 
 ## M1 — Validate on the real V31 (do now, hardware is live)
 
-- [ ] **`P0` Resolve persistence (risk #1).** Does a DT1 write to a kit address
-  survive a power-cycle, or is a separate store / `SNAPSHOT SAVE` required?
-  Record findings in [docs/PROTOCOL.md](docs/PROTOCOL.md); until resolved the UI
-  must clearly distinguish *"changed (live)"* from *"saved to slot"*
-  (SPEC §14).
-- [ ] **`P1` Validate the edit pipeline live.** Exercise select-kit and
-  rename-kit end-to-end on hardware: write → read-back → spoken value must be the
-  **actual stored** value. Confirm tempo offset `0x6F` (not `0x6D`).
-- [ ] **`P2` Capture V31 firmware version + byte format.** Read the live Identity
-  Reply; nail `version_format` and populate `firmware.tested` in the profile.
+- [x] **`P0` Resolve persistence (risk #1).** **Resolved live (2026-06-15):** a
+  DT1 write to a kit address **persists across a power-cycle with no separate
+  save** — set kit 16 tempo 120.1, power-cycled, read back 120.1
+  ([PROTOCOL §7](docs/PROTOCOL.md)). No `SNAPSHOT SAVE` needed for kit-common
+  edits. *(Spot-check a second parameter family before relying universally.)*
+- [x] **`P1` Validate the edit pipeline live.** Tempo edit verified end-to-end on
+  hardware (write→read-back→actual value); **tempo offset confirmed `0x6C`** (not
+  `0x6D`/`0x6F` — profile was right). Hot-plug connect-first/power-later +
+  destination selection also validated live. *(Surfaced two real bugs — see M4.)*
+- [x] **`P2` Capture V31 firmware version + byte format.** Live Identity Reply
+  `…03 00 00 02 01 00 F7` → bytes **`00 02 01 00`** = module "0.2.10 (0031)".
+  `firmware.tested` now lists `[0,2,1,0]`. Build "(0031)" isn't in the Identity
+  Reply. *(Follow-up: `version_format`-aware display — see M4.)*
 - [x] **`P2` Robust MIDI endpoint selection.** Replaced the `destination[0]`
   heuristic with a scored policy in
   [MidiTransport.swift](apps/ios/TactusApp/MidiTransport.swift): prefer a
@@ -86,6 +89,20 @@ and verified; keep this file honest about real state.
   [CoreSession.swift](apps/ios/TactusApp/CoreSession.swift); unit + a11y-audit
   gated. *(Live value round-trip — incl. tempo offset `0x6F` — validated under
   M1 P1 on hardware.)*
+- [ ] **`P1` BUG (live): `select_kit` "value unknown".** Selecting a kit from the
+  app verifies via an RQ1 read-back at `00 00 00 00` — the **same address the
+  poller uses**. An in-flight poll's stale reply lands on the edit's verify slot →
+  spurious failure ("value unknown") before the real kit change is announced
+  ([PROTOCOL §6](docs/PROTOCOL.md)). Fix: confirm kit-select via the Current poll,
+  not the shared-address edit pipeline (no false-failure announcement).
+- [ ] **`P1` BUG (live): speech flood on hardware kit-scroll.** Dialling through
+  kits on the module announces *every* intermediate kit name. **Debounce**
+  kit-change announcements in the engine (speak only the settled kit) via the tick
+  timer.
+- [ ] **`P3` Firmware `version_format`-aware display.** `FirmwareVersion::display`
+  shows raw dotted `0.2.1.0`; the V31 renders `00 02 01 00` as **"0.2.10"** (last
+  two bytes = one component). Make the display honour the profile's
+  `version_format`. (Build suffix "(0031)" isn't in the Identity Reply.)
 - [ ] **`P2` Full Transmit Edit Data handling** — announce any
   hardware-initiated edit, not just kit/name/tempo.
 - [ ] **`P2` Low-vision pass** — high-contrast theme + Dynamic Type hardening;

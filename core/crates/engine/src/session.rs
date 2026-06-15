@@ -832,7 +832,8 @@ mod tests {
             CoreEvent::DeviceIdentified(d) if d.recognized && d.name == "Roland V31")));
         assert!(events.iter().any(|e| matches!(e,
             CoreEvent::CurrentKitChanged { number, name } if *number == 4 && name == "Jazz")));
-        // Untested firmware (profile's tested list is empty) -> connect speech still High.
+        // Untested firmware (fake reports 0.2.0.0, older than the tested 0.2.1.0)
+        // -> connect speech still High.
         assert!(events.iter().any(|e| matches!(e,
             CoreEvent::Speak(sp) if sp.text.contains("Roland V31") && sp.priority == SpeechPriority::High)));
         assert!(

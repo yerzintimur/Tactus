@@ -59,12 +59,22 @@ fn unknown_module_is_not_matched() {
 }
 
 #[test]
-fn untested_firmware_is_reported_not_blocked() {
+fn firmware_support_reflects_the_tested_baseline() {
     let reg = ProfileRegistry::with_builtin();
     let p = reg.match_model(&[1, 6, 1]).unwrap();
-    // tested list is empty until verified on hardware -> Unknown (still usable).
+    // The live-validated firmware (Identity Reply bytes 00 02 01 00 = "0.2.10")
+    // is the tested baseline.
+    assert_eq!(
+        p.firmware_support(FirmwareVersion::new([0, 2, 1, 0])),
+        FirmwareSupport::Tested
+    );
+    // Anything off that baseline is announced but never blocked (ADR-0009).
     assert_eq!(
         p.firmware_support(FirmwareVersion::new([1, 0, 0, 0])),
-        FirmwareSupport::Unknown
+        FirmwareSupport::UntestedNewer
+    );
+    assert_eq!(
+        p.firmware_support(FirmwareVersion::new([0, 1, 0, 0])),
+        FirmwareSupport::UntestedOlder
     );
 }

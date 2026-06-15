@@ -127,9 +127,15 @@ a `format(value) → String` for TTS.
 - **Kit Name:** offsets `00 00`–`00 0F`, **16 bytes ASCII** (some chars not shown
   on the module display).
 - **Kit Sub Name:** offsets `00 10`–… (ASCII).
-- **Kit Tempo:** offset **`00 6F`**, value **200–2600** = **20.0–260.0 BPM**
-  (divide by 10). *(Note: the starter doc said offset `00 6D`; per the v2.00
-  address map the tempo value is at `00 6F`. Verify on hardware in the PoC.)*
+- **Kit Tempo:** offset **`00 6C`** (4-byte nibble field, `6C`–`6F`), value
+  **200–2600** = **20.0–260.0 BPM** (divide by 10). **Confirmed on hardware
+  (2026-06-15):** RQ1 to `04 3C 00 6C` (kit 16) returned DT1 `… 00 04 0B 01 …`,
+  nibble-decoded = 1201 = 120.1 BPM. *(Supersedes the starter-doc guesses of
+  `00 6D` / `00 6F`; the profile's `00 6C` is correct.)*
+  **Open semantic question:** the V31 exposes **no on-screen "kit tempo"** the
+  user can find (only the metronome, which the user reports as separate). This
+  address round-trips and persists, but its user-facing effect (tempo-sync FX /
+  click / pattern?) is unconfirmed — investigate before building a tempo UX claim.
 - **Kit Tempo Switch:** offset `00 70` (0/1).
 
 ### Pad layout within a kit
@@ -155,25 +161,59 @@ parameter-map JSON, §13 of SPEC, cross-checked against the Data List.)
   → announce. This keeps the app in sync with physical knob-turning.
 - The module also pushes DT1 in response to RQ1 (normal read), and sends Identity
   Reply to an Identity Request.
-- **Identity Reply** identifies the module *and* carries its firmware. For the
-  V31 the doc gives:
-  `F0 7E dd 06 02 41 01 06 03 00 00 02 00 00 F7` —
-  `41` = Roland, **device family code `01 06`**, **family member `03 00`**,
-  **software revision `00 02 00 00`** (4 bytes).
+- **Identity Reply** identifies the module *and* carries its firmware. **Captured
+  live (2026-06-15):**
+  `F0 7E 10 06 02 41 01 06 03 00 00 02 01 00 F7` —
+  device ID `10`, `41` = Roland, **family `01 06`**, **member `03 00`**,
+  **software revision `00 02 01 00`** (4 bytes).
   - **Auto-detect** matches on manufacturer + family + member (`41` / `01 06` /
     `03 00`) — *not* on the Model ID `01 06 01` (that's only for DT1/RQ1 framing).
     The device profile stores both.
-  - The 4 version bytes are the firmware; the exact mapping to a human version
-    string is **verify-on-HW**. Used by the firmware-compatibility policy
-    ([ADR-0009](adr/0009-firmware-compatibility-policy.md)).
+  - **Firmware mapping (M1 P2):** the 4 bytes `00 02 01 00` correspond to the
+    module's own display **"0.2.10 (0031)"** — i.e. the last two bytes `01 00`
+    render as the single component **"10"** (so `[a,b,c,d] → "a.b.(cd)"`, *not*
+    `"a.b.c.d"`). The build suffix **"(0031)" is NOT in the Identity Reply** —
+    it's internal to the module, unavailable over MIDI. Our `FirmwareVersion::
+    display` still shows the raw dotted `"0.2.1.0"`; a `version_format`-aware
+    renderer is a follow-up. The profile's `firmware.tested` now lists
+    `[0,2,1,0]` (so this unit reads as *Tested*, not *Untested*).
+    Policy: [ADR-0009](adr/0009-firmware-compatibility-policy.md).
+
+### Kit navigation — observed behaviour (2026-06-15)
+- **Current kit** at `00 00 00 00` (nibble, 4 bytes) is the reliable signal; the
+  module answers RQ1 reads of it continuously and reflects edits immediately
+  (e.g. kit 17 reads `00 00 01 00` = index 16).
+- **BUG — `select_kit` race ("value unknown"):** selecting a kit *from the app*
+  writes DT1 to `00 00 00 00` then verifies via an RQ1 read-back at the **same
+  address the poller uses**. If a poll RQ1 is in flight at click time, its
+  **stale reply (old kit)** lands on the edit's pending-verify slot → spurious
+  mismatch/timeout → the app announces a failure ("value unknown") *before* the
+  real kit change is picked up and announced. Fix: don't verify kit-select via
+  the shared-address edit pipeline — confirm the change via the Current poll
+  instead (no false-failure announcement). When the poller happens to be idle,
+  the exchange is clean (no false failure), which is why it's intermittent.
+- **BUG — speech flood on hardware kit-scroll:** dialling through kits on the
+  module pushes an unsolicited Current change per kit; the engine reads each name
+  and speaks it, flooding speech. Fix: **debounce** kit-change announcements (only
+  speak the settled kit) via the tick timer.
 
 ---
 
-## 7. Open protocol question — persistence
+## 7. Persistence — RESOLVED on hardware (2026-06-15)
 
-The address map has a **temporary/edit view** (`Current`) and the **stored kits**
-(`04 …`). The doc shows **no explicit "store/WRITE" SysEx command**, yet the
-hardware exposes a `SNAPSHOT SAVE` action. So it is **unverified** whether a DT1
-write to a kit address persists across power-cycle or needs a separate save.
-**Resolve this on real hardware in the PoC** before the app claims anything is
-"saved" (SPEC §14, risk #1).
+**A DT1 write to a kit address persists across a power-cycle with no separate
+save.** Verified end-to-end on the real V31:
+
+1. Set kit 16 tempo to 120.1 — DT1 to `04 3C 00 6C`, data `00 04 0B 01`.
+2. Powered the module **off**, then **on** (a full power-cycle).
+3. Reconnected → RQ1 `04 3C 00 6C` read back `00 04 0B 01` = **120.1** (not the
+   prior 120.0).
+
+So kit-common edits are stored immediately; **no `SNAPSHOT SAVE` / WRITE command
+is required** for them, and the app does **not** need a separate "save" step for
+kit-common parameters. This clears **risk #1** (SPEC §14).
+
+*Caveats:* verified for one kit-common parameter (tempo). Spot-check a second
+parameter family (e.g. a pad/instrument value) before relying on this
+universally. The `SNAPSHOT SAVE` action the hardware exposes is likely for
+whole-kit/backup snapshots, not required for individual parameter edits.
