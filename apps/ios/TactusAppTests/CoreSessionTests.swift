@@ -1,3 +1,4 @@
+import CoreMIDI
 import Tactus
 import XCTest
 
@@ -55,5 +56,50 @@ final class CoreSessionTests: XCTestCase {
         // No value yet → adjust is a safe no-op (no crash, nothing reported).
         XCTAssertNil(session.tempoRawValue)
         session.adjustTempo(rawSteps: 1)
+    }
+
+    // MARK: - MIDI destination selection policy
+
+    private func endpoint(
+        _ ref: MIDIEndpointRef, _ name: String, device: MIDIDeviceRef, offline: Bool = false
+    ) -> MidiTransport.EndpointInfo {
+        MidiTransport.EndpointInfo(ref: ref, name: name, device: device, offline: offline)
+    }
+
+    func testDestinationPrefersBidirectionalPairedDevice() {
+        let iac = endpoint(1, "IAC Driver Bus 1", device: 99)
+        let synth = endpoint(2, "Other Synth", device: 20)
+        let module = endpoint(3, "V31", device: 10)
+        // We receive from device 10, so its destination (the module) wins.
+        let chosen = MidiTransport.selectDestination(
+            from: [iac, synth, module], sourceDevices: [10])
+        XCTAssertEqual(chosen, module)
+    }
+
+    func testDestinationSkipsOfflineAndDeprioritizesSoftwareBus() {
+        let offlineModule = endpoint(1, "V31", device: 10, offline: true)
+        let iac = endpoint(2, "IAC Driver Bus 1", device: 99)
+        let synth = endpoint(3, "Other Synth", device: 20)
+        // Offline V31 dropped; with no known source device, real hardware beats
+        // the software bus.
+        let chosen = MidiTransport.selectDestination(
+            from: [iac, synth, offlineModule], sourceDevices: [])
+        XCTAssertEqual(chosen, synth)
+    }
+
+    func testDestinationFallsBackToOfflineRatherThanNothing() {
+        let only = endpoint(1, "V31", device: 10, offline: true)
+        let chosen = MidiTransport.selectDestination(from: [only], sourceDevices: [10])
+        XCTAssertEqual(chosen, only)
+    }
+
+    func testDestinationIsNilWhenNoneExist() {
+        XCTAssertNil(MidiTransport.selectDestination(from: [], sourceDevices: [10]))
+    }
+
+    func testSoftwareBusNameDetection() {
+        XCTAssertTrue(MidiTransport.isSoftwareBusName("IAC Driver Bus 1"))
+        XCTAssertTrue(MidiTransport.isSoftwareBusName("Network Session 1"))
+        XCTAssertFalse(MidiTransport.isSoftwareBusName("Roland V31"))
     }
 }

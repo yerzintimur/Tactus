@@ -46,9 +46,13 @@ and verified; keep this file honest about real state.
   **actual stored** value. Confirm tempo offset `0x6F` (not `0x6D`).
 - [ ] **`P2` Capture V31 firmware version + byte format.** Read the live Identity
   Reply; nail `version_format` and populate `firmware.tested` in the profile.
-- [ ] **`P2` Robust MIDI endpoint selection.** Replace the `destination[0]`
-  heuristic in [MidiTransport.swift](apps/ios/TactusApp/MidiTransport.swift:116);
-  groundwork for multi-device (M7).
+- [x] **`P2` Robust MIDI endpoint selection.** Replaced the `destination[0]`
+  heuristic with a scored policy in
+  [MidiTransport.swift](apps/ios/TactusApp/MidiTransport.swift): prefer a
+  bidirectional port on a device we also receive from (the module), then real
+  hardware over software buses (IAC / Network Session), skipping offline
+  endpoints. Policy extracted to a pure, unit-tested `selectDestination`;
+  groundwork for multi-device (M7). *(Confirm on hardware with the real V31.)*
 
 ## M2 — Engineering hygiene
 

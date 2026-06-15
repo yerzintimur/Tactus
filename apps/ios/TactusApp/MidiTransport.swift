@@ -94,7 +94,8 @@ final class MidiTransport {
     // MARK: - Endpoint scanning
 
     private func rescan() {
-        // Connect any newly-appeared sources to our input port (idempotent set).
+        // Sources: connect any newly-appeared ones (idempotent set) and note which
+        // physical devices we receive from — used to pair the output endpoint.
         let sourceCount = MIDIGetNumberOfSources()
         var liveSources = Set<MIDIEndpointRef>()
         var sourceNames: [String] = []
@@ -109,24 +110,111 @@ final class MidiTransport {
             }
         }
         connectedSources.formIntersection(liveSources)
+        let sourceDevices = Set(liveSources.map { Self.deviceRef(of: $0) }.filter { $0 != 0 })
 
-        // Pick the first destination as the output target. Multi-device selection
-        // comes in task #20.
-        let destinationCount = MIDIGetNumberOfDestinations()
-        destination = destinationCount > 0 ? MIDIGetDestination(0) : 0
-        let destinationNames = (0..<destinationCount).map { Self.displayName(MIDIGetDestination($0)) }
+        // Destinations: choose a robust target instead of just destination[0].
+        // Prefer a bidirectional port on a device we also receive from (the module
+        // we both send to and hear from), then real hardware over software buses
+        // (IAC / Network Session), skipping offline endpoints. Groundwork for
+        // multi-device selection (M7).
+        let destinationInfos = (0..<MIDIGetNumberOfDestinations()).map { i -> EndpointInfo in
+            let ref = MIDIGetDestination(i)
+            return EndpointInfo(
+                ref: ref, name: Self.displayName(ref),
+                device: Self.deviceRef(of: ref), offline: Self.isOffline(ref))
+        }
+        let chosen = Self.selectDestination(from: destinationInfos, sourceDevices: sourceDevices)
+        destination = chosen?.ref ?? 0
+        let destinationNames = destinationInfos.map(\.name)
 
         log.info(
-            "MIDI scan: sources=\(sourceNames, privacy: .public) destinations=\(destinationNames, privacy: .public)"
+            """
+            MIDI scan: sources=\(sourceNames, privacy: .public) \
+            destinations=\(destinationNames, privacy: .public) \
+            → chosen=\(chosen?.name ?? "none", privacy: .public)
+            """
         )
         onDevices?(sourceNames, destinationNames)
 
-        let nowAvailable = sourceCount > 0 && destinationCount > 0
+        // Available only when we have a real endpoint to send to.
+        let nowAvailable = !liveSources.isEmpty && destination != 0
         if nowAvailable != available {
             available = nowAvailable
             log.info("MIDI availability: \(nowAvailable)")
             onConnectionChange?(nowAvailable)
         }
+    }
+
+    // MARK: - Destination selection (pure policy + CoreMIDI lookups)
+
+    /// A snapshot of one MIDI endpoint, decoupled from live CoreMIDI state so the
+    /// selection policy below is pure and unit-testable (the Simulator has no
+    /// endpoints, so this is the only way to cover the logic).
+    struct EndpointInfo: Equatable, Sendable {
+        let ref: MIDIEndpointRef
+        let name: String
+        /// The owning device (0 for virtual endpoints with no entity).
+        let device: MIDIDeviceRef
+        let offline: Bool
+    }
+
+    /// Pick the destination to send to. Higher score wins; ties keep CoreMIDI's
+    /// order (first wins). Returns `nil` only when there's nothing to send to.
+    ///
+    /// Scoring: +4 if it shares a device with a connected source (a true
+    /// bidirectional port — the module we also hear from), +2 if it's real
+    /// hardware (has an owning device), +1 if it isn't a software bus. Offline
+    /// endpoints are dropped unless that would leave nothing.
+    nonisolated static func selectDestination(
+        from destinations: [EndpointInfo],
+        sourceDevices: Set<MIDIDeviceRef>
+    ) -> EndpointInfo? {
+        let online = destinations.filter { !$0.offline }
+        let pool = online.isEmpty ? destinations : online
+        guard let first = pool.first else { return nil }
+
+        func score(_ d: EndpointInfo) -> Int {
+            var s = 0
+            if d.device != 0 && sourceDevices.contains(d.device) { s += 4 }
+            if d.device != 0 { s += 2 }
+            if !isSoftwareBusName(d.name) { s += 1 }
+            return s
+        }
+
+        var best = first
+        var bestScore = score(first)
+        for d in pool.dropFirst() {
+            let s = score(d)
+            if s > bestScore {
+                best = d
+                bestScore = s
+            }
+        }
+        return best
+    }
+
+    /// Whether an endpoint name looks like a software bus (macOS IAC / Network
+    /// Session) we'd rather avoid when real hardware is present.
+    nonisolated static func isSoftwareBusName(_ name: String) -> Bool {
+        let n = name.lowercased()
+        return n.contains("iac") || n.contains("network session") || n.contains("network midi")
+    }
+
+    /// The device that owns an endpoint, or 0 for a virtual endpoint with no
+    /// entity (e.g. a software-created port).
+    private static func deviceRef(of endpoint: MIDIEndpointRef) -> MIDIDeviceRef {
+        var entity = MIDIEntityRef()
+        guard MIDIEndpointGetEntity(endpoint, &entity) == noErr, entity != 0 else { return 0 }
+        var device = MIDIDeviceRef()
+        guard MIDIEntityGetDevice(entity, &device) == noErr else { return 0 }
+        return device
+    }
+
+    /// Whether CoreMIDI currently reports the endpoint as offline (disconnected).
+    private static func isOffline(_ endpoint: MIDIEndpointRef) -> Bool {
+        var value: Int32 = 0
+        let status = MIDIObjectGetIntegerProperty(endpoint, kMIDIPropertyOffline, &value)
+        return status == noErr && value != 0
     }
 
     // MARK: - Helpers
