@@ -6,8 +6,9 @@
 use crate::event::{
     ConnectionState, CoreEvent, DeviceInfo, Earcon, Effect, Speech, SpeechPriority,
 };
+use crate::viewmodel::{self, KitRef, ParamKind, ParamValue, ParameterView, Snapshot};
 use device::{DeviceProfile, FirmwareSupport, FirmwareVersion, ProfileRegistry};
-use model::{Localizer, Message, format_kit, format_parameter};
+use model::{Localizer, Message, format_kit, format_parameter, format_parameter_label};
 use std::collections::HashMap;
 use sysex::SysexMessage;
 use sysex::encoding::decode_ascii;
@@ -55,7 +56,15 @@ pub struct Session {
     state: ConnectionState,
     device_id: u8,
     profile: Option<DeviceProfile>,
+    /// The identified module (cached so `snapshot` can report it after the
+    /// one-shot `DeviceIdentified` event).
+    device_info: Option<DeviceInfo>,
     current_kit: Option<u32>,
+    /// Read-through cache of the active kit's last device-confirmed parameter
+    /// values, keyed by `param_id`. Refreshed by polling / edit read-backs and
+    /// cleared on kit change / disconnect. Never holds intended (unverified)
+    /// values — the device is the source of truth (ADR-0010).
+    values: HashMap<String, ParamValue>,
     pending: HashMap<[u8; 4], Pending>,
 }
 
@@ -70,7 +79,9 @@ impl Session {
             state: ConnectionState::Disconnected,
             device_id: IDENTITY_DEVICE_ID,
             profile: None,
+            device_info: None,
             current_kit: None,
+            values: HashMap::new(),
             pending: HashMap::new(),
         }
     }
@@ -87,7 +98,9 @@ impl Session {
     pub fn on_connected(&mut self) -> Vec<Effect> {
         self.state = ConnectionState::Identifying;
         self.profile = None;
+        self.device_info = None;
         self.current_kit = None;
+        self.values.clear();
         self.pending.clear();
         vec![
             Effect::Emit(CoreEvent::ConnectionChanged(ConnectionState::Identifying)),
@@ -102,7 +115,9 @@ impl Session {
     pub fn on_disconnected(&mut self) -> Vec<Effect> {
         self.state = ConnectionState::Disconnected;
         self.profile = None;
+        self.device_info = None;
         self.current_kit = None;
+        self.values.clear();
         self.pending.clear();
         vec![
             Effect::Emit(CoreEvent::Earcon(Earcon::Disconnected)),
@@ -197,9 +212,11 @@ impl Session {
                     recognized: true,
                 };
                 self.profile = Some(profile);
+                self.device_info = Some(info.clone());
                 self.device_id = device_id;
                 self.state = ConnectionState::Ready;
                 self.current_kit = None;
+                self.values.clear();
                 self.pending.clear();
 
                 let mut speech = self.render(
@@ -228,6 +245,9 @@ impl Session {
                 self.profile = None;
                 self.device_id = device_id;
                 self.state = ConnectionState::Ready;
+                self.current_kit = None;
+                self.values.clear();
+                self.pending.clear();
                 let info = DeviceInfo {
                     model_id: Vec::new(),
                     device_id,
@@ -237,6 +257,7 @@ impl Session {
                     profile_id: String::new(),
                     recognized: false,
                 };
+                self.device_info = Some(info.clone());
                 let speech = self.render(&Message::new("device.unrecognized"));
                 vec![
                     Effect::Emit(CoreEvent::ConnectionChanged(ConnectionState::Ready)),
@@ -267,6 +288,10 @@ impl Session {
             }
             Pending::KitName(number) => {
                 let name = decode_ascii(data);
+                self.values.insert(
+                    "kit.common.name".to_string(),
+                    ParamValue::Text(name.clone()),
+                );
                 let speech = self.render(&format_kit(number + 1, &name));
                 vec![
                     Effect::Emit(CoreEvent::CurrentKitChanged { number, name }),
@@ -303,6 +328,10 @@ impl Session {
             }
         } else if Some(address) == name_addr {
             let name = decode_ascii(data);
+            self.values.insert(
+                "kit.common.name".to_string(),
+                ParamValue::Text(name.clone()),
+            );
             let speech = self.render(&format_kit(kit + 1, &name));
             vec![
                 Effect::Emit(CoreEvent::CurrentKitChanged { number: kit, name }),
@@ -317,6 +346,13 @@ impl Session {
 
     fn on_kit_changed(&mut self, number: u32) -> Vec<Effect> {
         self.current_kit = Some(number);
+        // New kit: the previous kit's cached values no longer apply. The name and
+        // tempo reads below repopulate the cache for the new kit.
+        self.values.clear();
+        self.values.insert(
+            "current.kit_num".to_string(),
+            ParamValue::Int(i64::from(number)),
+        );
         let mut fx = vec![Effect::Emit(CoreEvent::Earcon(Earcon::KitChanged))];
         if let Some(e) = self.request_read("kit.common.name", &[number], Pending::KitName(number)) {
             fx.push(e);
@@ -364,8 +400,8 @@ impl Session {
         )))
     }
 
-    fn speak_tempo(&self, data: &[u8], priority: SpeechPriority) -> Vec<Effect> {
-        let message = {
+    fn speak_tempo(&mut self, data: &[u8], priority: SpeechPriority) -> Vec<Effect> {
+        let (message, raw) = {
             let Some(p) = self.profile.as_ref() else {
                 return Vec::new();
             };
@@ -375,8 +411,10 @@ impl Session {
             let Some(raw) = def.encoding.decode_int(data) else {
                 return Vec::new();
             };
-            format_parameter(def, raw)
+            (format_parameter(def, raw), raw)
         };
+        self.values
+            .insert("kit.common.tempo".to_string(), ParamValue::Int(raw));
         vec![self.speak(self.render(&message), priority)]
     }
 
@@ -490,6 +528,8 @@ impl Session {
             // The kit-change flow (earcon + read name/tempo + speak) is the confirmation.
             return self.on_kit_changed(u32::try_from(actual).unwrap_or(0));
         }
+        self.values
+            .insert(edit.param_id.clone(), ParamValue::Int(actual));
         let display = self.render_int_value(&edit.param_id, actual);
         vec![
             Effect::Emit(CoreEvent::EditConfirmed {
@@ -501,7 +541,9 @@ impl Session {
         ]
     }
 
-    fn confirm_text(&self, edit: &Edit, actual: String) -> Vec<Effect> {
+    fn confirm_text(&mut self, edit: &Edit, actual: String) -> Vec<Effect> {
+        self.values
+            .insert(edit.param_id.clone(), ParamValue::Text(actual.clone()));
         vec![
             Effect::Emit(CoreEvent::EditConfirmed {
                 param_id: edit.param_id.clone(),
@@ -559,6 +601,63 @@ impl Session {
         match self.profile.as_ref().and_then(|p| p.parameter(param_id)) {
             Some(def) => self.render(&format_parameter(def, value)),
             None => value.to_string(),
+        }
+    }
+
+    // ── pull-side view-model ──
+
+    /// Build a snapshot of the current observable state for the UI. Complements
+    /// the `CoreEvent` stream: the host pulls this when it needs the full current
+    /// state (e.g. opening an editor). Parameter values are the last device-
+    /// confirmed read-backs, never intent. See [`crate::viewmodel`].
+    pub fn snapshot(&self) -> Snapshot {
+        let parameters = self
+            .profile
+            .as_ref()
+            .map(|p| self.build_parameter_views(p))
+            .unwrap_or_default();
+        Snapshot {
+            connection: self.state,
+            device: self.device_info.clone(),
+            current_kit: self.current_kit.map(|number| KitRef {
+                number,
+                display_number: number + 1,
+                name: self.text_value("kit.common.name").unwrap_or_default(),
+            }),
+            parameters,
+        }
+    }
+
+    fn build_parameter_views(&self, profile: &DeviceProfile) -> Vec<ParameterView> {
+        profile
+            .parameters
+            .iter()
+            .map(|def| {
+                let kind = ParamKind::of(def);
+                let value = self.values.get(&def.id).cloned();
+                let display = value.as_ref().map(|v| match v {
+                    ParamValue::Int(raw) => self.render(&format_parameter(def, *raw)),
+                    ParamValue::Text(text) => text.clone(),
+                });
+                let numeric =
+                    matches!(kind, ParamKind::Numeric).then(|| viewmodel::numeric_info(def));
+                ParameterView {
+                    param_id: def.id.clone(),
+                    label: self.render(&format_parameter_label(def)),
+                    kind,
+                    value,
+                    display,
+                    numeric,
+                }
+            })
+            .collect()
+    }
+
+    /// The last text value cached for `param_id`, if any.
+    fn text_value(&self, param_id: &str) -> Option<String> {
+        match self.values.get(param_id) {
+            Some(ParamValue::Text(s)) => Some(s.clone()),
+            _ => None,
         }
     }
 
@@ -947,5 +1046,125 @@ mod tests {
             !tick_fx.iter().any(|e| matches!(e, Effect::SendMidi(_))),
             "poll must be skipped while an edit is in flight"
         );
+    }
+
+    #[test]
+    fn snapshot_before_connect_is_disconnected_and_empty() {
+        let s = Session::new("en");
+        let snap = s.snapshot();
+        assert_eq!(snap.connection, ConnectionState::Disconnected);
+        assert!(snap.device.is_none());
+        assert!(snap.current_kit.is_none());
+        assert!(snap.parameters.is_empty());
+    }
+
+    #[test]
+    fn snapshot_reports_device_kit_and_parameter_metadata() {
+        let mut fake = FakeModule::v31();
+        let mut s = Session::new("en");
+        let init = s.on_connected();
+        drive(&mut s, &mut fake, init); // Ready, kit 4 = "Jazz", tempo 1200
+
+        let snap = s.snapshot();
+        assert_eq!(snap.connection, ConnectionState::Ready);
+        assert!(
+            snap.device
+                .as_ref()
+                .is_some_and(|d| d.recognized && d.name == "Roland V31")
+        );
+
+        let kit = snap.current_kit.expect("current kit known");
+        assert_eq!(
+            (kit.number, kit.display_number, kit.name.as_str()),
+            (4, 5, "Jazz")
+        );
+
+        let tempo = snap
+            .parameters
+            .iter()
+            .find(|p| p.param_id == "kit.common.tempo")
+            .expect("tempo view");
+        assert_eq!(tempo.label, "Tempo"); // localized label, value-free
+        assert_eq!(tempo.kind, ParamKind::Numeric);
+        assert_eq!(tempo.value, Some(ParamValue::Int(1200)));
+        assert_eq!(tempo.display.as_deref(), Some("120.0 BPM"));
+        let num = tempo.numeric.as_ref().expect("numeric info");
+        assert_eq!(num.scale, 10);
+        assert_eq!(num.unit.as_deref(), Some("bpm"));
+        let range = num.range.as_ref().expect("declared range");
+        assert_eq!(
+            (range.raw_min, range.raw_max, range.raw_step),
+            (200, 2600, 1)
+        );
+        assert!((range.display_min - 20.0).abs() < 1e-9);
+        assert!((range.display_max - 260.0).abs() < 1e-9);
+        assert!((range.display_step - 0.1).abs() < 1e-9);
+
+        // The kit name is exposed as a Text parameter (no numeric metadata).
+        let name = snap
+            .parameters
+            .iter()
+            .find(|p| p.param_id == "kit.common.name")
+            .expect("name view");
+        assert_eq!(name.kind, ParamKind::Text);
+        assert_eq!(name.value, Some(ParamValue::Text("Jazz".to_string())));
+        assert!(name.numeric.is_none());
+    }
+
+    #[test]
+    fn snapshot_reflects_a_confirmed_edit() {
+        let mut fake = FakeModule::v31();
+        let mut s = Session::new("en");
+        let init = s.on_connected();
+        drive(&mut s, &mut fake, init);
+
+        let fx = s.set_parameter("kit.common.tempo".to_string(), vec![4], 1300);
+        drive(&mut s, &mut fake, fx);
+
+        let tempo = s
+            .snapshot()
+            .parameters
+            .into_iter()
+            .find(|p| p.param_id == "kit.common.tempo")
+            .unwrap();
+        assert_eq!(tempo.value, Some(ParamValue::Int(1300)));
+        assert_eq!(tempo.display.as_deref(), Some("130.0 BPM"));
+    }
+
+    #[test]
+    fn snapshot_localizes_labels_and_values() {
+        let mut fake = FakeModule::v31();
+        let mut s = Session::new("ru");
+        let init = s.on_connected();
+        drive(&mut s, &mut fake, init);
+
+        let tempo = s
+            .snapshot()
+            .parameters
+            .into_iter()
+            .find(|p| p.param_id == "kit.common.tempo")
+            .unwrap();
+        assert_eq!(tempo.label, "Темп");
+        assert_eq!(tempo.display.as_deref(), Some("120.0 уд/мин"));
+    }
+
+    #[test]
+    fn snapshot_clears_stale_values_on_kit_change() {
+        let mut fake = FakeModule::v31();
+        let mut s = Session::new("en");
+        let init = s.on_connected();
+        drive(&mut s, &mut fake, init); // kit 4, tempo 1200
+
+        let fx = s.select_kit(0); // switch to kit 0 ("Rock", tempo 1400)
+        drive(&mut s, &mut fake, fx);
+
+        let snap = s.snapshot();
+        assert_eq!(snap.current_kit.unwrap().name, "Rock");
+        let tempo = snap
+            .parameters
+            .into_iter()
+            .find(|p| p.param_id == "kit.common.tempo")
+            .unwrap();
+        assert_eq!(tempo.value, Some(ParamValue::Int(1400)));
     }
 }

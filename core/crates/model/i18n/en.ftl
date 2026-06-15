@@ -10,6 +10,13 @@ param-kit-sub-name = { $name }
 param-kit-num = Kit { $number }
 param-tempo-switch = Tempo switch: { $value }
 
+# Parameter labels (control / accessibility labels — never carry the value).
+param-tempo-label = Tempo
+param-kit-name-label = Kit name
+param-kit-sub-name-label = Sub-name
+param-kit-num-label = Kit
+param-tempo-switch-label = Tempo switch
+
 instrument-name = { $name }
 instrument-unknown = Instrument #{ $number } (unknown)
 

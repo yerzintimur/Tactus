@@ -11,7 +11,7 @@ mod i18n;
 mod intent;
 
 pub use catalog::InstrumentCatalog;
-pub use format::{format_kit, format_parameter};
+pub use format::{format_kit, format_parameter, format_parameter_label};
 pub use i18n::{Arg, Localizer, Message};
 pub use intent::Intent;
 

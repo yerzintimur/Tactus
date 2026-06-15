@@ -11,7 +11,8 @@
 mod types;
 
 pub use types::{
-    ConnectionState, CoreEvent, DeviceInfo, Earcon, Effect, FirmwareSupport, Speech, SpeechPriority,
+    ConnectionState, CoreEvent, DeviceInfo, Earcon, Effect, FirmwareSupport, KitRef, NumericInfo,
+    NumericRange, ParamKind, ParamValue, ParameterView, Snapshot, Speech, SpeechPriority,
 };
 
 use std::sync::{Arc, Mutex};
@@ -72,6 +73,13 @@ impl TactusSession {
     /// Rename a kit, verified by read-back.
     pub fn rename_kit(&self, number: u32, name: String) -> Vec<Effect> {
         self.run(|s| s.rename_kit(number, name))
+    }
+
+    /// Pull the current observable state (connection, device, active kit, and the
+    /// active device's parameters with last-known values + presentation metadata).
+    /// Complements the event stream — call it when (re)building UI such as an editor.
+    pub fn snapshot(&self) -> Snapshot {
+        Snapshot::from(self.locked().snapshot())
     }
 }
 
@@ -172,5 +180,45 @@ mod tests {
                 }
             }
         )));
+    }
+
+    #[test]
+    fn snapshot_crosses_the_ffi_boundary() {
+        let session = TactusSession::new("en".to_string());
+        assert_eq!(session.snapshot().connection, ConnectionState::Disconnected);
+
+        let _ = session.on_connected();
+        assert_eq!(session.snapshot().connection, ConnectionState::Identifying);
+
+        // V31 Identity Reply -> Ready + recognized device.
+        let reply = vec![
+            0xF0, 0x7E, 0x10, 0x06, 0x02, 0x41, 0x01, 0x06, 0x03, 0x00, 0x00, 0x02, 0x00, 0x00,
+            0xF7,
+        ];
+        let _ = session.handle_midi_input(reply);
+
+        let snap = session.snapshot();
+        assert_eq!(snap.connection, ConnectionState::Ready);
+        assert!(
+            snap.device
+                .is_some_and(|d| d.recognized && d.name == "Roland V31")
+        );
+        // The profile's parameters are surfaced with metadata even before a value
+        // has been read back (value stays None until polling fills the cache).
+        let tempo = snap
+            .parameters
+            .iter()
+            .find(|p| p.param_id == "kit.common.tempo")
+            .expect("tempo view from the V31 profile");
+        assert_eq!(tempo.label, "Tempo");
+        assert!(matches!(tempo.kind, ParamKind::Numeric));
+        assert!(tempo.value.is_none());
+        assert!(
+            tempo
+                .numeric
+                .as_ref()
+                .and_then(|n| n.range.as_ref())
+                .is_some()
+        );
     }
 }

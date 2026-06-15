@@ -7,11 +7,15 @@
 
 mod event;
 mod session;
+mod viewmodel;
 
 pub use event::{
     ConnectionState, CoreEvent, DeviceInfo, Earcon, Effect, FirmwareSupport, Speech, SpeechPriority,
 };
 pub use session::Session;
+pub use viewmodel::{
+    KitRef, NumericInfo, NumericRange, ParamKind, ParamValue, ParameterView, Snapshot,
+};
 
 /// Crate version, exposed so the FFI layer can sanity-check linkage.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

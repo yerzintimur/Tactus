@@ -24,6 +24,18 @@ pub fn format_parameter(param: &ParameterDef, raw: i64) -> Message {
     }
 }
 
+/// Build a localizable *label* for a parameter (e.g. "Tempo"), distinct from its
+/// value phrasing. Uses the parameter's `<i18n_key>.label` message id (falling
+/// back to `param.<id>.label`); the UI uses it as the control's accessibility
+/// label, so it never carries the value.
+pub fn format_parameter_label(param: &ParameterDef) -> Message {
+    let base = param
+        .i18n_key
+        .clone()
+        .unwrap_or_else(|| format!("param.{}", param.id));
+    Message::new(format!("{base}.label"))
+}
+
 /// Build a localizable label for a kit. `display_number` is 1-based (the value
 /// shown to the user; the wire value is 0-based).
 pub fn format_kit(display_number: u32, name: &str) -> Message {
@@ -79,5 +91,14 @@ mod tests {
         let loc = Localizer::new();
         assert_eq!(loc.format(&format_kit(5, "Jazz"), "en"), "Kit 5: Jazz");
         assert_eq!(loc.format(&format_kit(5, "Jazz"), "ru"), "Кит 5: Jazz");
+    }
+
+    #[test]
+    fn parameter_label_is_localized_and_value_free() {
+        let p = profile();
+        let tempo = p.parameter("kit.common.tempo").unwrap();
+        let loc = Localizer::new();
+        assert_eq!(loc.format(&format_parameter_label(tempo), "en"), "Tempo");
+        assert_eq!(loc.format(&format_parameter_label(tempo), "ru"), "Темп");
     }
 }
