@@ -75,9 +75,13 @@ and verified; keep this file honest about real state.
   Read-through value cache in the engine (device is source of truth). Mirrored
   over UniFFI + tested. **Next:** regenerate Swift bindings (`just gen-bindings`)
   to consume it in the app.
-- [ ] **`P2` Tempo editor UI** — accessible adjustable (VoiceOver swipe ↑↓, 0.1
-  BPM steps) routed through write→readback→verify. *(FFI snapshot ready: tempo's
-  `numeric.range` gives min/max + 0.1 BPM `display_step`)*
+- [x] **`P2` Tempo editor UI** — accessible adjustable (VoiceOver swipe ↑↓, 0.1
+  BPM steps) + visible −/+ buttons, routed through write→readback→verify. Value
+  shown is the device-confirmed one (no blind writes); spoken confirmation comes
+  from the core. Projected from `snapshot()` in
+  [CoreSession.swift](apps/ios/TactusApp/CoreSession.swift); unit + a11y-audit
+  gated. *(Live value round-trip — incl. tempo offset `0x6F` — validated under
+  M1 P1 on hardware.)*
 - [ ] **`P2` Full Transmit Edit Data handling** — announce any
   hardware-initiated edit, not just kit/name/tempo.
 - [ ] **`P2` Low-vision pass** — high-contrast theme + Dynamic Type hardening;

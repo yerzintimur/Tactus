@@ -21,6 +21,9 @@ struct ContentView: View {
                 connectionSection
                 if session.connection == .ready {
                     kitSection
+                    if session.tempo != nil {
+                        tempoSection
+                    }
                 }
                 #if DEBUG
                 if !Self.isUITest {
@@ -99,6 +102,53 @@ struct ContentView: View {
         }
     }
 
+    // MARK: - Tempo
+
+    /// Accessible tempo editor. The whole row is a single VoiceOver *adjustable*:
+    /// swipe up/down nudges the tempo by 0.1 BPM. The visible −/+ buttons do the
+    /// same for sighted/low-vision/touch use (hidden from VoiceOver so the row
+    /// reads as one control). Every nudge goes through the core's
+    /// write→read-back→verify pipeline, so the value shown is the actual stored
+    /// value, and the spoken confirmation comes from the core.
+    @ViewBuilder private var tempoSection: some View {
+        Section("Tempo") {
+            HStack(spacing: 12) {
+                Text(tempoValueText)
+                    .font(.title3)
+                    .monospacedDigit()
+                Spacer()
+                Button {
+                    session.adjustTempo(rawSteps: -1)
+                } label: {
+                    Image(systemName: "minus").frame(width: 44, height: 44)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+                .disabled(session.tempoRawValue == nil || session.tempoAtMinimum)
+
+                Button {
+                    session.adjustTempo(rawSteps: 1)
+                } label: {
+                    Image(systemName: "plus").frame(width: 44, height: 44)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+                .disabled(session.tempoRawValue == nil || session.tempoAtMaximum)
+            }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(session.tempo?.label ?? "Tempo")
+            .accessibilityValue(tempoValueText)
+            .accessibilityHint("Swipe up or down to adjust the tempo")
+            .accessibilityAdjustableAction { direction in
+                switch direction {
+                case .increment: session.adjustTempo(rawSteps: 1)
+                case .decrement: session.adjustTempo(rawSteps: -1)
+                @unknown default: break
+                }
+            }
+        }
+    }
+
     // MARK: - Developer (DEBUG only)
 
     #if DEBUG
@@ -148,6 +198,12 @@ struct ContentView: View {
             return "\(Int(number) + 1) · \(name)"
         }
         return name
+    }
+
+    /// The current tempo as the core localized it (e.g. "120.0 BPM"), or a dash
+    /// until the device has reported it.
+    private var tempoValueText: String {
+        session.tempo?.display ?? "—"
     }
 
     private func firmwareWarning(_ support: FirmwareSupport) -> String? {

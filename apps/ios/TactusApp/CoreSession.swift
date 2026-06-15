@@ -16,6 +16,10 @@ final class CoreSession: ObservableObject {
     @Published private(set) var device: DeviceInfo?
     @Published private(set) var currentKit: String?
     @Published private(set) var currentKitNumber: UInt32?
+    /// The active kit's tempo parameter (value + range/scale), projected from the
+    /// core's snapshot. `nil` when no profile exposes it (e.g. unknown device).
+    /// The value is the last value the device confirmed — never edit intent.
+    @Published private(set) var tempo: ParameterView?
     /// Most recent spoken announcement, mirrored for the UI.
     @Published private(set) var lastSpoken: String = ""
     @Published private(set) var log: [String] = []
@@ -64,6 +68,37 @@ final class CoreSession: ObservableObject {
     func selectKit(_ number: UInt32) { perform(core.selectKit(number: number)) }
     func renameKit(_ number: UInt32, to name: String) { perform(core.renameKit(number: number, name: name)) }
 
+    /// Nudge the active kit's tempo by `rawSteps` smallest increments (1 step =
+    /// 0.1 BPM). Clamped to the parameter's range; routed through the core's
+    /// write→read-back→verify pipeline, so the displayed value and the spoken
+    /// confirmation are the **actual stored** value, never the intended one.
+    func adjustTempo(rawSteps: Int) {
+        guard let tempo,
+            case let .int(raw)? = tempo.value,
+            let range = tempo.numeric?.range,
+            let kit = currentKitNumber
+        else { return }
+        let target = max(range.rawMin, min(range.rawMax, raw + Int64(rawSteps) * range.rawStep))
+        guard target != raw else { return }
+        perform(core.setParameter(paramId: tempo.paramId, indices: [kit], value: target))
+    }
+
+    /// The active kit's current raw tempo, if the device has reported it.
+    var tempoRawValue: Int64? {
+        if case let .int(value)? = tempo?.value { return value }
+        return nil
+    }
+
+    var tempoAtMinimum: Bool {
+        guard let raw = tempoRawValue, let range = tempo?.numeric?.range else { return false }
+        return raw <= range.rawMin
+    }
+
+    var tempoAtMaximum: Bool {
+        guard let raw = tempoRawValue, let range = tempo?.numeric?.range else { return false }
+        return raw >= range.rawMax
+    }
+
     /// Step to the adjacent kit. The core verifies the result and announces the
     /// actual kit; an out-of-range request just fails (reported via EditFailed).
     func nextKit() { selectKit((currentKitNumber ?? 0) + 1) }
@@ -94,6 +129,14 @@ final class CoreSession: ObservableObject {
                 apply(event)
             }
         }
+        refreshViewModel()
+    }
+
+    /// Re-pull the core's snapshot and project the bits the UI binds to. Cheap
+    /// (a small in-memory build); the snapshot holds the last device-confirmed
+    /// values, so the UI never shows unverified edit intent.
+    private func refreshViewModel() {
+        tempo = core.snapshot().parameters.first { $0.paramId == "kit.common.tempo" }
     }
 
     private func apply(_ event: CoreEvent) {
