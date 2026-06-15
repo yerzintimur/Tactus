@@ -214,6 +214,7 @@ See full rationale, alternatives, and exact build commands in
 - [0011](docs/adr/0011-mixed-language-speech.md) Mixed-language speech — per-segment language tagging.
 - [0012](docs/adr/0012-scope-and-generalization-path.md) Scope now = Roland drums; vision = any instrument/vendor, server-delivered profiles (deferred).
 - [0013](docs/adr/0013-data-driven-ui-renderer.md) Per-device UI = downloadable declarative description + generic native renderer (deferred).
+- [0014](docs/adr/0014-screen-reader-is-the-only-voice.md) The screen reader is the only voice — app exposes the a11y tree, announces only screen-reader-invisible changes (interrupting for nav), no double-speech.
 
 ## Deep design
 
