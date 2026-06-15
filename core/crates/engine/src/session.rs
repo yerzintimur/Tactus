@@ -26,7 +26,9 @@ const EDIT_TIMEOUT_TICKS: u32 = 5;
 enum Pending {
     CurrentKitNum,
     KitName(u32),
-    Tempo,
+    /// Tempo read-back for the given kit (the kit lets us drop stale read-backs
+    /// from rapid scrolling).
+    Tempo(u32),
     /// Read-back of an edit, awaiting verification.
     EditVerify(Edit),
 }
@@ -287,6 +289,12 @@ impl Session {
                 }
             }
             Pending::KitName(number) => {
+                // Drop stale read-backs from rapid kit-scrolling: only announce the
+                // kit the device has settled on (the one matching our state). This
+                // keeps a fast dial through kits from speaking every name in between.
+                if Some(number) != self.current_kit {
+                    return Vec::new();
+                }
                 let name = decode_ascii(data);
                 self.values.insert(
                     "kit.common.name".to_string(),
@@ -298,7 +306,12 @@ impl Session {
                     self.speak(speech, SpeechPriority::Default),
                 ]
             }
-            Pending::Tempo => self.speak_tempo(data, SpeechPriority::Low),
+            Pending::Tempo(kit) => {
+                if Some(kit) != self.current_kit {
+                    return Vec::new();
+                }
+                self.speak_tempo(data, SpeechPriority::Low)
+            }
             Pending::EditVerify(edit) => self.handle_edit_verify(edit, data),
         }
     }
@@ -357,7 +370,7 @@ impl Session {
         if let Some(e) = self.request_read("kit.common.name", &[number], Pending::KitName(number)) {
             fx.push(e);
         }
-        if let Some(e) = self.request_read("kit.common.tempo", &[number], Pending::Tempo) {
+        if let Some(e) = self.request_read("kit.common.tempo", &[number], Pending::Tempo(number)) {
             fx.push(e);
         }
         fx
@@ -900,6 +913,63 @@ mod tests {
                 .iter()
                 .any(|e| matches!(e, Effect::Emit(CoreEvent::Earcon(Earcon::KitChanged))))
         );
+    }
+
+    #[test]
+    fn rapid_kit_changes_announce_only_the_settled_kit() {
+        let mut fake = FakeModule::v31();
+        let mut s = Session::new("en");
+        let init = s.on_connected();
+        drive(&mut s, &mut fake, init); // Ready on kit 4
+
+        let model = [1u8, 6, 1];
+        // Two hardware kit changes arrive back-to-back (a fast dial) before either
+        // name read-back is answered: kit index 0, then kit index 1.
+        let to0 = sysex::build_dt1(
+            0x10,
+            &model,
+            [0, 0, 0, 0],
+            &Encoding::Nibble.encode_int(0, 4).unwrap(),
+        );
+        let to1 = sysex::build_dt1(
+            0x10,
+            &model,
+            [0, 0, 0, 0],
+            &Encoding::Nibble.encode_int(1, 4).unwrap(),
+        );
+        let _ = s.handle_midi_input(&to0); // current kit -> 0, reads name(0)
+        let _ = s.handle_midi_input(&to1); // current kit -> 1, reads name(1)
+
+        // Answer both name read-backs — stale (kit 0) first, then the settled kit 1.
+        let p = ProfileRegistry::with_builtin()
+            .match_model(&model)
+            .unwrap()
+            .clone();
+        let name0 = p.address_of("kit.common.name", &[0]).unwrap();
+        let name1 = p.address_of("kit.common.name", &[1]).unwrap();
+        let reply0 = sysex::build_dt1(
+            0x10,
+            &model,
+            name0,
+            &sysex::encoding::encode_ascii("Rock", 16),
+        );
+        let reply1 = sysex::build_dt1(
+            0x10,
+            &model,
+            name1,
+            &sysex::encoding::encode_ascii("Funk", 16),
+        );
+
+        let mut spoken = Vec::new();
+        for r in [reply0, reply1] {
+            for e in s.handle_midi_input(&r) {
+                if let Effect::Emit(CoreEvent::Speak(sp)) = e {
+                    spoken.push(sp.text);
+                }
+            }
+        }
+        // The stale kit-0 read-back is dropped; only the settled kit is spoken.
+        assert_eq!(spoken, vec!["Kit 2: Funk".to_string()]);
     }
 
     #[test]
