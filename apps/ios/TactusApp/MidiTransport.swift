@@ -141,8 +141,11 @@ final class MidiTransport {
         return "endpoint \(endpoint)"
     }
 
-    /// Flatten a CoreMIDI packet list into a single byte buffer.
-    private static func bytes(from packetList: UnsafePointer<MIDIPacketList>) -> Data {
+    /// Flatten a CoreMIDI packet list into a single byte buffer. `nonisolated`:
+    /// CoreMIDI invokes the read block on its own thread, so this pure parsing
+    /// must not be main-actor-isolated (the result is hopped to the main actor by
+    /// the caller). Without this, the isolation check traps (EXC_BREAKPOINT).
+    nonisolated private static func bytes(from packetList: UnsafePointer<MIDIPacketList>) -> Data {
         var data = Data()
         var packet = packetList.pointee.packet
         for _ in 0..<packetList.pointee.numPackets {
