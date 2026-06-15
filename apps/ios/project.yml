@@ -5,6 +5,7 @@ options:
   bundleIdPrefix: app.tactus
   deploymentTarget:
     iOS: "18.0"
+    macOS: "14.0"
   createIntermediateGroups: true
 
 # The shared Rust core, packaged as a local Swift package by `just build-ios`.
@@ -16,9 +17,10 @@ packages:
 targets:
   # App module is "TactusApp" (not "Tactus") so `import Tactus` pulls in the core
   # package module without colliding with the app's own module.
+  # Single multiplatform app: iPhone, iPad, and Mac from one target/codebase.
   TactusApp:
     type: application
-    platform: iOS
+    supportedDestinations: [iOS, macOS]
     sources:
       - path: TactusApp
     dependencies:
@@ -34,9 +36,10 @@ targets:
         MARKETING_VERSION: "0.1.0"
         SWIFT_VERSION: "6.0"
         TARGETED_DEVICE_FAMILY: "1,2"
-        # We ship arm64 only; the core XCFramework has no Intel-simulator slice,
-        # so build the simulator for arm64 (Apple Silicon hosts) only.
+        # arm64 only (matches the core XCFramework, which has no Intel slices):
+        # build the iOS Simulator and the Mac for arm64 on Apple Silicon hosts.
         "EXCLUDED_ARCHS[sdk=iphonesimulator*]": x86_64
+        "EXCLUDED_ARCHS[sdk=macosx*]": x86_64
         CODE_SIGN_STYLE: Automatic
         SWIFT_EMIT_LOC_STRINGS: "YES"
         GENERATE_INFOPLIST_FILE: "YES"

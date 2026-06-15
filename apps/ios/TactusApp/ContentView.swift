@@ -187,7 +187,9 @@ struct RenameKitView: View {
                     .onSubmit(save)
             }
             .navigationTitle("Rename kit")
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

@@ -35,15 +35,15 @@ cargo *ARGS:
 #   cargo install 'cargo-swift@^0.11' just --locked
 # The generated package (bindings/Tactus) is git-ignored and regenerated.
 
-# Regenerate the Swift package: builds libtactus.a for device + simulator,
-# generates the UniFFI Swift bindings, and bundles tactusFFI.xcframework.
-# arm64 only (we ship arm64); the Intel-simulator slice is excluded.
+# Regenerate the Swift package: builds libtactus.a for iOS (device + simulator)
+# and macOS, generates the UniFFI Swift bindings, and bundles the XCFramework.
+# arm64 only (we ship arm64); Intel slices (iOS-sim + macOS) are excluded.
 build-ios:
     rm -rf core/crates/ffi/Tactus
     cd core/crates/ffi && cargo swift package \
-        --platforms ios@18 --name Tactus --release \
+        --platforms ios@18 macos@14 --name Tactus --release \
         --lib-type static --accept-all --skip-toolchains-check \
-        --exclude-arch x86_64-apple-ios
+        --exclude-arch x86_64-apple-ios --exclude-arch x86_64-apple-darwin
     # cargo-swift exits 0 even on failure, so verify the artifact exists.
     test -f core/crates/ffi/Tactus/tactusFFI.xcframework/Info.plist
     rm -rf bindings/Tactus && mkdir -p bindings
@@ -79,3 +79,17 @@ ios-test sim="iPhone 17":
 # Open the project in Xcode.
 ios-open:
     open apps/ios/Tactus.xcodeproj
+
+# --- macOS (same multiplatform app target) ---
+# Build the Mac app, ad-hoc signed so it runs locally without a dev team.
+# (From Xcode, just pick "My Mac" + your team — Mac runs have no 7-day limit.)
+mac-build:
+    xcodebuild -project apps/ios/Tactus.xcodeproj -scheme TactusApp \
+        -destination 'platform=macOS,arch=arm64' -derivedDataPath .docker/mac-derived \
+        build CODE_SIGN_IDENTITY="-" CODE_SIGN_STYLE=Manual \
+        CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=YES
+
+# Build + launch the Mac app. The Mac is a native USB host, so a V31 connected
+# straight to it (no adapter) shows up under MIDI (debug) → Rescan.
+mac-run: mac-build
+    open .docker/mac-derived/Build/Products/Debug/TactusApp.app

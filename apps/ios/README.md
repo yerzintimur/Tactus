@@ -1,7 +1,12 @@
-# Tactus — iOS app
+# Tactus — Apple app (iPhone · iPad · Mac)
 
-Native SwiftUI app. Consumes the shared Rust core through the generated Swift
-package (`bindings/Tactus`, built by `just build-ios`).
+Native SwiftUI app — one multiplatform target for iOS, iPadOS, and macOS.
+Consumes the shared Rust core through the generated Swift package
+(`bindings/Tactus`, built by `just build-ios`, which bundles iOS + macOS slices).
+
+> The directory is still named `ios/` for now; the target builds for all Apple
+> platforms. iPad is covered by the iOS destination; macOS is a native build (not
+> Catalyst), with small platform shims for speech, earcons, and audio session.
 
 > Nonvisual-first: every screen must be fully usable eyes-closed (VoiceOver +
 > speech + earcons). See [docs/ACCESSIBILITY.md](../../docs/ACCESSIBILITY.md).
@@ -33,7 +38,13 @@ just ios-bootstrap   # build the core package + generate the Xcode project
 just ios-open        # open in Xcode (scheme: TactusApp)
 # or, headless:
 just ios-build       # build for the iOS Simulator
+just mac-run         # build + launch the macOS app (ad-hoc signed)
 ```
+
+On Mac, the machine is a **native USB host**, so a V31 connected straight to it
+(no adapter) appears under **MIDI (debug) → Rescan** — the easiest way to test
+against real hardware. The iOS Simulator does **not** see host MIDI devices, so
+simulator testing uses the canned identity reply only.
 
 ## Connecting a module (hardware requirements)
 

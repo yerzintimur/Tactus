@@ -1,20 +1,25 @@
 import AVFoundation
 import Tactus
+
+#if canImport(UIKit)
 import UIKit
+#endif
+#if canImport(AppKit)
+import AppKit
+#endif
 
 /// Speaks the localized strings the core emits (`Speech { text, priority }`).
 ///
-/// Nonvisual-first: when the user already runs **VoiceOver**, we route through
-/// `UIAccessibility` announcements so our speech queues with VoiceOver and honors
-/// the user's chosen voice and rate — we don't fight the screen reader with a
-/// second TTS. When VoiceOver is off, we speak with `AVSpeechSynthesizer`.
+/// Nonvisual-first: when the user already runs a **screen reader** (VoiceOver), we
+/// route through the platform's accessibility announcements so our speech queues
+/// with it and honors the user's chosen voice and rate — we don't fight the screen
+/// reader with a second TTS. When it's off, we speak with `AVSpeechSynthesizer`.
 ///
 /// `SpeechPriority` maps to interrupt-vs-enqueue (synth) and to announcement
-/// priority (VoiceOver).
+/// priority (screen reader).
 ///
 /// The core's strings are currently single-language per utterance; per-segment
-/// language tagging (ADR-0011, e.g. a Russian sentence with an English kit name)
-/// is a later enhancement — for now we speak with one voice for the UI locale.
+/// language tagging (ADR-0011) is a later enhancement.
 @MainActor
 final class SpeechService {
     private let synth = AVSpeechSynthesizer()
@@ -30,23 +35,44 @@ final class SpeechService {
     }
 
     func speak(_ speech: Speech) {
-        if UIAccessibility.isVoiceOverRunning {
+        if Self.isScreenReaderRunning {
             announce(speech)
         } else {
             synthesize(speech)
         }
     }
 
-    // MARK: - VoiceOver path
+    // MARK: - Screen-reader path
 
-    private func announce(_ speech: Speech) {
-        var text = AttributedString(speech.text)
-        text.accessibilitySpeechAnnouncementPriority = priority(for: speech.priority)
-        UIAccessibility.post(notification: .announcement, argument: text)
+    private static var isScreenReaderRunning: Bool {
+        #if os(iOS)
+        return UIAccessibility.isVoiceOverRunning
+        #elseif os(macOS)
+        return NSWorkspace.shared.isVoiceOverEnabled
+        #else
+        return false
+        #endif
     }
 
-    private func priority(
-        for priority: SpeechPriority
+    private func announce(_ speech: Speech) {
+        #if os(iOS)
+        var text = AttributedString(speech.text)
+        text.accessibilitySpeechAnnouncementPriority = iosPriority(speech.priority)
+        UIAccessibility.post(notification: .announcement, argument: text)
+        #elseif os(macOS)
+        NSAccessibility.post(
+            element: NSApp.mainWindow ?? NSApplication.shared,
+            notification: .announcementRequested,
+            userInfo: [
+                .announcement: speech.text,
+                .priority: macPriority(speech.priority).rawValue,
+            ])
+        #endif
+    }
+
+    #if os(iOS)
+    private func iosPriority(
+        _ priority: SpeechPriority
     ) -> AttributeScopes.AccessibilityAttributes.AnnouncementPriorityAttribute.Value {
         switch priority {
         case .high: .high
@@ -54,16 +80,23 @@ final class SpeechService {
         case .low: .low
         }
     }
+    #elseif os(macOS)
+    private func macPriority(_ priority: SpeechPriority) -> NSAccessibilityPriorityLevel {
+        switch priority {
+        case .high: .high
+        case .default: .medium
+        case .low: .low
+        }
+    }
+    #endif
 
     // MARK: - AVSpeechSynthesizer path
 
     private func synthesize(_ speech: Speech) {
         switch speech.priority {
         case .high:
-            // Interrupt whatever is speaking so urgent feedback is heard now.
             synth.stopSpeaking(at: .immediate)
         case .low where synth.isSpeaking:
-            // Don't let low-priority chatter pile up behind active speech.
             return
         case .default, .low:
             break
@@ -76,14 +109,16 @@ final class SpeechService {
     // MARK: - Helpers
 
     private func configureAudioSession() {
+        #if os(iOS)
+        // Spoken audio that ducks (not silences) other playback; mixes so we never
+        // take over the user's other audio. macOS has no AVAudioSession.
         let session = AVAudioSession.sharedInstance()
-        // Spoken audio that ducks (not silences) any other playback; mixes so we
-        // never take over the user's other audio.
         try? session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers, .mixWithOthers])
         try? session.setActive(true)
+        #endif
     }
 
-    /// AVSpeech and VoiceOver want BCP-47 ("en-US"); the core uses bare codes.
+    /// AVSpeech and screen readers want BCP-47 ("en-US"); the core uses bare codes.
     private static func bcp47(_ code: String) -> String {
         switch code {
         case "en": "en-US"
