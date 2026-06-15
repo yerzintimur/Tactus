@@ -1,0 +1,13 @@
+[package]
+name = "devicesim"
+description = "Virtual Roland module: a profile-driven device behaviour model + virtual clock for deterministic e2e tests."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+sysex = { workspace = true }
+device = { workspace = true }
+serde = { version = "1", features = ["derive"] }

@@ -140,6 +140,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "devicesim"
+version = "0.1.0"
+dependencies = [
+ "device",
+ "serde",
+ "sysex",
+]
+
+[[package]]
 name = "displaydoc"
 version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -148,6 +157,16 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "e2e"
+version = "0.1.0"
+dependencies = [
+ "device",
+ "devicesim",
+ "engine",
+ "sysex",
 ]
 
 [[package]]

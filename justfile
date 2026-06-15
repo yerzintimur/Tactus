@@ -17,6 +17,10 @@ test-core:
     ./scripts/cargo-docker.sh clippy --all-targets -- -D warnings
     ./scripts/cargo-docker.sh test
 
+# End-to-end tests: the engine driven against the virtual device + cassette replay.
+test-e2e:
+    ./scripts/cargo-docker.sh test -p devicesim -p e2e
+
 # Auto-format — in Docker
 fmt:
     ./scripts/cargo-docker.sh fmt

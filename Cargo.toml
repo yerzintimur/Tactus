@@ -8,6 +8,8 @@ members = [
     "core/crates/model",
     "core/crates/engine",
     "core/crates/ffi",
+    "core/crates/devicesim",
+    "core/crates/e2e",
 ]
 
 [workspace.package]
@@ -23,6 +25,7 @@ sysex = { path = "core/crates/sysex" }
 device = { path = "core/crates/device" }
 model = { path = "core/crates/model" }
 engine = { path = "core/crates/engine" }
+devicesim = { path = "core/crates/devicesim" }
 
 # Release profile tuned for small mobile artifacts (no unwinding across the FFI).
 [profile.release]

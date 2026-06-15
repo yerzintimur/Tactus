@@ -1,0 +1,15 @@
+[package]
+name = "e2e"
+description = "End-to-end tests: an engine Session driven against a VirtualDevice over a virtual clock (timing-aware), plus cassette golden-replay."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+publish = false
+
+[dependencies]
+engine = { workspace = true }
+devicesim = { workspace = true }
+sysex = { workspace = true }
+device = { workspace = true }
