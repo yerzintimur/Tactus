@@ -1,6 +1,6 @@
 # ADR-0014: The screen reader is the only voice
 
-**Status:** Accepted · **Date:** 2026-06-16 · **Amended:** 2026-07-01
+**Status:** Accepted · **Date:** 2026-06-16
 
 ## Context
 The app was emitting its **own** spoken announcements for nearly everything —
@@ -49,13 +49,11 @@ cannot observe on its own — never a second TTS over the top of it.
    user just acted on a focused control — the app does **not** also announce it.
 5. **No text-to-speech of our own.** The app ships **no** `AVSpeechSynthesizer` /
    `TextToSpeech` path — not even an optional *"speak without a screen reader"*
-   mode. Speech is the user's screen reader, which **they** turn on; we make the
-   app maximally ready for the system's accessibility features rather than
-   reinvent them. A sighted user gets the visual UI plus earcons/haptics; if they
-   want a voice, they enable VoiceOver / TalkBack.
-   *(Amended 2026-07-01: the original "standalone TTS is optional" is withdrawn —
-   the screen reader is the only voice, full stop. A second synthesizer, even
-   off-by-default, is exactly the reinvention this ADR rejects.)*
+   mode. A second synthesizer, even off-by-default, is exactly the reinvention
+   this ADR rejects. Speech is the user's screen reader, which **they** turn on;
+   we make the app maximally ready for the system's accessibility features rather
+   than reinvent them. A sighted user gets the visual UI plus earcons/haptics; if
+   they want a voice, they enable VoiceOver / TalkBack.
 
 Earcons and haptics are **not** "voice" — they are unaffected by this ADR and
 always play (they convey events the screen reader doesn't, without words).

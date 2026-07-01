@@ -152,7 +152,7 @@ Non-negotiable principles (full detail in [ACCESSIBILITY.md](ACCESSIBILITY.md)):
 | Layer | Modality | When | Status |
 |-------|----------|------|--------|
 | **Primary** | Native accessible UI + OS screen reader (VoiceOver/TalkBack) — the standard swipe/double-tap gestures the user **already knows** | All setup & editing (done while *not* playing) | MVP |
-| **Output (always on)** | Managed TTS + non-speech earcons + haptics | Every state change, live | MVP |
+| **Output (always on)** | Screen-reader announcements + non-speech earcons + haptics | Every state change, live | MVP |
 | **Secondary** | **Performance mode**: a few huge, full-width targets (e.g. "next kit") that need no aiming | Quick changes between songs, hands briefly free | V1 |
 | **Optional** | **Voice commands** (push-to-talk, small grammar, on-device) | Hands-free quick actions | V1+, behind expectations |
 | **Future** | Hardware triggers (footswitch / dedicated pad / external MIDI controller) as a physical "next kit" surface | While playing | Exploratory |
@@ -372,17 +372,17 @@ Idle
 ## 11. Audio output design (TTS + earcons + haptics)
 
 Output is the heart of this app and the trickiest a11y problem, because the app
-must speak **even when the user isn't touching the screen** (live hardware edits,
-kit changes) — while the OS screen reader is *also* speaking.
+must surface **even when the user isn't touching the screen** (live hardware
+edits, kit changes) — through the screen reader's announcement channel, never a
+voice of our own.
 
-- **Two announcement channels:**
-  1. **UI-driven feedback** (user focused/activated a control): route through the
-     **platform accessibility announcement API** so it queues politely with
-     VoiceOver/TalkBack and respects the user's voice & rate.
-  2. **Live/ambient feedback** (kit changed on hardware, edit pushed): a
-     **managed TTS queue** we own, with priority + coalescing, that **ducks** when
-     the screen reader is mid-utterance.
-- **Queue discipline:** never overlap utterances; newer high-priority messages
+- **Two feedback paths, one voice (the screen reader):**
+  1. **UI-driven feedback** (user focused/activated a control): the screen reader
+     already voices the focused control's value — we stay silent (no double-talk).
+  2. **Live/ambient feedback** (kit changed on hardware, edit pushed): post an
+     **accessibility announcement** so the screen reader voices it in the user's
+     own voice — interrupting for navigation, coalescing duplicates.
+- **Queue discipline:** never overlap announcements; newer high-priority messages
   (e.g. "kit changed") preempt stale low-priority ones; identical repeats are
   dropped.
 - **Earcons (non-speech cues):** a short tone for fast events (connected,

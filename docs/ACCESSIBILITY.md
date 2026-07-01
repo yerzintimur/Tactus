@@ -87,7 +87,7 @@ order of robustness:
 
 1. **Big no-aim targets.** A "Performance mode" screen with one or two
    full-width buttons (e.g. top half = next kit, bottom half = previous) so the
-   user can change kits with a slap, no aiming, while the app **speaks + earcons**
+   user can change kits with a slap, no aiming, while the app **announces + earcons**
    the result. This needs no new skills and works in noise.
 2. **Voice command** (push-to-talk) as an alternative.
 3. **Hardware (future):** a footswitch, a dedicated pad hit, or an external MIDI
@@ -165,27 +165,29 @@ This is captured as [ADR-0003](adr/0003-input-screen-reader-first.md).
 
 ## 4. Audio output: coexisting with the screen reader
 
-This is subtle and easy to get wrong. The app must speak live events (kit
-changed, edit confirmed) **even when the user isn't touching the screen** — but
-the screen reader is *also* speaking. Rules:
+This is subtle and easy to get wrong. The app must surface live events (kit
+changed, edit confirmed) **even when the user isn't touching the screen** — and it
+does so through the screen reader's own announcement channel, never a second voice.
+Rules:
 
 - **UI-driven feedback** (the user focused/activated something): let the **screen
   reader** say it (via labels/values/announcements). Don't run your own TTS over
   it — that causes double-talk.
-- **Live/ambient feedback** (hardware edits, kit changes from the module): use a
-  **managed TTS queue you own**, but:
-  - **Detect if a screen reader is running** (iOS `UIAccessibility.isVoiceOverRunning`
-    / Android `AccessibilityManager`). When it is, prefer posting an
-    **announcement** so the system serializes speech, instead of speaking over it.
-  - **Never overlap utterances.** Queue; coalesce duplicates; let high-priority
-    messages (kit changed) preempt stale ones.
+- **Live/ambient feedback** (hardware edits, kit changes from the module): post an
+  **accessibility announcement** (iOS `UIAccessibility.post(.announcement)` /
+  Android `announceForAccessibility`) so the screen reader serializes it into the
+  user's own voice — we never run a synthesizer of our own.
+  - **Never overlap.** Coalesce duplicates; let high-priority messages (kit
+    changed) **preempt** stale ones (interrupting), so a fast scroll leaves you
+    the kit you settled on.
 - **Earcons first, speech second.** Play a short distinct tone immediately
   (connected / disconnected / kit-changed / confirmed / error), *then* the slower
   spoken detail. Mid-performance the tone alone may be all the user needs.
 - **Haptics** as a silent third channel for confirm/deny.
-- **Respect system settings:** use the user's selected voice and speech **rate**
-  (do not force a slow rate — power users run fast), and their volume.
-- **Performance mode** = terse speech + earcons, to stay out of the way.
+- **The user's settings win automatically:** because speech goes through the
+  screen reader, the user's chosen voice, **rate**, verbosity, and volume are
+  honoured — we never force our own.
+- **Performance mode** = terse announcements + earcons, to stay out of the way.
 
 ### Mixed-language speech (the spoken sentence is localized, the kit name isn't)
 
@@ -194,14 +196,11 @@ The sentence is in the user's language ("Кит 5: …") but device-sourced name
 both mispronounces the foreign part. Fix = **per-segment language tagging**
 (ADR-0011):
 
-- **Screen reader (primary, works in MVP):** build an attributed accessibility
-  label and tag the foreign range with its language — iOS
+- **Screen reader (the only path):** build an attributed accessibility label and
+  tag the foreign range with its language — iOS
   `.accessibilitySpeechLanguage = "en-US"` on the kit-name range; Android
   `LocaleSpan(Locale.ENGLISH)`. VoiceOver/TalkBack then voice "Кит 5:" in Russian
   and "Jazz" in English. (Verify the Android `LocaleSpan` path on a device.)
-- **Own TTS:** **split into one utterance per language segment**, each with the
-  matching voice. Do *not* rely on mid-utterance SSML `<lang>` switching — on iOS
-  it's unreliable (utterance text and voice must share a language).
 - The core supplies the segments: `LocalizedText.spans` marks each run's language;
   device content defaults to `en`.
 
