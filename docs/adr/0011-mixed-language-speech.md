@@ -1,6 +1,9 @@
 # ADR-0011: Mixed-language speech — tag device-sourced text with its language
 
-**Status:** Accepted · **Date:** 2026-06-08
+**Status:** Accepted · **Date:** 2026-06-08 · **Amended by**
+[ADR-0014](0014-screen-reader-is-the-only-voice.md) — the per-segment language
+tagging still applies, but to **screen-reader announcements**; the app has no TTS
+of its own, so the "own TTS" implementation notes below are moot.
 
 ## Context
 Tactus speaks in the user's locale (e.g. Russian: "Кит 5: …"), but a lot of

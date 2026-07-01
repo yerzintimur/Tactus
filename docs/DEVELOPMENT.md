@@ -61,7 +61,7 @@
 │  iOS app (Swift / SwiftUI)    │     │ Android app (Kotlin / Compose)│
 │  • Accessible UI (VoiceOver)  │     │ • Accessible UI (TalkBack)    │
 │  • CoreMIDI transport         │     │ • android.media.midi transport│
-│  • AVSpeechSynthesizer + earc.│     │ • TextToSpeech + earcons      │
+│  • Announcements + earcons    │     │ • Announcements + earcons     │
 │  • Timer/tick, haptics        │     │ • Timer/tick, haptics         │
 └───────────────┬───────────────┘     └───────────────┬───────────────┘
    реализует MidiSender / SessionListener / Clock (callback interfaces)
@@ -542,18 +542,27 @@ engine: parse addr+value → resolve param via profile → update model
 - Порядок обхода: `isTraversalGroup`, `traversalIndex`.
 - Детект: `AccessibilityManager.isEnabled` / `isTouchExplorationEnabled`.
 
-### 9.3 Речевой роутинг (критично — без двойной речи)
-Единая абстракция **Speech Output** с двумя бэкендами, выбор в рантайме по «включён
-ли screen reader»:
-- **Screen reader ВКЛ** → маршрутизируем `Speak` через **системный анонс** (iOS
-  `AccessibilityNotification.Announcement` с приоритетом; Android liveRegion или
-  свой TTS с аккуратным аудиофокусом) — нет наложения на VoiceOver/TalkBack,
-  уважается голос/скорость пользователя.
-- **Screen reader ВЫКЛ** → собственный TTS (AVSpeechSynthesizer / TextToSpeech)
-  с очередью.
+### 9.3 Речевой роутинг (критично — без двойной речи и без своего TTS)
+Единственный голос — **системный скринридер** пользователя (VoiceOver / TalkBack),
+который он включает сам; своего TTS у приложения нет ([ADR-0014](adr/0014-screen-reader-is-the-only-voice.md)).
+`Speak` из core — это уже локализованный **текст анонса**, который платформа кладёт
+в **канал анонсов скринридера** (мы не переизобретаем системную озвучку, а кормим её):
+- **Screen reader ВКЛ** → системный анонс (iOS `UIAccessibility.post(.announcement)`
+  с `accessibilitySpeechAnnouncementPriority`; Android `announceForAccessibility` /
+  liveRegion) — нет наложения на VoiceOver/TalkBack, уважаются голос/скорость/
+  подробность пользователя.
+- **Screen reader ВЫКЛ** → **ничего не произносится** (никакого своего синтезатора);
+  визуальный UI + earcons/haptics несут обратную связь. Хочет голос — включает
+  скринридер.
+- Анонсим **только то, что скринридер сам не видит**: изменения **со стороны модуля**
+  (unsolicited DT1), lifecycle подключения, асинхронный **отказ** правки. То, что
+  скринридер и так озвучит (навигация, значение сфокусированного контрола), —
+  молчим (без двойной речи).
 - `SpeechPriority` из core (`Low/Default/High`) маппится на приоритеты анонсов:
-  High («Connected to V31») перебивает; Low (эхо live-правок) — в очередь.
-- **Earcons** (короткие тоны) — всегда, до речи; **haptics** — третий канал.
+  High («Connected to V31») перебивает; навигация по китам — **перебивающий**
+  (interrupting) анонс, чтобы быстрый скролл оставлял последний кит.
+- **Earcons** (короткие тоны) и **haptics** — всегда, независимо от речи: это не
+  «голос», а отдельные каналы (ADR-0014 их не трогает).
 
 ---
 
@@ -568,8 +577,10 @@ engine: parse addr+value → resolve param via profile → update model
   реассемблить (это делает `sysex` в core). USB-C class-compliant — без
   entitlement. **BLE:** `CABTMIDICentralViewController` (нет в Simulator!),
   **Info.plist `NSBluetoothAlwaysUsageDescription`** обязателен.
-- **TTS:** AVSpeechSynthesizer (очередь FIFO, rate/voice; при VO-ON — предпочесть
-  анонсы; AVAudioSession `.duckOthers`, деактивировать в `didFinish`).
+- **Анонсы:** канал скринридера — `UIAccessibility.post(.announcement)` c
+  `accessibilitySpeechAnnouncementPriority` (macOS: `NSAccessibility.post`
+  `announcementRequested`). Своего `AVSpeechSynthesizer`/`AVAudioSession` нет
+  (ADR-0014).
 - **Тесты:** Swift Testing (юниты) + XCUITest **`performAccessibilityAudit`** на
   каждом экране в CI + ручной VoiceOver.
 - **Core:** XCFramework + UniFFI Swift через **SPM `binaryTarget`** + wrapper
@@ -584,9 +595,9 @@ engine: parse addr+value → resolve param via profile → update model
   поток байт через `MidiReceiver.send`, реассемблить. Манифест: `uses-feature
   android.software.midi`, `usb.host`, `bluetooth_le` (required=false). BLE-права:
   `BLUETOOTH_SCAN`(+`neverForLocation`)/`BLUETOOTH_CONNECT`.
-- **TTS:** TextToSpeech (`QUEUE_FLUSH` для актуальности, `UtteranceProgressListener`,
-  `AudioAttributes USAGE_ASSISTANCE_ACCESSIBILITY`, аудиофокус
-  `MAY_DUCK`).
+- **Анонсы:** канал скринридера — `announceForAccessibility` / liveRegion (через
+  `AccessibilityManager`), с приоритетом/перебиванием для навигации. Своего
+  `TextToSpeech` нет (ADR-0014).
 - **Тесты:** Compose semantics-assertions + **ATF в Compose-тестах**
   (`enableAccessibilityChecks()` с Compose 1.8+) + Espresso `AccessibilityChecks`
   + ручной TalkBack + Accessibility Scanner.

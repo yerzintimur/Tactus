@@ -2,7 +2,8 @@ import SwiftUI
 import Tactus
 
 /// The accessible MVP screen. Every control is labelled for VoiceOver and usable
-/// eyes-closed; spoken feedback on changes comes from the core via SpeechService.
+/// eyes-closed; changes the screen reader can't observe are announced via the
+/// core → `AnnouncementService` (the screen reader is the only voice — ADR-0014).
 ///
 /// MVP scope: connection status, kit navigation (previous/next), and kit rename —
 /// the flows the core verifies end-to-end. Parameter editing (tempo, …) follows

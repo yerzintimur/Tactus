@@ -176,7 +176,7 @@ native controls. That is the "gestures" answer, and it's free.
 │  iOS app (Swift/SwiftUI)        Android app (Kotlin/Compose)│
 │  • Accessible UI (VoiceOver)    • Accessible UI (TalkBack)  │
 │  • CoreMIDI transport           • android.media.midi xport  │
-│  • AVSpeechSynthesizer (TTS)    • TextToSpeech (TTS)        │
+│  • VoiceOver announcements      • TalkBack announcements    │
 │  • Haptics / earcons            • Haptics / earcons         │
 └───────────────┬───────────────────────────┬───────────────┘
                 │   UniFFI bindings (Swift / Kotlin)          │
@@ -185,7 +185,7 @@ native controls. That is the "gestures" answer, and it's free.
         │  • SysEx codec: RQ1/DT1, checksum, 7-bit     │
         │    4-byte address arithmetic, nibble pack    │
         │  • Typed parameter model + address map       │
-        │  • value ⇄ human string (for TTS)            │
+        │  • value ⇄ human string (to read)            │
         │  • Kit model, edit commands                  │
         │  • write→readback→verify state machine       │
         │  • emits "MidiOut bytes" / consumes "MidiIn" │
@@ -200,16 +200,18 @@ native controls. That is the "gestures" answer, and it's free.
 **Why this split:** the hard, bug-prone, testable logic (byte twiddling,
 checksums, address math, value formatting, the verify state machine) lives **once**
 in Rust with unit tests, and is shared by both platforms. The native layers stay
-**thin**: move bytes, speak strings, render accessible widgets. See
-[ADR-0002](adr/0002-rust-core-uniffi.md).
+**thin**: move bytes, post announcements to the screen reader, render accessible
+widgets. See [ADR-0002](adr/0002-rust-core-uniffi.md).
 
 ### 6.1 Core boundaries (important)
 
 - The Rust core is **pure / no I/O**. It never opens a MIDI port or speaks. It
   takes inbound MIDI bytes + user intents, and returns outbound MIDI bytes +
-  view-model updates (including the exact strings to speak). This makes it fully
+  view-model updates (including the exact strings to announce). This makes it fully
   deterministic and unit-testable, and keeps platform code trivial.
-- Transport and TTS are **platform responsibilities** behind narrow interfaces.
+- Transport and **screen-reader announcements** are **platform responsibilities**
+  behind narrow interfaces — the app has no text-to-speech of its own
+  ([ADR-0014](adr/0014-screen-reader-is-the-only-voice.md)).
 
 ### 6.2 Transport
 
@@ -241,9 +243,10 @@ shared (the Rust core, §6.1). No cross-platform UI framework.
    vs reading controls, announcement APIs). Native lets each app feel correct to
    users already fluent in *their* screen reader.
 3. **Direct access to platform APIs** we need anyway: CoreMIDI / `android.media.midi`,
-   AVSpeechSynthesizer / `TextToSpeech`, haptics, accessibility-status detection.
+   the screen-reader **announcement** APIs (UIAccessibility / `AccessibilityManager`),
+   haptics, accessibility-status detection.
 4. **Cost is contained** because the hard, shared logic already lives in the Rust
-   core — the native layers are thin (transport + speech + accessible views).
+   core — the native layers are thin (transport + announcements + accessible views).
 
 **Trade-off accepted:** two UI codebases to maintain. Mitigated by the thin-UI /
 shared-core split and a shared design spec so the two stay consistent.

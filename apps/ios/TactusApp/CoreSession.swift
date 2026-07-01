@@ -8,8 +8,9 @@ import Tactus
 /// that list — forwarding outbound MIDI to the transport (CoreMIDI, task #13),
 /// scheduling ticks, and projecting emitted events into `@Published` UI state.
 ///
-/// Speech (`.speak`) is captured here for now; task #15 routes it to
-/// `AVSpeechSynthesizer`. Until the transport exists, outbound MIDI is logged.
+/// The core's `.speak` events carry localized announcement text; this class posts
+/// them to the system screen reader via `AnnouncementService` — the app has no TTS
+/// of its own (ADR-0014). `.earcon` events become haptics/sounds via `EarconService`.
 @MainActor
 final class CoreSession: ObservableObject {
     @Published private(set) var connection: ConnectionState = .disconnected
@@ -20,8 +21,8 @@ final class CoreSession: ObservableObject {
     /// core's snapshot. `nil` when no profile exposes it (e.g. unknown device).
     /// The value is the last value the device confirmed — never edit intent.
     @Published private(set) var tempo: ParameterView?
-    /// Most recent spoken announcement, mirrored for the UI.
-    @Published private(set) var lastSpoken: String = ""
+    /// Most recent announcement text, mirrored for the UI/debug.
+    @Published private(set) var lastAnnouncement: String = ""
     @Published private(set) var log: [String] = []
     /// Debug MIDI diagnostics: the endpoint names CoreMIDI currently reports.
     @Published private(set) var midiSources: [String] = []
@@ -29,7 +30,7 @@ final class CoreSession: ObservableObject {
 
     private let core: TactusSession
     private let transport = MidiTransport()
-    private let speech: SpeechService
+    private let announcements = AnnouncementService()
     private let earcons = EarconService()
 
     /// Set by `startMidi()` to the transport's sender. When nil (e.g. before
@@ -38,7 +39,6 @@ final class CoreSession: ObservableObject {
 
     init(locale: String = CoreSession.currentLanguage()) {
         core = TactusSession(locale: locale)
-        speech = SpeechService(locale: locale)
     }
 
     /// Wire up CoreMIDI and start listening. Call once when the app appears.
@@ -108,7 +108,6 @@ final class CoreSession: ObservableObject {
     }
     func setLocale(_ locale: String) {
         core.setLocale(locale: locale)
-        speech.setLocale(locale)
     }
     func tick() { perform(core.tick(nowMs: Self.nowMs())) }
 
@@ -154,8 +153,8 @@ final class CoreSession: ObservableObject {
         case .editFailed(_, let reason):
             append("✗ \(reason)")
         case .speak(let speech):
-            lastSpoken = speech.text
-            self.speech.speak(speech)
+            lastAnnouncement = speech.text
+            announcements.announce(speech)
             append("🔊 \(speech.text)")
         case .earcon(let earcon):
             earcons.play(earcon)

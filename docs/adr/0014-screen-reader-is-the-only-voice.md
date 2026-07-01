@@ -1,6 +1,6 @@
 # ADR-0014: The screen reader is the only voice
 
-**Status:** Accepted · **Date:** 2026-06-16
+**Status:** Accepted · **Date:** 2026-06-16 · **Amended:** 2026-07-01
 
 ## Context
 The app was emitting its **own** spoken announcements for nearly everything —
@@ -47,10 +47,15 @@ cannot observe on its own — never a second TTS over the top of it.
    This replaces the (removed) debounce.
 4. **No double speech.** If the screen reader will voice a change — because the
    user just acted on a focused control — the app does **not** also announce it.
-5. **Standalone TTS is optional.** The app's own `AVSpeechSynthesizer` /
-   `TextToSpeech` path exists only for an explicit *"speak without a screen
-   reader"* mode (a sighted drummer wanting audio cues, eyes/hands busy). It is
-   **off by default** and is **never** used while a screen reader is running.
+5. **No text-to-speech of our own.** The app ships **no** `AVSpeechSynthesizer` /
+   `TextToSpeech` path — not even an optional *"speak without a screen reader"*
+   mode. Speech is the user's screen reader, which **they** turn on; we make the
+   app maximally ready for the system's accessibility features rather than
+   reinvent them. A sighted user gets the visual UI plus earcons/haptics; if they
+   want a voice, they enable VoiceOver / TalkBack.
+   *(Amended 2026-07-01: the original "standalone TTS is optional" is withdrawn —
+   the screen reader is the only voice, full stop. A second synthesizer, even
+   off-by-default, is exactly the reinvention this ADR rejects.)*
 
 Earcons and haptics are **not** "voice" — they are unaffected by this ADR and
 always play (they convey events the screen reader doesn't, without words).
@@ -65,7 +70,8 @@ whether a screen reader is running or which control is focused. So:
   text (one tested source of phrasing).
 - The **platform** is the **router**. It knows the screen-reader state and focus,
   and decides *whether* and *how* to voice each message:
-  - screen reader **off** → standalone TTS only if the user enabled it;
+  - screen reader **off** → **nothing is spoken** (no synthesizer); the visual UI
+    plus earcons/haptics carry it;
   - screen reader **on** + `UserInitiated` `ParamEdit` on the focused control →
     **suppress** (the screen reader voices the control's value);
   - `DeviceInitiated` or `Connection` → **announce**;
@@ -90,9 +96,10 @@ whether a screen reader is running or which control is focused. So:
   kit interrupts any in-flight one.
 
 ## Consequences
-- `SpeechService` becomes an **announcement router**, not a narrator: it
-  suppresses app speech the screen reader already covers, posts interrupting
-  announcements for navigation, and gates standalone TTS behind a setting.
+- `SpeechService` becomes an **announcement router** (renamed
+  `AnnouncementService`), not a narrator: it posts to the screen reader's own
+  announcement channel — interrupting for navigation — and nothing else. There is
+  no synthesizer to gate, and no app-owned audio session.
 - The core's `Speak` gains `category` + `source`; the FFI surface grows two enums.
 - **Testing is via the real screen reader** (VoiceOver / TalkBack) — the authentic
   eyes-closed path ([ADR-0006](0006-nonvisual-first.md)) — not the app's TTS.

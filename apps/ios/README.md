@@ -6,10 +6,12 @@ Consumes the shared Rust core through the generated Swift package
 
 > The directory is still named `ios/` for now; the target builds for all Apple
 > platforms. iPad is covered by the iOS destination; macOS is a native build (not
-> Catalyst), with small platform shims for speech, earcons, and audio session.
+> Catalyst), with small platform shims for screen-reader announcements and earcons.
 
-> Nonvisual-first: every screen must be fully usable eyes-closed (VoiceOver +
-> speech + earcons). See [docs/ACCESSIBILITY.md](../../docs/ACCESSIBILITY.md).
+> Nonvisual-first: every screen must be fully usable eyes-closed (VoiceOver
+> announcements + earcons/haptics). The app has no TTS of its own — the screen
+> reader is the only voice (ADR-0014). See
+> [docs/ACCESSIBILITY.md](../../docs/ACCESSIBILITY.md).
 
 ## Generated, not committed
 
@@ -109,7 +111,7 @@ apps/ios/
 │   ├── CoreSession.swift   # bridge to the Rust core: drains Effects → @Published state
 │   ├── ContentView.swift   # accessible MVP UI (connection, kit nav, rename)
 │   ├── MidiTransport.swift # CoreMIDI I/O (USB)
-│   ├── SpeechService.swift # VoiceOver announcements / AVSpeechSynthesizer
+│   ├── AnnouncementService.swift # posts to the screen reader's announcement channel (no TTS)
 │   └── EarconService.swift # haptic earcons
 ├── TactusAppTests/         # unit tests (Swift↔Rust boundary)
 └── TactusAppUITests/       # UI flow + accessibility audit gate
@@ -117,7 +119,8 @@ apps/ios/
 
 `CoreSession` is the one place that talks to the core. The core is sans-I/O: each
 call returns `[Effect]` (send MIDI / schedule a tick / emit an event) that the app
-performs — `MidiTransport` sends/receives the MIDI, `SpeechService` and
-`EarconService` voice the speech/earcon events. In `--uitest` and via the DEBUG
+performs — `MidiTransport` sends/receives the MIDI, `AnnouncementService` posts
+screen-reader announcements, and `EarconService` plays earcons/haptics. In
+`--uitest` and via the DEBUG
 **Developer** section the pipeline can be driven with a canned V31 identity reply
 (no hardware).
