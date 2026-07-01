@@ -65,6 +65,7 @@ dist/
 
 # ── macOS / editors ──
 .DS_Store
+.idea/
 .vscode/
 !.vscode/extensions.json
 *.swp
