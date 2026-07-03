@@ -111,12 +111,15 @@ and verified; keep this file honest about real state.
   [CoreSession.swift](apps/ios/TactusApp/CoreSession.swift); unit + a11y-audit
   gated. *(Live value round-trip — incl. tempo offset `0x6F` — validated under
   M1 P1 on hardware.)*
-- [ ] **`P1` BUG (live): `select_kit` "value unknown".** Selecting a kit from the
-  app verifies via an RQ1 read-back at `00 00 00 00` — the **same address the
-  poller uses**. An in-flight poll's stale reply lands on the edit's verify slot →
-  spurious failure ("value unknown") before the real kit change is announced
-  ([PROTOCOL §6](docs/PROTOCOL.md)). Fix: confirm kit-select via the Current poll,
-  not the shared-address edit pipeline (no false-failure announcement).
+- [x] **`P1` BUG (live): `select_kit` "value unknown" — fixed.** Kit selection no
+  longer verifies through the address-keyed edit pipeline (its verify slot at
+  `00 00 00 00` collided with the poller — [PROTOCOL §6](docs/PROTOCOL.md)).
+  `select_kit` writes the DT1 and confirms via the regular `Current` read path:
+  stale (unchanged) reads are ignored while the selection is in flight, the
+  actual landed kit is announced, and a tick-driven timeout keeps a failed select
+  audible. Race + timeout + rejected-write scenarios pinned deterministically in
+  [timed_scenarios.rs](core/crates/e2e/tests/timed_scenarios.rs). *(Verify on
+  hardware at the next session.)*
 - [ ] **`P1` Speech model → "the screen reader is the only voice"**
   ([ADR-0014](docs/adr/0014-screen-reader-is-the-only-voice.md)). Live testing
   reframed two bugs (speech flood on hardware kit-scroll; double-speech on a UI
@@ -131,11 +134,11 @@ and verified; keep this file honest about real state.
      current_kit` / `Some(kit) != current_kit` gates from commit *fix(engine):
      debounce kit announcements* — interruption replaces dropping); mirror the new
      enums over FFI. Unit tests.
-  2. **Platform** — [SpeechService.swift](apps/ios/TactusApp/SpeechService.swift)
-     becomes an announcement *router*: interrupt for `KitNav`; **suppress**
-     `UserInitiated ParamEdit` while VoiceOver runs (VoiceOver voices the focused
-     control → no double-speech); gate the standalone `AVSpeechSynthesizer` behind
-     a VoiceOver-off setting.
+  2. **Platform** —
+     [AnnouncementService.swift](apps/ios/TactusApp/AnnouncementService.swift)
+     (already a pure announcement router; the app has no TTS of its own) routes by
+     the new tags: interrupt for `KitNav`; **suppress** `UserInitiated ParamEdit`
+     (VoiceOver voices the focused control → no double-speech).
   3. **UI** — the tempo adjustable
      ([ContentView.swift](apps/ios/TactusApp/ContentView.swift)) shows the edit as
      *in-progress* until the device confirms; the screen reader voices the verified

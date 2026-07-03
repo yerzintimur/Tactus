@@ -183,15 +183,18 @@ parameter-map JSON, §13 of SPEC, cross-checked against the Data List.)
 - **Current kit** at `00 00 00 00` (nibble, 4 bytes) is the reliable signal; the
   module answers RQ1 reads of it continuously and reflects edits immediately
   (e.g. kit 17 reads `00 00 01 00` = index 16).
-- **BUG — `select_kit` race ("value unknown"):** selecting a kit *from the app*
-  writes DT1 to `00 00 00 00` then verifies via an RQ1 read-back at the **same
-  address the poller uses**. If a poll RQ1 is in flight at click time, its
-  **stale reply (old kit)** lands on the edit's pending-verify slot → spurious
-  mismatch/timeout → the app announces a failure ("value unknown") *before* the
-  real kit change is picked up and announced. Fix: don't verify kit-select via
-  the shared-address edit pipeline — confirm the change via the Current poll
-  instead (no false-failure announcement). When the poller happens to be idle,
-  the exchange is clean (no false failure), which is why it's intermittent.
+- **Shared-address hazard — `select_kit` ("value unknown", observed live):** the
+  kit number lives at `00 00 00 00` — the **same address the poller reads** — so
+  verifying an app-initiated kit select with an address-keyed edit read-back is
+  racy: a poll RQ1 in flight at click time delivers its **stale reply (old kit)**
+  onto the verify slot → spurious mismatch/timeout ("value unknown") *before* the
+  real change is announced; intermittent, because it needs the poll to be in
+  flight. The engine therefore confirms kit selection via the regular `Current`
+  read path, not the edit pipeline: write the DT1, issue a `Current` read, ignore
+  stale (unchanged) values while the selection is in flight, announce whatever
+  kit the device actually lands on — with a tick-driven timeout so a selection
+  the module never performs still fails audibly. Reproduced deterministically in
+  [timed_scenarios.rs](../core/crates/e2e/tests/timed_scenarios.rs).
 - **BUG — speech flood on hardware kit-scroll:** dialling through kits on the
   module pushes an unsolicited Current change per kit; the engine reads each name
   and speaks it, flooding speech. Fix: **debounce** kit-change announcements (only

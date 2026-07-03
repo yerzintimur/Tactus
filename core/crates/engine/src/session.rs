@@ -39,7 +39,17 @@ struct Edit {
     param_id: String,
     intended: EditValue,
     age: u32,
-    is_kit_select: bool,
+}
+
+/// An in-flight kit selection. Deliberately *not* an [`Edit`]: the edit pipeline
+/// verifies via a read-back keyed by address, and the kit number lives at the same
+/// address the poller reads — a stale in-flight poll reply would land on the verify
+/// slot and read as a spurious mismatch (PROTOCOL §6). Instead the selection is
+/// confirmed by the regular `Current` read path, which tolerates stale values.
+#[derive(Debug, Clone)]
+struct KitSelect {
+    intended: u32,
+    age: u32,
 }
 
 /// The intended value of an edit (raw, pre-encoding).
@@ -68,6 +78,8 @@ pub struct Session {
     /// values — the device is the source of truth (ADR-0010).
     values: HashMap<String, ParamValue>,
     pending: HashMap<[u8; 4], Pending>,
+    /// An app-initiated kit selection awaiting confirmation via the `Current` read.
+    kit_select: Option<KitSelect>,
 }
 
 impl Session {
@@ -85,6 +97,7 @@ impl Session {
             current_kit: None,
             values: HashMap::new(),
             pending: HashMap::new(),
+            kit_select: None,
         }
     }
 
@@ -104,6 +117,7 @@ impl Session {
         self.current_kit = None;
         self.values.clear();
         self.pending.clear();
+        self.kit_select = None;
         vec![
             Effect::Emit(CoreEvent::ConnectionChanged(ConnectionState::Identifying)),
             Effect::SendMidi(sysex::build_identity_request(IDENTITY_DEVICE_ID)),
@@ -121,6 +135,7 @@ impl Session {
         self.current_kit = None;
         self.values.clear();
         self.pending.clear();
+        self.kit_select = None;
         vec![
             Effect::Emit(CoreEvent::Earcon(Earcon::Disconnected)),
             Effect::Emit(CoreEvent::ConnectionChanged(ConnectionState::Disconnected)),
@@ -220,6 +235,7 @@ impl Session {
                 self.current_kit = None;
                 self.values.clear();
                 self.pending.clear();
+                self.kit_select = None;
 
                 let mut speech = self.render(
                     &Message::new("device.connected")
@@ -250,6 +266,7 @@ impl Session {
                 self.current_kit = None;
                 self.values.clear();
                 self.pending.clear();
+                self.kit_select = None;
                 let info = DeviceInfo {
                     model_id: Vec::new(),
                     device_id,
@@ -284,8 +301,8 @@ impl Session {
             Pending::CurrentKitNum => {
                 let decoded = self.profile.as_ref().and_then(|p| decode_kit_num(p, data));
                 match decoded {
-                    Some(num) if Some(num) != self.current_kit => self.on_kit_changed(num),
-                    _ => Vec::new(),
+                    Some(num) => self.on_current_kit_read(num),
+                    None => Vec::new(),
                 }
             }
             Pending::KitName(number) => {
@@ -336,8 +353,8 @@ impl Session {
         if Some(address) == cur_addr {
             let decoded = self.profile.as_ref().and_then(|p| decode_kit_num(p, data));
             match decoded {
-                Some(num) if Some(num) != self.current_kit => self.on_kit_changed(num),
-                _ => Vec::new(),
+                Some(num) => self.on_current_kit_read(num),
+                None => Vec::new(),
             }
         } else if Some(address) == name_addr {
             let name = decode_ascii(data);
@@ -357,7 +374,32 @@ impl Session {
         }
     }
 
+    /// A `Current` value arrived — via the poll, a kit-select confirmation read, or
+    /// an unsolicited push. All three funnel here so a kit selection is confirmed by
+    /// whatever `Current` read lands first.
+    fn on_current_kit_read(&mut self, number: u32) -> Vec<Effect> {
+        if Some(number) != self.current_kit {
+            return self.on_kit_changed(number);
+        }
+        // Unchanged. A read matching an in-flight selection's target means we were
+        // already on that kit — settle silently. Any *other* unchanged read while a
+        // selection is in flight is a stale reply from before the write landed:
+        // ignore it and let the next `Current` read confirm. (This is what makes
+        // the shared-address race harmless — PROTOCOL §6.)
+        if self
+            .kit_select
+            .as_ref()
+            .is_some_and(|ks| ks.intended == number)
+        {
+            self.kit_select = None;
+        }
+        Vec::new()
+    }
+
     fn on_kit_changed(&mut self, number: u32) -> Vec<Effect> {
+        // The device settled on a kit: any in-flight selection is resolved by
+        // announcing the *actual* kit below (the device is the source of truth).
+        self.kit_select = None;
         self.current_kit = Some(number);
         // New kit: the previous kit's cached values no longer apply. The name and
         // tempo reads below repopulate the cache for the new kit.
@@ -377,8 +419,11 @@ impl Session {
     }
 
     fn poll_current(&mut self) -> Vec<Effect> {
-        // Don't poll over an in-flight edit: a Current poll would clobber an edit's
-        // pending read-back (they key the same address) and lose the verification.
+        // Don't poll over an in-flight edit: if the poll surfaced a kit change
+        // mid-verify, the kit-change flow would clear the value cache and issue
+        // name/tempo reads around the verify — keep the edit exchange atomic.
+        // (A kit *selection* is the opposite: polling is exactly how it gets
+        // confirmed, so it never suppresses the poll.)
         if self
             .pending
             .values()
@@ -433,14 +478,47 @@ impl Session {
 
     // ── edits: write → read-back → verify (no blind writes) ──
 
-    /// Switch the active kit (0-based number), verified by read-back.
+    /// Switch the active kit (0-based number). Not routed through the edit-verify
+    /// pipeline: the kit number lives at the same address the poller reads, so an
+    /// address-keyed verify slot is racy — a stale in-flight poll reply would land
+    /// on it and read as a spurious mismatch (PROTOCOL §6). Instead: write, then
+    /// confirm via the regular `Current` read. The kit-change flow (earcon +
+    /// name/tempo reads + announcing the actual kit) is the audible confirmation —
+    /// still write → read back → verify, never a blind write; if the module never
+    /// lands on a new kit, [`Session::age_edits`] reports a timeout.
     pub fn select_kit(&mut self, number: u32) -> Vec<Effect> {
-        self.set_value(
-            "current.kit_num",
-            &[],
-            EditValue::Int(i64::from(number)),
-            true,
-        )
+        let (addr, len, encoding, model_id) = {
+            let Some(p) = self.profile.as_ref() else {
+                return self.fail_simple("edit.not_ready", "current.kit_num");
+            };
+            let (Some(addr), Some(def)) = (
+                p.address_of("current.kit_num", &[]),
+                p.parameter("current.kit_num"),
+            ) else {
+                return self.fail_simple("edit.not_ready", "current.kit_num");
+            };
+            (addr, def.len, def.encoding, p.model_id.clone())
+        };
+        let Some(data) = encoding.encode_int(i64::from(number), len) else {
+            return self.fail_simple("edit.out_of_range", "current.kit_num");
+        };
+        self.kit_select = Some(KitSelect {
+            intended: number,
+            age: 0,
+        });
+        self.pending.insert(addr, Pending::CurrentKitNum);
+        vec![
+            Effect::SendMidi(sysex::build_dt1(self.device_id, &model_id, addr, &data)),
+            Effect::SendMidi(sysex::build_rq1(
+                self.device_id,
+                &model_id,
+                addr,
+                rq_size(len),
+            )),
+            Effect::ScheduleTick {
+                after_ms: POLL_INTERVAL_MS,
+            },
+        ]
     }
 
     /// Set a numeric parameter to a raw value, verified by read-back.
@@ -450,21 +528,15 @@ impl Session {
         indices: Vec<u32>,
         value: i64,
     ) -> Vec<Effect> {
-        self.set_value(&param_id, &indices, EditValue::Int(value), false)
+        self.set_value(&param_id, &indices, EditValue::Int(value))
     }
 
     /// Rename a kit, verified by read-back.
     pub fn rename_kit(&mut self, number: u32, name: String) -> Vec<Effect> {
-        self.set_value("kit.common.name", &[number], EditValue::Text(name), false)
+        self.set_value("kit.common.name", &[number], EditValue::Text(name))
     }
 
-    fn set_value(
-        &mut self,
-        param_id: &str,
-        indices: &[u32],
-        intended: EditValue,
-        is_kit_select: bool,
-    ) -> Vec<Effect> {
+    fn set_value(&mut self, param_id: &str, indices: &[u32], intended: EditValue) -> Vec<Effect> {
         let (addr, len, encoding, model_id) = {
             let Some(p) = self.profile.as_ref() else {
                 return self.fail_simple("edit.not_ready", param_id);
@@ -490,7 +562,6 @@ impl Session {
                 param_id: param_id.to_string(),
                 intended,
                 age: 0,
-                is_kit_select,
             }),
         );
         vec![
@@ -537,10 +608,6 @@ impl Session {
     }
 
     fn confirm_int(&mut self, edit: &Edit, actual: i64) -> Vec<Effect> {
-        if edit.is_kit_select {
-            // The kit-change flow (earcon + read name/tempo + speak) is the confirmation.
-            return self.on_kit_changed(u32::try_from(actual).unwrap_or(0));
-        }
         self.values
             .insert(edit.param_id.clone(), ParamValue::Int(actual));
         let display = self.render_int_value(&edit.param_id, actual);
@@ -589,7 +656,8 @@ impl Session {
         ]
     }
 
-    /// Age in-flight edits on each tick; fire a timeout for any that expired.
+    /// Age in-flight edits (and any kit selection) on each tick; fire a timeout
+    /// for any that expired.
     fn age_edits(&mut self) -> Vec<Effect> {
         let mut expired = Vec::new();
         for (addr, pending) in self.pending.iter_mut() {
@@ -604,6 +672,15 @@ impl Session {
         for addr in expired {
             if let Some(Pending::EditVerify(edit)) = self.pending.remove(&addr) {
                 fx.extend(self.fail_simple("edit.timeout", &edit.param_id));
+            }
+        }
+        // A kit selection the device never confirms (no `Current` read lands on a
+        // new kit) times out the same way — a failed select is audible, not silent.
+        if let Some(ks) = self.kit_select.as_mut() {
+            ks.age += 1;
+            if ks.age >= EDIT_TIMEOUT_TICKS {
+                self.kit_select = None;
+                fx.extend(self.fail_simple("edit.timeout", "current.kit_num"));
             }
         }
         fx

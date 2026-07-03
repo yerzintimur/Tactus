@@ -5,16 +5,15 @@
 use e2e::Harness;
 use engine::CoreEvent;
 
-/// **Bug B (PROTOCOL §6), reproduced deterministically.** A poll's read-back for
-/// `current.kit_num` (address `00 00 00 00`) is in flight when `select_kit` fires;
-/// `select_kit` verifies at the *same* address, so the stale poll reply lands on the
-/// edit's verify slot first and is read as a mismatch → a spurious failure, before
-/// the real kit change is picked up.
-///
-/// This test pins the **current (buggy)** behaviour so the fix has a baseline to
-/// flip. The desired post-fix behaviour is in the `#[ignore]`d test below.
+/// **Bug B (PROTOCOL §6).** A poll's read-back for `current.kit_num` (address
+/// `00 00 00 00`) is in flight when `select_kit` fires. The kit number lives at the
+/// *same* address the poller reads, so verifying the selection through the
+/// address-keyed edit pipeline used to read the stale poll reply (old kit) as a
+/// mismatch → a spurious "value unknown" failure. The selection is instead
+/// confirmed via the regular `Current` read path, which ignores stale values: the
+/// stale reply is dropped and the real change is announced, with no false failure.
 #[test]
-fn select_kit_race_currently_emits_a_spurious_failure() {
+fn select_kit_race_does_not_emit_a_false_failure() {
     let mut h = Harness::v31("en");
     h.connect().run_to_idle(); // Ready, kit 4
     h.take_events();
@@ -22,35 +21,9 @@ fn select_kit_race_currently_emits_a_spurious_failure() {
     // A poll goes out for current.kit_num; the device answers "kit 4" now, but the
     // reply is still in flight (latency).
     h.poll();
-    // Before it arrives, select kit 0: this overwrites the pending slot at the
-    // shared address with an edit-verify, writes kit 0, and sends its own verify.
+    // Before it arrives, select kit 0: writes kit 0 and issues its own Current read.
     h.select_kit(0);
-    // Settle: the stale poll reply (kit 4) is delivered first, onto the verify slot.
-    h.run_to_idle();
-
-    let events = h.events();
-    assert!(
-        events
-            .iter()
-            .any(|e| matches!(e, CoreEvent::EditFailed { .. })),
-        "the stale read-back currently produces a spurious EditFailed"
-    );
-    // The real kit change still happens (the verify reply re-routes as unsolicited).
-    assert!(events.iter().any(|e| matches!(e,
-        CoreEvent::CurrentKitChanged { number, .. } if *number == 0)));
-}
-
-/// The same race, asserting the behaviour we *want*. Un-ignore when `select_kit`
-/// confirms via the Current poll rather than the shared-address edit pipeline.
-#[test]
-#[ignore = "desired post-fix behaviour for bug B (PROTOCOL §6); un-ignore when select_kit no longer verifies at the shared Current address"]
-fn select_kit_race_should_not_emit_a_false_failure() {
-    let mut h = Harness::v31("en");
-    h.connect().run_to_idle();
-    h.take_events();
-
-    h.poll();
-    h.select_kit(0);
+    // Settle: the stale poll reply (kit 4) is delivered first.
     h.run_to_idle();
 
     let events = h.events();
@@ -58,10 +31,57 @@ fn select_kit_race_should_not_emit_a_false_failure() {
         !events
             .iter()
             .any(|e| matches!(e, CoreEvent::EditFailed { .. })),
-        "no spurious failure once the race is fixed"
+        "a stale in-flight poll reply must not fail the selection"
     );
     assert!(events.iter().any(|e| matches!(e,
         CoreEvent::CurrentKitChanged { number, name } if *number == 0 && name == "Rock")));
+}
+
+/// A kit select the module never acts on (it went silent) still reports an audible
+/// failure via the tick-driven timeout — never silence, never a false success.
+#[test]
+fn kit_select_times_out_when_the_module_never_lands() {
+    let mut h = Harness::v31("en");
+    h.connect().run_to_idle();
+    h.take_events();
+
+    h.device_mut().set_responsive(false); // no Current read will come back
+    h.select_kit(0);
+    h.advance(2000); // > EDIT_TIMEOUT_TICKS ticks
+
+    assert!(
+        h.events()
+            .iter()
+            .any(|e| matches!(e, CoreEvent::EditFailed { .. })),
+        "an unconfirmed kit select must fail audibly"
+    );
+}
+
+/// A kit select whose write the module rejects: every `Current` read keeps
+/// returning the old kit (ignored as stale), so the selection times out — an
+/// honest failure, not a false kit-change announcement and not silence.
+#[test]
+fn rejected_kit_select_fails_by_timeout_not_falsely() {
+    let mut h = Harness::v31("en");
+    h.connect().run_to_idle();
+    h.take_events();
+
+    h.device_mut().reject_next_write();
+    h.select_kit(0);
+    h.advance(2000);
+
+    let events = h.events();
+    assert!(
+        !events.iter().any(|e| matches!(e,
+            CoreEvent::CurrentKitChanged { number, .. } if *number == 0)),
+        "the rejected selection must not be announced as a change"
+    );
+    assert!(
+        events
+            .iter()
+            .any(|e| matches!(e, CoreEvent::EditFailed { .. })),
+        "the rejected selection must fail audibly"
+    );
 }
 
 /// A fast dial through kits (two unsolicited Current pushes closer together than a
@@ -110,20 +130,38 @@ fn edit_times_out_without_a_readback() {
     );
 }
 
-/// While an edit is in flight, a tick must not issue a Current poll — the poll's
-/// read-back would clobber the edit's verify slot (the same address).
+/// While an edit is in flight, a tick must not issue a Current poll — if the poll
+/// surfaced a kit change mid-verify, the kit-change flow would clear the value
+/// cache and issue reads around the verify.
 #[test]
 fn poll_is_skipped_while_an_edit_is_in_flight() {
     let mut h = Harness::v31("en");
     h.connect().run_to_idle();
     h.take_events();
 
-    h.select_kit(0); // leaves an edit-verify pending on Current (not yet settled)
+    h.set_parameter("kit.common.tempo", vec![4], 1300); // verify not yet settled
     let now = h.now();
     let fx = h.act_capturing(move |s| s.tick(now));
     assert!(
         !fx.iter().any(|e| matches!(e, engine::Effect::SendMidi(_))),
         "poll must be skipped while an edit is in flight"
+    );
+}
+
+/// A kit *selection* is the opposite: the `Current` poll is exactly how it gets
+/// confirmed, so it must never suppress polling.
+#[test]
+fn poll_continues_while_a_kit_select_is_in_flight() {
+    let mut h = Harness::v31("en");
+    h.connect().run_to_idle();
+    h.take_events();
+
+    h.select_kit(0); // confirmation read still in flight
+    let now = h.now();
+    let fx = h.act_capturing(move |s| s.tick(now));
+    assert!(
+        fx.iter().any(|e| matches!(e, engine::Effect::SendMidi(_))),
+        "the poll is the selection's confirmation path — it must keep running"
     );
 }
 
