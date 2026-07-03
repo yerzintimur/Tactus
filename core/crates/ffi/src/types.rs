@@ -44,11 +44,37 @@ pub enum SpeechPriority {
     High,
 }
 
+/// What an announcement is about — the platform's router keys on this (ADR-0014):
+/// `KitNav` interrupts the previous announcement; a `UserInitiated` `ParamEdit` is
+/// suppressed while a screen reader voices the focused control.
+#[derive(Debug, Clone, PartialEq, Eq, uniffi::Enum)]
+pub enum SpeechCategory {
+    /// Connection lifecycle, incl. the initial kit of the connection summary.
+    Connection,
+    /// The current kit changed (navigation) — newer preempts older.
+    KitNav,
+    /// A parameter value changed (edit confirmation or hardware edit push).
+    ParamEdit,
+    /// A failure the user must hear.
+    Error,
+    /// Supplementary detail (e.g. the tempo tail after a kit change).
+    Info,
+}
+
+/// Who caused the change being announced (ADR-0014).
+#[derive(Debug, Clone, PartialEq, Eq, uniffi::Enum)]
+pub enum SpeechSource {
+    DeviceInitiated,
+    UserInitiated,
+}
+
 /// A spoken message (already localized by the core).
 #[derive(Debug, Clone, PartialEq, Eq, uniffi::Record)]
 pub struct Speech {
     pub text: String,
     pub priority: SpeechPriority,
+    pub category: SpeechCategory,
+    pub source: SpeechSource,
 }
 
 /// A short non-speech audio cue.
@@ -201,11 +227,34 @@ impl From<engine::SpeechPriority> for SpeechPriority {
     }
 }
 
+impl From<engine::SpeechCategory> for SpeechCategory {
+    fn from(c: engine::SpeechCategory) -> Self {
+        match c {
+            engine::SpeechCategory::Connection => Self::Connection,
+            engine::SpeechCategory::KitNav => Self::KitNav,
+            engine::SpeechCategory::ParamEdit => Self::ParamEdit,
+            engine::SpeechCategory::Error => Self::Error,
+            engine::SpeechCategory::Info => Self::Info,
+        }
+    }
+}
+
+impl From<engine::SpeechSource> for SpeechSource {
+    fn from(s: engine::SpeechSource) -> Self {
+        match s {
+            engine::SpeechSource::DeviceInitiated => Self::DeviceInitiated,
+            engine::SpeechSource::UserInitiated => Self::UserInitiated,
+        }
+    }
+}
+
 impl From<engine::Speech> for Speech {
     fn from(s: engine::Speech) -> Self {
         Self {
             text: s.text,
             priority: s.priority.into(),
+            category: s.category.into(),
+            source: s.source.into(),
         }
     }
 }

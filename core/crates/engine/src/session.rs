@@ -4,7 +4,8 @@
 //! See ADR-0008 and docs/DEVELOPMENT.md §4.4, §7.
 
 use crate::event::{
-    ConnectionState, CoreEvent, DeviceInfo, Earcon, Effect, Speech, SpeechPriority,
+    ConnectionState, CoreEvent, DeviceInfo, Earcon, Effect, Speech, SpeechCategory, SpeechPriority,
+    SpeechSource,
 };
 use crate::viewmodel::{self, KitRef, ParamKind, ParamValue, ParameterView, Snapshot};
 use device::{DeviceProfile, FirmwareSupport, FirmwareVersion, ProfileRegistry};
@@ -25,12 +26,40 @@ const EDIT_TIMEOUT_TICKS: u32 = 5;
 #[derive(Debug, Clone)]
 enum Pending {
     CurrentKitNum,
-    KitName(u32),
-    /// Tempo read-back for the given kit (the kit lets us drop stale read-backs
-    /// from rapid scrolling).
-    Tempo(u32),
+    /// Kit-name read-back (the kit number lets us drop stale read-backs from
+    /// rapid scrolling; the origin tags the announcement — ADR-0014).
+    KitName(u32, KitOrigin),
+    /// Tempo read-back for the given kit.
+    Tempo(u32, KitOrigin),
     /// Read-back of an edit, awaiting verification.
     EditVerify(Edit),
+}
+
+/// Why the current kit changed — decides how the resulting announcements are
+/// tagged for the platform's router (ADR-0014).
+#[derive(Debug, Clone, Copy)]
+enum KitOrigin {
+    /// First discovery after identify: the kit is part of the connection
+    /// summary, not a `KitNav` barge-in that would clobber the connect line.
+    Initial,
+    /// An app-initiated selection (the user pressed next/previous kit).
+    User,
+    /// Changed on the module itself (unsolicited push or detected by the poll).
+    Device,
+}
+
+impl KitOrigin {
+    fn tags(self) -> (SpeechCategory, SpeechSource) {
+        match self {
+            KitOrigin::Initial => (SpeechCategory::Connection, SpeechSource::DeviceInitiated),
+            KitOrigin::User => (SpeechCategory::KitNav, SpeechSource::UserInitiated),
+            KitOrigin::Device => (SpeechCategory::KitNav, SpeechSource::DeviceInitiated),
+        }
+    }
+
+    fn source(self) -> SpeechSource {
+        self.tags().1
+    }
 }
 
 /// An in-flight edit awaiting write → read-back → verify.
@@ -251,7 +280,12 @@ impl Session {
                     Effect::Emit(CoreEvent::ConnectionChanged(ConnectionState::Ready)),
                     Effect::Emit(CoreEvent::DeviceIdentified(info)),
                     Effect::Emit(CoreEvent::Earcon(Earcon::Connected)),
-                    self.speak(speech, SpeechPriority::High),
+                    self.speak(
+                        speech,
+                        SpeechPriority::High,
+                        SpeechCategory::Connection,
+                        SpeechSource::DeviceInitiated,
+                    ),
                 ];
                 fx.extend(self.poll_current());
                 fx.push(Effect::ScheduleTick {
@@ -282,7 +316,12 @@ impl Session {
                     Effect::Emit(CoreEvent::ConnectionChanged(ConnectionState::Ready)),
                     Effect::Emit(CoreEvent::DeviceIdentified(info)),
                     Effect::Emit(CoreEvent::Earcon(Earcon::Connected)),
-                    self.speak(speech, SpeechPriority::High),
+                    self.speak(
+                        speech,
+                        SpeechPriority::High,
+                        SpeechCategory::Connection,
+                        SpeechSource::DeviceInitiated,
+                    ),
                 ]
             }
         }
@@ -305,10 +344,12 @@ impl Session {
                     None => Vec::new(),
                 }
             }
-            Pending::KitName(number) => {
-                // Drop stale read-backs from rapid kit-scrolling: only announce the
-                // kit the device has settled on (the one matching our state). This
-                // keeps a fast dial through kits from speaking every name in between.
+            Pending::KitName(number, origin) => {
+                // Content gate (ADR-0014): a read-back for a kit we have already
+                // scrolled past must not be announced or cached as the *current*
+                // kit — that would report outdated state as fact. Kits the user
+                // dwells on still get announced; the platform's interruption
+                // handles announcement overlap.
                 if Some(number) != self.current_kit {
                     return Vec::new();
                 }
@@ -318,16 +359,22 @@ impl Session {
                     ParamValue::Text(name.clone()),
                 );
                 let speech = self.render(&format_kit(number + 1, &name));
+                let (category, source) = origin.tags();
                 vec![
                     Effect::Emit(CoreEvent::CurrentKitChanged { number, name }),
-                    self.speak(speech, SpeechPriority::Default),
+                    self.speak(speech, SpeechPriority::Default, category, source),
                 ]
             }
-            Pending::Tempo(kit) => {
+            Pending::Tempo(kit, origin) => {
                 if Some(kit) != self.current_kit {
                     return Vec::new();
                 }
-                self.speak_tempo(data, SpeechPriority::Low)
+                self.speak_tempo(
+                    data,
+                    SpeechPriority::Low,
+                    SpeechCategory::Info,
+                    origin.source(),
+                )
             }
             Pending::EditVerify(edit) => self.handle_edit_verify(edit, data),
         }
@@ -357,6 +404,8 @@ impl Session {
                 None => Vec::new(),
             }
         } else if Some(address) == name_addr {
+            // The current kit was renamed on the module — a device-initiated
+            // parameter edit the screen reader cannot see.
             let name = decode_ascii(data);
             self.values.insert(
                 "kit.common.name".to_string(),
@@ -365,10 +414,20 @@ impl Session {
             let speech = self.render(&format_kit(kit + 1, &name));
             vec![
                 Effect::Emit(CoreEvent::CurrentKitChanged { number: kit, name }),
-                self.speak(speech, SpeechPriority::Default),
+                self.speak(
+                    speech,
+                    SpeechPriority::Default,
+                    SpeechCategory::ParamEdit,
+                    SpeechSource::DeviceInitiated,
+                ),
             ]
         } else if Some(address) == tempo_addr {
-            self.speak_tempo(data, SpeechPriority::Low)
+            self.speak_tempo(
+                data,
+                SpeechPriority::Low,
+                SpeechCategory::ParamEdit,
+                SpeechSource::DeviceInitiated,
+            )
         } else {
             Vec::new()
         }
@@ -379,7 +438,14 @@ impl Session {
     /// whatever `Current` read lands first.
     fn on_current_kit_read(&mut self, number: u32) -> Vec<Effect> {
         if Some(number) != self.current_kit {
-            return self.on_kit_changed(number);
+            let origin = if self.current_kit.is_none() {
+                KitOrigin::Initial
+            } else if self.kit_select.is_some() {
+                KitOrigin::User
+            } else {
+                KitOrigin::Device
+            };
+            return self.on_kit_changed(number, origin);
         }
         // Unchanged. A read matching an in-flight selection's target means we were
         // already on that kit — settle silently. Any *other* unchanged read while a
@@ -396,7 +462,7 @@ impl Session {
         Vec::new()
     }
 
-    fn on_kit_changed(&mut self, number: u32) -> Vec<Effect> {
+    fn on_kit_changed(&mut self, number: u32, origin: KitOrigin) -> Vec<Effect> {
         // The device settled on a kit: any in-flight selection is resolved by
         // announcing the *actual* kit below (the device is the source of truth).
         self.kit_select = None;
@@ -409,10 +475,18 @@ impl Session {
             ParamValue::Int(i64::from(number)),
         );
         let mut fx = vec![Effect::Emit(CoreEvent::Earcon(Earcon::KitChanged))];
-        if let Some(e) = self.request_read("kit.common.name", &[number], Pending::KitName(number)) {
+        if let Some(e) = self.request_read(
+            "kit.common.name",
+            &[number],
+            Pending::KitName(number, origin),
+        ) {
             fx.push(e);
         }
-        if let Some(e) = self.request_read("kit.common.tempo", &[number], Pending::Tempo(number)) {
+        if let Some(e) = self.request_read(
+            "kit.common.tempo",
+            &[number],
+            Pending::Tempo(number, origin),
+        ) {
             fx.push(e);
         }
         fx
@@ -458,7 +532,13 @@ impl Session {
         )))
     }
 
-    fn speak_tempo(&mut self, data: &[u8], priority: SpeechPriority) -> Vec<Effect> {
+    fn speak_tempo(
+        &mut self,
+        data: &[u8],
+        priority: SpeechPriority,
+        category: SpeechCategory,
+        source: SpeechSource,
+    ) -> Vec<Effect> {
         let (message, raw) = {
             let Some(p) = self.profile.as_ref() else {
                 return Vec::new();
@@ -473,7 +553,7 @@ impl Session {
         };
         self.values
             .insert("kit.common.tempo".to_string(), ParamValue::Int(raw));
-        vec![self.speak(self.render(&message), priority)]
+        vec![self.speak(self.render(&message), priority, category, source)]
     }
 
     // ── edits: write → read-back → verify (no blind writes) ──
@@ -616,7 +696,12 @@ impl Session {
                 param_id: edit.param_id.clone(),
                 display: display.clone(),
             }),
-            self.speak(display, SpeechPriority::Default),
+            self.speak(
+                display,
+                SpeechPriority::Default,
+                SpeechCategory::ParamEdit,
+                SpeechSource::UserInitiated,
+            ),
             Effect::Emit(CoreEvent::Earcon(Earcon::Confirmed)),
         ]
     }
@@ -629,7 +714,12 @@ impl Session {
                 param_id: edit.param_id.clone(),
                 display: actual.clone(),
             }),
-            self.speak(actual, SpeechPriority::Default),
+            self.speak(
+                actual,
+                SpeechPriority::Default,
+                SpeechCategory::ParamEdit,
+                SpeechSource::UserInitiated,
+            ),
             Effect::Emit(CoreEvent::Earcon(Earcon::Confirmed)),
         ]
     }
@@ -651,7 +741,12 @@ impl Session {
                 param_id: param_id.to_string(),
                 reason: reason.clone(),
             }),
-            self.speak(reason, SpeechPriority::High),
+            self.speak(
+                reason,
+                SpeechPriority::High,
+                SpeechCategory::Error,
+                SpeechSource::UserInitiated,
+            ),
             Effect::Emit(CoreEvent::Earcon(Earcon::Error)),
         ]
     }
@@ -755,8 +850,19 @@ impl Session {
         self.localizer.format(message, &self.locale)
     }
 
-    fn speak(&self, text: String, priority: SpeechPriority) -> Effect {
-        Effect::Emit(CoreEvent::Speak(Speech { text, priority }))
+    fn speak(
+        &self,
+        text: String,
+        priority: SpeechPriority,
+        category: SpeechCategory,
+        source: SpeechSource,
+    ) -> Effect {
+        Effect::Emit(CoreEvent::Speak(Speech {
+            text,
+            priority,
+            category,
+            source,
+        }))
     }
 }
 

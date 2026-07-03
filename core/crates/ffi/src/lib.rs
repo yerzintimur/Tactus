@@ -12,7 +12,8 @@ mod types;
 
 pub use types::{
     ConnectionState, CoreEvent, DeviceInfo, Earcon, Effect, FirmwareSupport, KitRef, NumericInfo,
-    NumericRange, ParamKind, ParamValue, ParameterView, Snapshot, Speech, SpeechPriority,
+    NumericRange, ParamKind, ParamValue, ParameterView, Snapshot, Speech, SpeechCategory,
+    SpeechPriority, SpeechSource,
 };
 
 use std::sync::{Arc, Mutex};

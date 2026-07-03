@@ -4,12 +4,22 @@
 //! but through the timing-aware [`Harness`] driving a [`devicesim::VirtualDevice`].
 
 use e2e::Harness;
-use engine::{ConnectionState, CoreEvent, ParamKind, ParamValue, SpeechPriority};
+use engine::{
+    ConnectionState, CoreEvent, ParamKind, ParamValue, SpeechCategory, SpeechPriority, SpeechSource,
+};
 
 fn has_speak(events: &[CoreEvent], text: &str) -> bool {
     events
         .iter()
         .any(|e| matches!(e, CoreEvent::Speak(s) if s.text == text))
+}
+
+/// The `(category, source)` tags of the announcement with exactly `text`.
+fn tags_of(events: &[CoreEvent], text: &str) -> Option<(SpeechCategory, SpeechSource)> {
+    events.iter().find_map(|e| match e {
+        CoreEvent::Speak(s) if s.text == text => Some((s.category, s.source)),
+        _ => None,
+    })
 }
 
 #[test]
@@ -28,6 +38,69 @@ fn connect_identify_and_read_current_kit() {
     assert!(has_speak(events, "Kit 5: Jazz"));
     assert!(has_speak(events, "120.0 BPM"));
     assert_eq!(h.state(), ConnectionState::Ready);
+}
+
+/// ADR-0014: every announcement carries `category` + `source` so the platform can
+/// route it — interrupt kit navigation, suppress user edits the screen reader
+/// already voices, and keep the connect summary in one piece.
+#[test]
+fn announcements_carry_routing_tags() {
+    let mut h = Harness::v31("en");
+    h.device_mut().with_kit(1, "Funk", 1300);
+
+    // Connect: the device line *and* the initial kit are the connection summary —
+    // the kit is not a KitNav barge-in that would clobber the connect line.
+    h.connect().run_to_idle();
+    let events = h.take_events();
+    assert_eq!(
+        tags_of(&events, "Kit 5: Jazz"),
+        Some((SpeechCategory::Connection, SpeechSource::DeviceInitiated))
+    );
+
+    // App-side navigation → KitNav / user.
+    h.select_kit(0).run_to_idle();
+    let events = h.take_events();
+    assert_eq!(
+        tags_of(&events, "Kit 1: Rock"),
+        Some((SpeechCategory::KitNav, SpeechSource::UserInitiated))
+    );
+
+    // Module-side navigation → KitNav / device.
+    h.hardware_select_kit(1).run_to_idle();
+    let events = h.take_events();
+    assert_eq!(
+        tags_of(&events, "Kit 2: Funk"),
+        Some((SpeechCategory::KitNav, SpeechSource::DeviceInitiated))
+    );
+
+    // A confirmed app edit → ParamEdit / user (the platform suppresses it while
+    // the screen reader voices the focused control).
+    h.set_parameter("kit.common.tempo", vec![1], 1400)
+        .run_to_idle();
+    let events = h.take_events();
+    assert_eq!(
+        tags_of(&events, "140.0 BPM"),
+        Some((SpeechCategory::ParamEdit, SpeechSource::UserInitiated))
+    );
+
+    // A knob turned on the module → ParamEdit / device (always announced).
+    h.hardware_edit("kit.common.tempo", &[1], 1500)
+        .run_to_idle();
+    let events = h.take_events();
+    assert_eq!(
+        tags_of(&events, "150.0 BPM"),
+        Some((SpeechCategory::ParamEdit, SpeechSource::DeviceInitiated))
+    );
+
+    // A rejected edit → Error.
+    h.set_parameter("kit.common.tempo", vec![1], 99_999)
+        .run_to_idle();
+    let events = h.take_events();
+    let error = events.iter().find_map(|e| match e {
+        CoreEvent::Speak(s) if s.category == SpeechCategory::Error => Some(s.clone()),
+        _ => None,
+    });
+    assert!(error.is_some(), "an out-of-range edit announces an Error");
 }
 
 #[test]

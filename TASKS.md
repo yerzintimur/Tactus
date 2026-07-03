@@ -125,29 +125,30 @@ and verified; keep this file honest about real state.
   reframed two bugs (speech flood on hardware kit-scroll; double-speech on a UI
   tempo edit) into one principle: the user's screen reader is the single voice;
   the app exposes the a11y tree and announces only screen-reader-invisible changes,
-  **interrupting** (not debouncing) for kit nav, with no double-speech. Implement
-  in 3 stages:
-  1. **Core:** add `category` (`Connection`/`KitNav`/`ParamEdit`/`Error`/`Info`) +
-     `source` (`DeviceInitiated`/`UserInitiated`) to `Speech`; tag every emission;
-     **revert** the stale-read-back drop in
-     [session.rs](core/crates/engine/src/session.rs) (the `Some(number) !=
-     current_kit` / `Some(kit) != current_kit` gates from commit *fix(engine):
-     debounce kit announcements* — interruption replaces dropping); mirror the new
-     enums over FFI. Unit tests.
-  2. **Platform** —
+  **interrupting** (not debouncing) for kit nav, with no double-speech. Stages:
+  1. [x] **Core:** `Speech` carries `category`
+     (`Connection`/`KitNav`/`ParamEdit`/`Error`/`Info`) + `source`
+     (`DeviceInitiated`/`UserInitiated`); every emission is tagged (the initial
+     kit after connect is `Connection` — part of the summary, not a `KitNav`
+     barge-in); mirrored over FFI; tags pinned in
+     [full_session.rs](core/crates/e2e/tests/full_session.rs). The stale
+     read-back gate in [session.rs](core/crates/engine/src/session.rs) **stays**
+     — per the ADR's resolved edge case it is device-as-truth *content* gating
+     (a kit we scrolled past must not be cached or announced as current);
+     interruption is the platform's announcement policy, not an engine drop.
+  2. [ ] **Platform** —
      [AnnouncementService.swift](apps/ios/TactusApp/AnnouncementService.swift)
      (already a pure announcement router; the app has no TTS of its own) routes by
-     the new tags: interrupt for `KitNav`; **suppress** `UserInitiated ParamEdit`
-     (VoiceOver voices the focused control → no double-speech).
-  3. **UI** — the tempo adjustable
+     the tags: interrupt for `KitNav`; **suppress** `UserInitiated ParamEdit`
+     (VoiceOver voices the focused control → no double-speech). Needs regenerated
+     bindings (`just build-ios`).
+  3. [ ] **UI** — the tempo adjustable
      ([ContentView.swift](apps/ios/TactusApp/ContentView.swift)) shows the edit as
      *in-progress* until the device confirms; the screen reader voices the verified
      value (or a `DeviceInitiated` correction on mismatch) — no double-speech, no
      blind write.
   Test eyes-closed via **VoiceOver** (the authentic path). AX/assistive-access for
   driving the app via the a11y tree is set up (Claude.app granted Accessibility).
-  *(NB: commit `fix(engine): debounce kit announcements` is the superseded
-  attempt — its gating gets reverted in stage 1.)*
 - [ ] **`P3` Firmware `version_format`-aware display.** `FirmwareVersion::display`
   shows raw dotted `0.2.1.0`; the V31 renders `00 02 01 00` as **"0.2.10"** (last
   two bytes = one component). Make the display honour the profile's

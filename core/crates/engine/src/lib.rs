@@ -10,7 +10,8 @@ mod session;
 mod viewmodel;
 
 pub use event::{
-    ConnectionState, CoreEvent, DeviceInfo, Earcon, Effect, FirmwareSupport, Speech, SpeechPriority,
+    ConnectionState, CoreEvent, DeviceInfo, Earcon, Effect, FirmwareSupport, Speech,
+    SpeechCategory, SpeechPriority, SpeechSource,
 };
 pub use session::Session;
 pub use viewmodel::{

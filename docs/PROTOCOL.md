@@ -195,10 +195,14 @@ parameter-map JSON, §13 of SPEC, cross-checked against the Data List.)
   kit the device actually lands on — with a tick-driven timeout so a selection
   the module never performs still fails audibly. Reproduced deterministically in
   [timed_scenarios.rs](../core/crates/e2e/tests/timed_scenarios.rs).
-- **BUG — speech flood on hardware kit-scroll:** dialling through kits on the
-  module pushes an unsolicited Current change per kit; the engine reads each name
-  and speaks it, flooding speech. Fix: **debounce** kit-change announcements (only
-  speak the settled kit) via the tick timer.
+- **Announcement flood on hardware kit-scroll:** dialling through kits on the
+  module pushes an unsolicited Current change per kit; naively announcing every
+  name read floods speech. Handled per
+  [ADR-0014](adr/0014-screen-reader-is-the-only-voice.md): the engine drops a
+  name read-back for a kit that is no longer current (stale *content* — it would
+  report outdated state as fact), announces kits the user dwells on tagged
+  `KitNav`, and the platform posts `KitNav` announcements as **interrupting** —
+  a slow scroll voices each kit, a fast scroll leaves the one you settled on.
 
 ---
 

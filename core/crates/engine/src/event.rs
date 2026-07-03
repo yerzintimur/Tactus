@@ -33,11 +33,45 @@ pub enum SpeechPriority {
     High,
 }
 
+/// What an announcement is about. The platform's router keys on this (ADR-0014):
+/// `KitNav` interrupts the previous announcement, a `UserInitiated` `ParamEdit` is
+/// suppressed while a screen reader voices the focused control, etc. The core only
+/// *tags*; the platform decides.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SpeechCategory {
+    /// Connection lifecycle: connected / unrecognized / firmware notes, plus the
+    /// initial kit read that completes the connection summary (ADR-0014 — the
+    /// first kit is part of the summary, not a `KitNav` barge-in).
+    Connection,
+    /// The current kit changed — app- or device-side navigation. Newer
+    /// announcements in this category preempt older ones (interruption, not
+    /// debouncing).
+    KitNav,
+    /// A parameter value changed: an edit confirmation or a hardware edit push.
+    ParamEdit,
+    /// A failure the user must hear (edit rejected / timed out / out of range).
+    Error,
+    /// Supplementary detail (e.g. the tempo tail after a kit change).
+    Info,
+}
+
+/// Who caused the change being announced (ADR-0014). The platform suppresses
+/// `UserInitiated` edit announcements the screen reader already voices via the
+/// focused control; `DeviceInitiated` changes are always announced — the screen
+/// reader cannot see them.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SpeechSource {
+    DeviceInitiated,
+    UserInitiated,
+}
+
 /// A spoken message (already localized by the core).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Speech {
     pub text: String,
     pub priority: SpeechPriority,
+    pub category: SpeechCategory,
+    pub source: SpeechSource,
 }
 
 /// A short non-speech audio cue.
