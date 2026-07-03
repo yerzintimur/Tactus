@@ -136,12 +136,13 @@ and verified; keep this file honest about real state.
      — per the ADR's resolved edge case it is device-as-truth *content* gating
      (a kit we scrolled past must not be cached or announced as current);
      interruption is the platform's announcement policy, not an engine drop.
-  2. [ ] **Platform** —
+  2. [x] **Platform** —
      [AnnouncementService.swift](apps/ios/TactusApp/AnnouncementService.swift)
-     (already a pure announcement router; the app has no TTS of its own) routes by
-     the tags: interrupt for `KitNav`; **suppress** `UserInitiated ParamEdit`
-     (VoiceOver voices the focused control → no double-speech). Needs regenerated
-     bindings (`just build-ios`).
+     routes by the tags: `KitNav` → interrupting (high); `UserInitiated
+     ParamEdit` → suppressed (VoiceOver voices the focused control → no
+     double-speech; the earcon still plays); everything else keeps the core's
+     priority. Routing decisions are static + unit-tested; `just ios-test` green
+     (incl. the a11y audit). *(Eyes-closed VoiceOver pass still pending.)*
   3. [ ] **UI** — the tempo adjustable
      ([ContentView.swift](apps/ios/TactusApp/ContentView.swift)) shows the edit as
      *in-progress* until the device confirms; the screen reader voices the verified

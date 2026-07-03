@@ -58,6 +58,51 @@ final class CoreSessionTests: XCTestCase {
         session.adjustTempo(rawSteps: 1)
     }
 
+    // MARK: - Announcement routing (ADR-0014)
+
+    private func speech(
+        _ text: String, _ priority: SpeechPriority, _ category: SpeechCategory,
+        _ source: SpeechSource
+    ) -> Speech {
+        Speech(text: text, priority: priority, category: category, source: source)
+    }
+
+    func testUserEditAnnouncementIsSuppressed() {
+        // The screen reader voices the focused control's new value itself.
+        XCTAssertFalse(
+            AnnouncementService.shouldAnnounce(
+                speech("130.0 BPM", .default, .paramEdit, .userInitiated)))
+    }
+
+    func testDeviceChangesAndErrorsAreAnnounced() {
+        // Device-initiated changes are invisible to the screen reader → announce.
+        XCTAssertTrue(
+            AnnouncementService.shouldAnnounce(
+                speech("150.0 BPM", .low, .paramEdit, .deviceInitiated)))
+        XCTAssertTrue(
+            AnnouncementService.shouldAnnounce(
+                speech("Kit 2: Funk", .default, .kitNav, .deviceInitiated)))
+        XCTAssertTrue(
+            AnnouncementService.shouldAnnounce(
+                speech("Connected to Roland V31.", .high, .connection, .deviceInitiated)))
+        XCTAssertTrue(
+            AnnouncementService.shouldAnnounce(
+                speech("That value is out of range.", .high, .error, .userInitiated)))
+    }
+
+    func testKitNavigationInterrupts() {
+        // A newer kit announcement preempts the previous one (high = interrupting);
+        // other categories keep the core's priority.
+        XCTAssertEqual(
+            AnnouncementService.effectivePriority(
+                speech("Kit 1: Rock", .default, .kitNav, .userInitiated)),
+            .high)
+        XCTAssertEqual(
+            AnnouncementService.effectivePriority(
+                speech("120.0 BPM", .low, .info, .deviceInitiated)),
+            .low)
+    }
+
     // MARK: - MIDI destination selection policy
 
     private func endpoint(
