@@ -109,14 +109,20 @@ struct ContentView: View {
     /// swipe up/down nudges the tempo by 0.1 BPM. The visible −/+ buttons do the
     /// same for sighted/low-vision/touch use (hidden from VoiceOver so the row
     /// reads as one control). Every nudge goes through the core's
-    /// write→read-back→verify pipeline, so the value shown is the actual stored
-    /// value, and the spoken confirmation comes from the core.
+    /// write→read-back→verify pipeline, and until the device confirms, the row
+    /// reads as *in-progress* (ADR-0014 edge case): the screen reader voices the
+    /// device-verified value, never a stale or intended one. On mismatch the core
+    /// announces the actual value as an error — the truth always wins audibly.
     @ViewBuilder private var tempoSection: some View {
         Section("Tempo") {
             HStack(spacing: 12) {
                 Text(tempoValueText)
                     .font(.title3)
                     .monospacedDigit()
+                    .foregroundStyle(session.tempoEditInFlight ? .secondary : .primary)
+                if session.tempoEditInFlight {
+                    ProgressView().controlSize(.small)
+                }
                 Spacer()
                 Button {
                     session.adjustTempo(rawSteps: -1)
@@ -138,7 +144,10 @@ struct ContentView: View {
             }
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(session.tempo?.label ?? "Tempo")
-            .accessibilityValue(tempoValueText)
+            // While the edit is in flight the value must not read as settled —
+            // the device hasn't confirmed yet (no blind writes). The confirmed
+            // value replacing this is what the screen reader voices.
+            .accessibilityValue(session.tempoEditInFlight ? "Updating…" : tempoValueText)
             .accessibilityHint("Swipe up or down to adjust the tempo")
             .accessibilityAdjustableAction { direction in
                 switch direction {

@@ -143,13 +143,18 @@ and verified; keep this file honest about real state.
      double-speech; the earcon still plays); everything else keeps the core's
      priority. Routing decisions are static + unit-tested; `just ios-test` green
      (incl. the a11y audit). *(Eyes-closed VoiceOver pass still pending.)*
-  3. [ ] **UI** — the tempo adjustable
-     ([ContentView.swift](apps/ios/TactusApp/ContentView.swift)) shows the edit as
-     *in-progress* until the device confirms; the screen reader voices the verified
-     value (or a `DeviceInitiated` correction on mismatch) — no double-speech, no
-     blind write.
-  Test eyes-closed via **VoiceOver** (the authentic path). AX/assistive-access for
-  driving the app via the a11y tree is set up (Claude.app granted Accessibility).
+  3. [x] **UI** — the tempo adjustable
+     ([ContentView.swift](apps/ios/TactusApp/ContentView.swift)) presents the edit
+     as *in-progress* until the device confirms (`tempoEditInFlight` in
+     [CoreSession.swift](apps/ios/TactusApp/CoreSession.swift)): the accessibility
+     value reads "Updating…" instead of a stale number, the visible value dims
+     with a spinner, and the confirmed (device-verified) value replaces it; on
+     mismatch the core's `Error` announcement carries the actual value — no
+     double-speech, no blind write.
+  Remaining: **eyes-closed VoiceOver validation** (the authentic path) — needs the
+  module (or the Phase-4 `SimulatedTransport`) so read-backs actually flow.
+  AX/assistive-access for driving the app via the a11y tree is set up (Claude.app
+  granted Accessibility).
 - [ ] **`P3` Firmware `version_format`-aware display.** `FirmwareVersion::display`
   shows raw dotted `0.2.1.0`; the V31 renders `00 02 01 00` as **"0.2.10"** (last
   two bytes = one component). Make the display honour the profile's

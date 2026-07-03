@@ -21,6 +21,11 @@ final class CoreSession: ObservableObject {
     /// core's snapshot. `nil` when no profile exposes it (e.g. unknown device).
     /// The value is the last value the device confirmed — never edit intent.
     @Published private(set) var tempo: ParameterView?
+    /// True while a tempo edit is in flight (written, not yet device-confirmed).
+    /// The UI presents the edit as *in-progress* so the screen reader never voices
+    /// the stale value as current (ADR-0014 edge case); the displayed number stays
+    /// the last device-confirmed value — never intent (no blind writes).
+    @Published private(set) var tempoEditInFlight = false
     /// Most recent announcement text, mirrored for the UI/debug.
     @Published private(set) var lastAnnouncement: String = ""
     @Published private(set) var log: [String] = []
@@ -80,6 +85,9 @@ final class CoreSession: ObservableObject {
         else { return }
         let target = max(range.rawMin, min(range.rawMax, raw + Int64(rawSteps) * range.rawStep))
         guard target != raw else { return }
+        // Mark in-flight *before* performing: a synchronously failing edit clears
+        // it again via the emitted EditFailed.
+        tempoEditInFlight = true
         perform(core.setParameter(paramId: tempo.paramId, indices: [kit], value: target))
     }
 
@@ -131,26 +139,35 @@ final class CoreSession: ObservableObject {
         refreshViewModel()
     }
 
+    /// The parameter id of the tempo control (also used by `refreshViewModel`).
+    private static let tempoParamId = "kit.common.tempo"
+
     /// Re-pull the core's snapshot and project the bits the UI binds to. Cheap
     /// (a small in-memory build); the snapshot holds the last device-confirmed
     /// values, so the UI never shows unverified edit intent.
     private func refreshViewModel() {
-        tempo = core.snapshot().parameters.first { $0.paramId == "kit.common.tempo" }
+        tempo = core.snapshot().parameters.first { $0.paramId == Self.tempoParamId }
     }
 
     private func apply(_ event: CoreEvent) {
         switch event {
         case .connectionChanged(let state):
             connection = state
+            if state != .ready { tempoEditInFlight = false }
         case .deviceIdentified(let info):
             device = info
             append("device: \(info.name) — fw \(info.firmware)")
         case .currentKitChanged(let number, let name):
+            // A kit switch abandons any in-flight tempo edit UI-wise (the engine
+            // resolves the pipeline itself; the new kit's tempo read repopulates).
+            tempoEditInFlight = false
             currentKitNumber = number
             currentKit = name
-        case .editConfirmed(_, let display):
+        case .editConfirmed(let paramId, let display):
+            if paramId == Self.tempoParamId { tempoEditInFlight = false }
             append("✓ \(display)")
-        case .editFailed(_, let reason):
+        case .editFailed(let paramId, let reason):
+            if paramId == Self.tempoParamId { tempoEditInFlight = false }
             append("✗ \(reason)")
         case .speak(let speech):
             lastAnnouncement = speech.text
