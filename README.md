@@ -60,11 +60,13 @@ inverse of "build it visual, then bolt on accessibility." Litmus test:
 ## Architecture at a glance
 
 - **Rust core** (platform-agnostic, no I/O): SysEx codec, checksum, address math,
-  typed parameter model, value⇄string for TTS, and the **write→readback→verify**
-  state machine. Exposed to mobile via **UniFFI**.
-- **Thin native layers:** iOS (Swift/SwiftUI, CoreMIDI, AVSpeechSynthesizer) and
-  Android (Kotlin/Compose, `android.media.midi`, `TextToSpeech`) — accessible UI,
-  MIDI transport, speech.
+  typed parameter model, value⇄string for what the screen reader reads, and the
+  **write→readback→verify** state machine. Exposed to mobile via **UniFFI**.
+- **Thin native layers:** iOS (Swift/SwiftUI, CoreMIDI) and Android
+  (Kotlin/Compose, `android.media.midi`) — accessible UI, MIDI transport, and
+  screen-reader announcements. The app has **no voice of its own**: it feeds the
+  system's accessibility features (VoiceOver / TalkBack), never reimplements them
+  ([ADR-0014](docs/adr/0014-screen-reader-is-the-only-voice.md)).
 - **Data:** instrument/FX catalogs + parameter map parsed from the V31 Data List
   into our own JSON, embedded in the core.
 

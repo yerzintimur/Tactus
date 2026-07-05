@@ -106,8 +106,8 @@ and [DEVELOPMENT.md §3](DEVELOPMENT.md#3-мульти-девайс-профил
 
 **Primary user:** a blind or low-vision drummer who already uses a smartphone
 with a screen reader (VoiceOver on iOS, TalkBack on Android) and is fluent in its
-gestures. They may run TTS at a very high speech rate. Hands are often occupied
-with sticks. **This user is who we build for first** (see the
+gestures. They may run their screen reader at a very high speech rate. Hands are
+often occupied with sticks. **This user is who we build for first** (see the
 [North Star](#-north-star--nonvisual-first)).
 
 **Secondary users:** sighted teachers/parents/techs helping set up; low-vision
@@ -134,11 +134,13 @@ Non-negotiable principles (full detail in [ACCESSIBILITY.md](ACCESSIBILITY.md)):
 4. **No blind writes.** For a blind user, an edit that *might* have happened is
    worse than useless. Every edit follows **write → read back → verify → speak
    the actual stored value** (§10).
-5. **The app talks back.** State changes — including ones the user causes on the
-   hardware itself — are announced (§11), with throttling so speech never piles
-   up while playing.
-6. **Respect the platform.** Honour the user's system voice, speech rate,
-   Dynamic Type / font scale, reduce-motion, and high-contrast settings.
+5. **The app talks back — through the screen reader.** State changes — including
+   ones the user causes on the hardware itself — are posted as screen-reader
+   announcements (§11), newer ones preempting stale ones so speech never piles
+   up while playing. The app itself has no voice ([ADR-0014](adr/0014-screen-reader-is-the-only-voice.md)).
+6. **Respect the platform.** Speech goes through the user's screen reader, so
+   their chosen voice, rate, and verbosity apply automatically; honour Dynamic
+   Type / font scale, reduce-motion, and high-contrast settings likewise.
 
 ---
 
@@ -282,7 +284,8 @@ Mirrors the V31 address map (see [PROTOCOL.md](PROTOCOL.md)). Top-level areas:
 
 The core exposes these as **typed parameters** with: address, encoding
 (plain / nibble-packed / signed / ASCII), valid range, and a `format(value) →
-string` for TTS (e.g. tempo `1200 → "120.0 BPM"`, pan `0 → "center"`).
+string` for what the screen reader reads and the UI shows (e.g. tempo
+`1200 → "120.0 BPM"`, pan `0 → "center"`).
 
 ---
 
@@ -319,7 +322,8 @@ points that shape the app:
 
 ### 9.2 MVP
 - Connect over USB-C MIDI; Identity handshake; clear connect/disconnect audio.
-- Speak **current kit (number + name)** and **tempo**; update live (poll Current).
+- Surface **current kit (number + name)** and **tempo** — in the accessibility
+  tree and as announcements on change; update live (poll Current).
 - **Switch kit** from an accessible list (write KitNum to Current, or PC).
 - Resolve persistence so MVP edits are honest about what's saved.
 
@@ -369,7 +373,7 @@ Idle
 
 ---
 
-## 11. Audio output design (TTS + earcons + haptics)
+## 11. Audio output design (screen-reader announcements + earcons + haptics)
 
 Output is the heart of this app and the trickiest a11y problem, because the app
 must surface **even when the user isn't touching the screen** (live hardware
@@ -389,10 +393,10 @@ voice of our own.
   disconnected, kit changed, edit confirmed, error) so the player gets instant
   feedback *before* the slower spoken detail — crucial mid-performance.
 - **Haptics:** confirm/deny patterns as a silent third channel.
-- **Performance mode** biases toward earcons + terse speech ("Kit 12, Jazz") to
-  stay out of the way while playing.
-- **All speech strings come from the Rust core's `format()`**, so phrasing is
-  consistent and unit-tested.
+- **Performance mode** biases toward earcons + terse announcements ("Kit 12,
+  Jazz") to stay out of the way while playing.
+- **All announcement strings come from the Rust core's `format()`**, so phrasing
+  is consistent and unit-tested.
 
 Detailed rules and the screen-reader coexistence strategy live in
 [ACCESSIBILITY.md](ACCESSIBILITY.md).
@@ -405,8 +409,9 @@ Detailed rules and the screen-reader coexistence strategy live in
   confirmation (write→readback→speak) target < ~500 ms over USB-C.
 - **Reliability:** no silent failures — every action ends in a spoken success or
   a spoken, actionable error. Reconnect automatically; announce link state.
-- **Offline:** fully functional with no network. On-device TTS and (if used)
-  on-device speech recognition. No telemetry without explicit opt-in.
+- **Offline:** fully functional with no network. Speech is the on-device screen
+  reader; any (optional, future) speech recognition is on-device too. No
+  telemetry without explicit opt-in.
 - **Battery/thermals:** polling `Current` at a modest cadence (e.g. 2–4 Hz),
   backing off when idle.
 - **Robustness:** tolerate partial/garbled SysEx, unknown addresses, and the
@@ -444,8 +449,9 @@ Detailed rules and the screen-reader coexistence strategy live in
    need an updatable, versioned catalog.
 3. **BLE-MIDI** permissions/stability worse than USB-C → USB-C primary.
 4. **Rust↔mobile binding** — UniFFI (preferred) vs hand-rolled C ABI + cbindgen.
-5. **TTS/screen-reader coexistence** — latency and not stepping on VoiceOver/
-   TalkBack while also speaking live events (§11).
+5. **Screen-reader coexistence** — surfacing live events without stepping on
+   VoiceOver/TalkBack: announcements through the screen reader's own channel,
+   no second voice (§11, [ADR-0014](adr/0014-screen-reader-is-the-only-voice.md)).
 6. **Voice recognition in noise** — confirms voice is a convenience layer, not a
    foundation (§5).
 7. <a name="naming"></a>**Naming** — ✅ resolved: the project is **Tactus**
@@ -458,8 +464,8 @@ Detailed rules and the screen-reader coexistence strategy live in
 
 See [ROADMAP.md](../ROADMAP.md) for the phased plan. Order:
 **PoC (de-risk persistence + round-trip) → Rust core + golden-vector tests →
-Data List parser → one platform (Android: MIDI + TTS) end-to-end → second
-platform → V1 editors.**
+first platform end-to-end (Apple: MIDI + screen-reader announcements) →
+Data List parser → second platform (Android) → V1 editors.**
 
 ---
 

@@ -12,9 +12,10 @@ a silent encoding bug).
 ## Decision
 Put all of that logic in a **single platform-agnostic Rust core with no I/O**,
 unit-tested against golden vectors, and expose it to Swift/Kotlin via **UniFFI**.
-The native layers stay thin: MIDI transport, TTS, and accessible UI only. The
-core consumes inbound MIDI bytes + user intents and returns outbound MIDI bytes +
-view-model updates (including exact strings to speak).
+The native layers stay thin: MIDI transport, screen-reader announcements, and
+accessible UI only. The core consumes inbound MIDI bytes + user intents and
+returns outbound MIDI bytes + view-model updates (including the exact strings to
+announce).
 
 ## Alternatives considered
 - **Hand-rolled C ABI + cbindgen** — more control, more boilerplate and unsafe

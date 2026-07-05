@@ -103,7 +103,7 @@ several schemes; the core must encode/decode each:
 - **ASCII:** one char per byte, `0–127` (names).
 
 The core stores, per parameter: `address`, `byte_len`, `encoding`, `range`, and
-a `format(value) → String` for TTS.
+a `format(value) → String` for what the screen reader reads and the UI shows.
 
 ---
 

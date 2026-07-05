@@ -1,7 +1,8 @@
-//! Localization via Fluent — the single, tested source of spoken/UI phrasing
-//! across both platforms (ADR-0008). Catalogs (`i18n/*.ftl`) are embedded; the
-//! model emits a [`Message`] (id + args) and the [`Localizer`] renders it for a
-//! locale. The OS provides only the TTS voice.
+//! Localization via Fluent — the single, tested source of announcement/UI
+//! phrasing across both platforms (ADR-0008). Catalogs (`i18n/*.ftl`) are
+//! embedded; the model emits a [`Message`] (id + args) and the [`Localizer`]
+//! renders it for a locale. The voice belongs to the user's screen reader
+//! (ADR-0014).
 
 use fluent::concurrent::FluentBundle; // Send + Sync — required so the core/FFI is thread-safe
 use fluent::{FluentArgs, FluentResource, FluentValue};
@@ -137,7 +138,8 @@ fn build_bundle(lang: &str, ftl: &str) -> FluentBundle<FluentResource> {
     bundle
         .add_resource(resource)
         .expect("embedded FTL has no conflicts");
-    // Disable Unicode isolation marks — we want clean strings for TTS / UI.
+    // Disable Unicode isolation marks — we want clean strings for the screen
+    // reader and the UI.
     bundle.set_use_isolating(false);
     bundle
 }

@@ -36,8 +36,8 @@ Build the UI **fully natively on each platform**:
    announcements, focus order).
 2. **Platform-correct idioms.** VoiceOver and TalkBack differ; native lets each
    app feel right to users fluent in their own screen reader.
-3. **Direct platform APIs** we need anyway (CoreMIDI / `android.media.midi`, TTS,
-   haptics, accessibility-status detection).
+3. **Direct platform APIs** we need anyway (CoreMIDI / `android.media.midi`, the
+   screen-reader announcement APIs, haptics, accessibility-status detection).
 4. **Contained cost** — the hard shared logic is in Rust, so native UI layers stay
    thin.
 

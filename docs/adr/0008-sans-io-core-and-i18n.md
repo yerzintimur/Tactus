@@ -18,9 +18,10 @@ the product. The app must also be **multilingual**. Two questions:
 The core does **no I/O** and owns **no threads or timers**. The `engine` is a pure
 state machine driven by inbound events — `on_connected`, `handle_midi_input(bytes)`,
 `tick(now)`, and user intents — and it emits **actions/events**: *send these MIDI
-bytes*, *speak this localized message with this priority*, *schedule a tick*, *here
-is a view-model update*. The native layers own the MIDI port, the timer, and the
-TTS; they feed events in and execute actions out.
+bytes*, *announce this localized message with this priority*, *schedule a tick*,
+*here is a view-model update*. The native layers own the MIDI port, the timer, and
+the screen-reader announcement channel; they feed events in and execute actions
+out.
 
 The FFI exposes a `Session` object plus callback interfaces the native side
 implements (`MidiSender`, `SessionListener`), so the API is ergonomic while the
@@ -38,10 +39,10 @@ iOS String Catalogs).
 - **Sans-I/O** gives a fully deterministic core: testable without hardware,
   threads, or flaky timing; trivial to simulate a module in unit tests; no data
   races across the FFI.
-- **Localization in the core** keeps the project's promise that "all speech strings
-  come from the core" — one tested source of phrasing, consistent across both
-  platforms, with proper plural/number handling. The OS still provides the actual
-  TTS voice.
+- **Localization in the core** keeps the project's promise that "all announcement
+  strings come from the core" — one tested source of phrasing, consistent across
+  both platforms, with proper plural/number handling. The voice belongs to the
+  user's screen reader (ADR-0014).
 
 ## Alternatives considered
 - **Async core with internal runtime/threads** — more "natural" calls but
