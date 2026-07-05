@@ -272,7 +272,7 @@ impl Harness {
         for effect in effects {
             match effect {
                 Effect::SendMidi(bytes) => {
-                    let at = self.clock.now() + self.reply_latency(&bytes);
+                    let at = self.clock.now() + self.timing.reply_delay_ms(&bytes);
                     for reply in self.device.respond(&bytes) {
                         self.push(at, DueKind::DeviceReply(reply));
                     }
@@ -290,16 +290,6 @@ impl Harness {
         let seq = self.seq;
         self.seq += 1;
         self.queue.push(Due { at_ms, seq, kind });
-    }
-
-    fn reply_latency(&self, request: &[u8]) -> u64 {
-        // Identity Request (F0 7E .. 06 01) vs RQ1/DT1. A DT1 yields no reply, so
-        // its latency is never observed.
-        if request.len() >= 5 && request[1] == 0x7E && request[4] == 0x01 {
-            self.timing.identity_reply_ms
-        } else {
-            self.timing.rq1_reply_ms
-        }
     }
 
     fn has_device_reply(&self) -> bool {

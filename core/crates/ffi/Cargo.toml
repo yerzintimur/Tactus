@@ -13,4 +13,13 @@ crate-type = ["cdylib", "staticlib", "lib"]
 
 [dependencies]
 engine = { workspace = true }
+devicesim = { workspace = true, optional = true }
 uniffi = "0.31"
+
+[features]
+default = []
+# Debug/dev-only: expose the simulated module (devicesim::VirtualDevice) over FFI
+# so the app can run the full pipeline with no hardware (device-mock plan, B1).
+# MUST stay off in shipping builds — `just build-ios-release` asserts its symbols
+# are absent.
+simffi = ["dep:devicesim"]

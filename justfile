@@ -12,10 +12,14 @@ docker-image:
     docker build -t tactus-core:1.93.0 -f docker/Dockerfile .
 
 # Core: format check + lint + test — in Docker
+# (the second clippy/test pass covers the feature-gated sim FFI, which the
+# workspace-wide default-features run would otherwise never compile)
 test-core:
     ./scripts/cargo-docker.sh fmt --check
     ./scripts/cargo-docker.sh clippy --all-targets -- -D warnings
+    ./scripts/cargo-docker.sh clippy -p tactus --features simffi --all-targets -- -D warnings
     ./scripts/cargo-docker.sh test
+    ./scripts/cargo-docker.sh test -p tactus --features simffi
 
 # End-to-end tests: the engine driven against the virtual device + cassette replay.
 test-e2e:
@@ -42,12 +46,16 @@ cargo *ARGS:
 # Regenerate the Swift package: builds libtactus.a for iOS (device + simulator)
 # and macOS, generates the UniFFI Swift bindings, and bundles the XCFramework.
 # arm64 only (we ship arm64); Intel slices (iOS-sim + macOS) are excluded.
-build-ios:
+# DEV bindings include the simulated module (`simffi` → VirtualDeviceHandle) so
+# the app + UI tests can run the full pipeline with no hardware (`--simulated-device`).
+# Shipping builds must use `build-ios-release` instead (no sim inside).
+build-ios features="simffi":
     rm -rf core/crates/ffi/Tactus
     cd core/crates/ffi && cargo swift package \
         --platforms ios@18 macos@14 --name Tactus --release \
         --lib-type static --accept-all --skip-toolchains-check \
-        --exclude-arch x86_64-apple-ios --exclude-arch x86_64-apple-darwin
+        --exclude-arch x86_64-apple-ios --exclude-arch x86_64-apple-darwin \
+        {{ if features == "" { "" } else { "--features " + features } }}
     # cargo-swift exits 0 even on failure, so verify the artifact exists.
     test -f core/crates/ffi/Tactus/tactusFFI.xcframework/Info.plist
     rm -rf bindings/Tactus && mkdir -p bindings
@@ -55,6 +63,16 @@ build-ios:
     # cargo-swift emits swift-tools-version:5.5, but .iOS(.v18) needs 6.0.
     sed -i '' '1s|.*|// swift-tools-version:6.0|' bindings/Tactus/Package.swift
     @echo "✅ bindings/Tactus regenerated (XCFramework + Swift bindings)"
+
+# Shipping bindings: NO simulated device inside. Asserts the sim's API and
+# symbols are absent from the generated Swift and every XCFramework slice.
+# (The Debug app config references SimulatedTransport, so pair these bindings
+# with Release builds only; rerun `just build-ios` to get dev bindings back.)
+build-ios-release: (build-ios "")
+    ! grep -rq "VirtualDeviceHandle" bindings/Tactus/Sources
+    ! find bindings/Tactus/tactusFFI.xcframework -name '*.a' \
+        -exec nm {} + 2>/dev/null | grep -qi virtualdevicehandle
+    @echo "✅ release bindings clean (no simulated-device symbols)"
 
 # cargo-swift fuses bindgen + packaging into one step.
 gen-bindings: build-ios
@@ -97,3 +115,8 @@ mac-build:
 # straight to it (no adapter) shows up under MIDI (debug) → Rescan.
 mac-run: mac-build
     open .docker/mac-derived/Build/Products/Debug/TactusApp.app
+
+# Build + launch the Mac app against the SIMULATED module (no hardware): the
+# full pipeline incl. VoiceOver eyes-closed testing, powered by devicesim (B1).
+mac-run-sim: mac-build
+    open .docker/mac-derived/Build/Products/Debug/TactusApp.app --args --simulated-device

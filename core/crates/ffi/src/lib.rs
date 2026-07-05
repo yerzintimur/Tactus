@@ -8,8 +8,12 @@
 //! This is the one crate that can't `#![forbid(unsafe_code)]`: UniFFI's generated
 //! scaffolding uses `unsafe extern "C"`. Our own code here stays unsafe-free.
 
+#[cfg(feature = "simffi")]
+mod sim;
 mod types;
 
+#[cfg(feature = "simffi")]
+pub use sim::VirtualDeviceHandle;
 pub use types::{
     ConnectionState, CoreEvent, DeviceInfo, Earcon, Effect, FirmwareSupport, KitRef, NumericInfo,
     NumericRange, ParamKind, ParamValue, ParameterView, Snapshot, Speech, SpeechCategory,

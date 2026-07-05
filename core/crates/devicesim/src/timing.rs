@@ -71,6 +71,19 @@ impl TimingProfile {
             unsolicited_push_ms: 0,
         }
     }
+
+    /// The delay before the module's reply to `request` lands: an Identity
+    /// Request (`F0 7E .. 06 01`) takes [`identity_reply_ms`](Self::identity_reply_ms),
+    /// anything else [`rq1_reply_ms`](Self::rq1_reply_ms). (A DT1 write produces
+    /// no reply, so its value is never observed.)
+    pub fn reply_delay_ms(&self, request: &[u8]) -> u64 {
+        let identity = request.len() >= 5 && request[1] == 0x7E && request[4] == 0x01;
+        if identity {
+            self.identity_reply_ms
+        } else {
+            self.rq1_reply_ms
+        }
+    }
 }
 
 impl Default for TimingProfile {
