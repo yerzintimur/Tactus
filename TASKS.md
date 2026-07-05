@@ -79,10 +79,18 @@ and verified; keep this file honest about real state.
   fallback). Record real V31 sessions into [tools/cassettes/](tools/cassettes/); the
   Phase-2 golden replay then validates `VirtualDevice` against hardware (fix until
   byte-for-byte) and calibrates `TimingProfile` from the captures.
-- [ ] **`P2` Device-mock platform sims (Phases 4–5).** **B1:** a Swift
-  `SimulatedTransport` backed by `VirtualDevice` over a debug-only `simffi` FFI
-  object, driving eyes-closed XCUITest/VoiceOver in CI. **B2:** a real virtual
-  CoreMIDI endpoint the production `MidiTransport` connects to as if it were hardware
+- [x] **`P2` Device-mock platform sim — B1 (Phase 4).** The core's
+  `VirtualDevice` is exposed over FFI as `VirtualDeviceHandle` (cargo feature
+  `simffi`, dev bindings only — `just build-ios-release` builds without it and
+  asserts the symbols are absent). A DEBUG
+  [SimulatedTransport.swift](apps/ios/TactusApp/SimulatedTransport.swift) plugs it
+  into `CoreSession` through the new `MidiTransporting` seam; `--simulated-device`
+  selects it at launch. The UI tests now drive the **real pipeline** (identify →
+  poll → kit nav → tempo edit, all confirmed by read-backs) + the a11y audit, no
+  hardware; `just mac-run-sim` launches the Mac app the same way for eyes-closed
+  VoiceOver runs.
+- [ ] **`P2` Device-mock platform sim — B2 (Phase 5).** A real virtual CoreMIDI
+  endpoint the production `MidiTransport` connects to as if it were hardware
   (exercises packetization, enumeration, hot-plug, the 256-byte cap; Mac/device
   only, manual/nightly).
 

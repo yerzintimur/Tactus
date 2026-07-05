@@ -12,8 +12,10 @@ struct ContentView: View {
     @EnvironmentObject private var session: CoreSession
     @State private var showingRename = false
 
-    /// UI-test mode: auto-connect and hide the DEBUG developer controls so the
-    /// accessibility audit runs against the shipping UI.
+    /// UI-test mode: hide the DEBUG developer controls so the accessibility audit
+    /// runs against the shipping UI. The UI tests pair this with
+    /// `--simulated-device`, so connecting needs no canned injection — the
+    /// simulated module answers the real pipeline.
     static let isUITest = ProcessInfo.processInfo.arguments.contains("--uitest")
 
     var body: some View {
@@ -35,12 +37,6 @@ struct ContentView: View {
             .navigationTitle("Tactus")
             .task {
                 session.startMidi()
-                if Self.isUITest {
-                    // Drive the pipeline so the audit runs on the real ready-state
-                    // UI without the DEBUG developer controls.
-                    session.connected()
-                    session.receive(CoreSession.sampleV31IdentityReply)
-                }
             }
             .sheet(isPresented: $showingRename) {
                 RenameKitView(
@@ -143,6 +139,7 @@ struct ContentView: View {
                 .disabled(session.tempoRawValue == nil || session.tempoAtMaximum)
             }
             .accessibilityElement(children: .ignore)
+            .accessibilityIdentifier("tempo-adjustable")
             .accessibilityLabel(session.tempo?.label ?? "Tempo")
             // While the edit is in flight the value must not read as settled —
             // the device hasn't confirmed yet (no blind writes). The confirmed

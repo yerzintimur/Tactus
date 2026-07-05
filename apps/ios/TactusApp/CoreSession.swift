@@ -34,7 +34,7 @@ final class CoreSession: ObservableObject {
     @Published private(set) var midiDestinations: [String] = []
 
     private let core: TactusSession
-    private let transport = MidiTransport()
+    private let transport: any MidiTransporting
     private let announcements = AnnouncementService()
     private let earcons = EarconService()
 
@@ -42,8 +42,14 @@ final class CoreSession: ObservableObject {
     /// startup, or in previews), outbound MIDI is logged instead of sent.
     var sendMidi: ((Data) -> Void)?
 
-    init(locale: String = CoreSession.currentLanguage()) {
+    /// `transport` defaults to the real CoreMIDI transport; tests and the
+    /// `--simulated-device` launch path inject a `SimulatedTransport` instead.
+    init(
+        locale: String = CoreSession.currentLanguage(),
+        transport: (any MidiTransporting)? = nil
+    ) {
         core = TactusSession(locale: locale)
+        self.transport = transport ?? MidiTransport()
     }
 
     /// Wire up CoreMIDI and start listening. Call once when the app appears.

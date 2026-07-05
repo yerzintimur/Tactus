@@ -88,11 +88,22 @@ just ios-test            # unit + UI tests on the iPhone 17 simulator
 just ios-test "iPhone 16e"
 ```
 
-- **Unit** (`TactusAppTests`) pin the Swift↔Rust boundary: feeding a canned V31
-  identity reply must surface the device and reach the ready state.
-- **UI** (`TactusAppUITests`) drive the flow and run an **accessibility audit
-  gate** (`performAccessibilityAudit`) against the shipping UI (`--uitest`
-  auto-connects and hides the DEBUG developer controls).
+- **Unit** (`TactusAppTests`) pin the Swift↔Rust boundary (canned V31 identity
+  reply → device surfaced, ready state) and the ADR-0014 announcement routing.
+- **UI** (`TactusAppUITests`) run the **full pipeline against the simulated
+  module** (`--simulated-device`): identify → poll → kit navigation → tempo edit,
+  each confirmed by real read-backs from `VirtualDeviceHandle` — no hardware.
+  Includes the **accessibility audit gate** (`performAccessibilityAudit`) on the
+  ready-state shipping UI (`--uitest` hides the DEBUG developer controls).
+
+### Simulated module (no hardware)
+
+Dev bindings (`just build-ios`) include the core's simulated V31 (cargo feature
+`simffi` → `VirtualDeviceHandle`). Launching the app with `--simulated-device`
+(DEBUG) swaps CoreMIDI for `SimulatedTransport`: the whole write→read-back→verify
+pipeline, kit navigation, and timing behaviour run against the same profile-driven
+model the Rust e2e harness tests. Shipping builds use **`just build-ios-release`**,
+which builds without `simffi` and asserts the sim's symbols are absent.
 
 The audit enforces the actionable, deterministic checks — text clipping, missing
 labels, traits, hit regions, element detection. `contrast` and `dynamicType` are
@@ -107,10 +118,12 @@ they're unfit for a strict gate. A dedicated low-vision pass (high-contrast them
 apps/ios/
 ├── project.yml            # XcodeGen spec (committed)
 ├── TactusApp/
-│   ├── TactusApp.swift     # @main App entry point
+│   ├── TactusApp.swift     # @main App entry point (picks the transport at launch)
 │   ├── CoreSession.swift   # bridge to the Rust core: drains Effects → @Published state
-│   ├── ContentView.swift   # accessible MVP UI (connection, kit nav, rename)
-│   ├── MidiTransport.swift # CoreMIDI I/O (USB)
+│   ├── ContentView.swift   # accessible MVP UI (connection, kit nav, rename, tempo)
+│   ├── MidiTransporting.swift    # the transport seam CoreSession drives
+│   ├── MidiTransport.swift       # CoreMIDI I/O (USB)
+│   ├── SimulatedTransport.swift  # DEBUG: the core's simulated V31 (B1, --simulated-device)
 │   ├── AnnouncementService.swift # posts to the screen reader's announcement channel (no TTS)
 │   └── EarconService.swift # haptic earcons
 ├── TactusAppTests/         # unit tests (Swift↔Rust boundary)
@@ -119,8 +132,8 @@ apps/ios/
 
 `CoreSession` is the one place that talks to the core. The core is sans-I/O: each
 call returns `[Effect]` (send MIDI / schedule a tick / emit an event) that the app
-performs — `MidiTransport` sends/receives the MIDI, `AnnouncementService` posts
-screen-reader announcements, and `EarconService` plays earcons/haptics. In
-`--uitest` and via the DEBUG
-**Developer** section the pipeline can be driven with a canned V31 identity reply
-(no hardware).
+performs — the injected `MidiTransporting` (CoreMIDI, or the simulated module
+under `--simulated-device`) moves the MIDI, `AnnouncementService` posts
+screen-reader announcements, and `EarconService` plays earcons/haptics. The DEBUG
+**Developer** section can additionally drive the identity handshake with a canned
+reply.

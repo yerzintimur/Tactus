@@ -1,13 +1,108 @@
 import XCTest
 
-/// End-to-end UI flow plus the accessibility audit gate.
+/// End-to-end UI flows against the **simulated module** (`--simulated-device`,
+/// device-mock plan B1): the app runs the real pipeline — identify → poll →
+/// write → read-back → verify — over the core's `VirtualDeviceHandle`, no
+/// hardware. Everything is asserted through the accessibility tree (labels and
+/// values), which is exactly what a screen-reader user gets. Plus the
+/// accessibility audit gate.
 final class TactusUITests: XCTestCase {
     override func setUp() {
         continueAfterFailure = false
     }
 
-    /// Drives the pipeline via the DEBUG "Simulate" controls and checks the Kit
-    /// section appears once the device is identified.
+    private func launchSimulated() -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments = ["--uitest", "--simulated-device"]
+        app.launch()
+        return app
+    }
+
+    /// Any element whose accessibility label or value contains `text` — resilient
+    /// to how SwiftUI combines rows (LabeledContent exposes its value either as a
+    /// child static text or as the row's value, depending on the container).
+    private func element(
+        in app: XCUIApplication, containing text: String
+    ) -> XCUIElement {
+        app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label CONTAINS %@ OR value CONTAINS %@", text, text))
+            .firstMatch
+    }
+
+    /// The tempo row — one VoiceOver adjustable (its children are intentionally
+    /// hidden from the accessibility tree).
+    private func tempoElement(in app: XCUIApplication) -> XCUIElement {
+        app.descendants(matching: .any)["tempo-adjustable"].firstMatch
+    }
+
+    private func waitForValue(
+        _ expected: String, of element: XCUIElement, timeout: TimeInterval = 3
+    ) -> Bool {
+        let predicate = NSPredicate(format: "value == %@", expected)
+        let wait = XCTWaiter().wait(
+            for: [expectation(for: predicate, evaluatedWith: element)], timeout: timeout)
+        return wait == .completed
+    }
+
+    /// The identity handshake + initial kit/tempo reads flow end-to-end: the app
+    /// reaches Ready and surfaces the device, the current kit, and its tempo.
+    @MainActor
+    func testConnectReadsKitAndTempoFromTheSimulatedModule() {
+        let app = launchSimulated()
+
+        XCTAssertTrue(
+            element(in: app, containing: "Roland V31").waitForExistence(timeout: 5),
+            "identity reply should surface the device name")
+        XCTAssertTrue(
+            element(in: app, containing: "5 · Jazz").waitForExistence(timeout: 3),
+            "the current kit is read from the module")
+        let tempo = tempoElement(in: app)
+        XCTAssertTrue(tempo.waitForExistence(timeout: 3))
+        XCTAssertTrue(
+            waitForValue("120.0 BPM", of: tempo),
+            "the kit tempo is read from the module; got \(String(describing: tempo.value))")
+    }
+
+    /// Kit navigation round-trips through the module: the write is confirmed by
+    /// the Current read and the *actual* kit (name read back) reaches the UI.
+    @MainActor
+    func testNextKitIsConfirmedByTheModule() {
+        let app = launchSimulated()
+        XCTAssertTrue(element(in: app, containing: "5 · Jazz").waitForExistence(timeout: 5))
+
+        app.buttons["Next kit"].tap()
+        XCTAssertTrue(
+            element(in: app, containing: "6 · Funk").waitForExistence(timeout: 3),
+            "the confirmed kit change (and its read-back name) should land")
+
+        app.buttons["Previous kit"].tap()
+        XCTAssertTrue(
+            element(in: app, containing: "5 · Jazz").waitForExistence(timeout: 3),
+            "navigating back is confirmed the same way")
+    }
+
+    /// A tempo nudge goes through write → read-back → verify; the displayed value
+    /// is the device-confirmed one. The visible “+” button is hidden from the
+    /// accessibility tree (the row is one adjustable), so it is tapped by
+    /// coordinate — the VoiceOver path (adjustable increment) is validated in the
+    /// manual eyes-closed pass.
+    @MainActor
+    func testTempoNudgeIsVerifiedByReadback() {
+        let app = launchSimulated()
+        let tempo = tempoElement(in: app)
+        XCTAssertTrue(tempo.waitForExistence(timeout: 5))
+        XCTAssertTrue(waitForValue("120.0 BPM", of: tempo))
+
+        // Rightmost 44-pt control in the row is “+”.
+        tempo.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
+        XCTAssertTrue(
+            waitForValue("120.1 BPM", of: tempo),
+            "the +0.1 BPM edit should be verified and displayed; got \(String(describing: tempo.value))"
+        )
+    }
+
+    /// Legacy DEBUG path (no simulated device): the developer controls still
+    /// drive the identity handshake with a canned reply.
     @MainActor
     func testConnectFlowSurfacesKitSection() {
         let app = XCUIApplication()
@@ -25,8 +120,9 @@ final class TactusUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Rename kit…"].exists)
     }
 
-    /// Accessibility audit gate. Runs against the shipping UI: `--uitest`
-    /// auto-connects and hides the DEBUG developer controls.
+    /// Accessibility audit gate. Runs against the shipping UI in the full ready
+    /// state (simulated module connected, kit + tempo sections visible);
+    /// `--uitest` hides the DEBUG developer controls.
     ///
     /// `contrast` and `dynamicType` are excluded from the automated gate:
     /// - contrast on standard iOS tinted controls (systemBlue ≈ 3–4:1) sits below
@@ -39,13 +135,13 @@ final class TactusUITests: XCTestCase {
     /// traits, hit regions, element detection.
     @MainActor
     func testAccessibilityAudit() throws {
-        let app = XCUIApplication()
-        app.launchArguments = ["--uitest"]
-        app.launch()
+        let app = launchSimulated()
 
+        let tempo = tempoElement(in: app)
         XCTAssertTrue(
-            app.staticTexts["Kit"].waitForExistence(timeout: 5),
-            "auto-connect should reach the ready state")
+            tempo.waitForExistence(timeout: 5),
+            "the full ready state (kit + tempo) should be reached before auditing")
+        XCTAssertTrue(waitForValue("120.0 BPM", of: tempo))
 
         try app.performAccessibilityAudit(
             for: XCUIAccessibilityAuditType.all.subtracting([.contrast, .dynamicType]))
