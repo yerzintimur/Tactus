@@ -7,6 +7,11 @@ import XCTest
 /// values), which is exactly what a screen-reader user gets. Plus the
 /// accessibility audit gate.
 final class TactusUITests: XCTestCase {
+    /// Shared CI runners are slow (a cold app launch alone can take tens of
+    /// seconds); waits return as soon as the condition holds, so a generous
+    /// timeout costs nothing locally.
+    private let uiTimeout: TimeInterval = 15
+
     override func setUp() {
         continueAfterFailure = false
     }
@@ -35,12 +40,10 @@ final class TactusUITests: XCTestCase {
         app.descendants(matching: .any)["tempo-adjustable"].firstMatch
     }
 
-    private func waitForValue(
-        _ expected: String, of element: XCUIElement, timeout: TimeInterval = 3
-    ) -> Bool {
+    private func waitForValue(_ expected: String, of element: XCUIElement) -> Bool {
         let predicate = NSPredicate(format: "value == %@", expected)
         let wait = XCTWaiter().wait(
-            for: [expectation(for: predicate, evaluatedWith: element)], timeout: timeout)
+            for: [expectation(for: predicate, evaluatedWith: element)], timeout: uiTimeout)
         return wait == .completed
     }
 
@@ -51,13 +54,13 @@ final class TactusUITests: XCTestCase {
         let app = launchSimulated()
 
         XCTAssertTrue(
-            element(in: app, containing: "Roland V31").waitForExistence(timeout: 5),
+            element(in: app, containing: "Roland V31").waitForExistence(timeout: uiTimeout),
             "identity reply should surface the device name")
         XCTAssertTrue(
-            element(in: app, containing: "5 · Jazz").waitForExistence(timeout: 3),
+            element(in: app, containing: "5 · Jazz").waitForExistence(timeout: uiTimeout),
             "the current kit is read from the module")
         let tempo = tempoElement(in: app)
-        XCTAssertTrue(tempo.waitForExistence(timeout: 3))
+        XCTAssertTrue(tempo.waitForExistence(timeout: uiTimeout))
         XCTAssertTrue(
             waitForValue("120.0 BPM", of: tempo),
             "the kit tempo is read from the module; got \(String(describing: tempo.value))")
@@ -68,16 +71,16 @@ final class TactusUITests: XCTestCase {
     @MainActor
     func testNextKitIsConfirmedByTheModule() {
         let app = launchSimulated()
-        XCTAssertTrue(element(in: app, containing: "5 · Jazz").waitForExistence(timeout: 5))
+        XCTAssertTrue(element(in: app, containing: "5 · Jazz").waitForExistence(timeout: uiTimeout))
 
         app.buttons["Next kit"].tap()
         XCTAssertTrue(
-            element(in: app, containing: "6 · Funk").waitForExistence(timeout: 3),
+            element(in: app, containing: "6 · Funk").waitForExistence(timeout: uiTimeout),
             "the confirmed kit change (and its read-back name) should land")
 
         app.buttons["Previous kit"].tap()
         XCTAssertTrue(
-            element(in: app, containing: "5 · Jazz").waitForExistence(timeout: 3),
+            element(in: app, containing: "5 · Jazz").waitForExistence(timeout: uiTimeout),
             "navigating back is confirmed the same way")
     }
 
@@ -90,7 +93,7 @@ final class TactusUITests: XCTestCase {
     func testTempoNudgeIsVerifiedByReadback() {
         let app = launchSimulated()
         let tempo = tempoElement(in: app)
-        XCTAssertTrue(tempo.waitForExistence(timeout: 5))
+        XCTAssertTrue(tempo.waitForExistence(timeout: uiTimeout))
         XCTAssertTrue(waitForValue("120.0 BPM", of: tempo))
 
         // Rightmost 44-pt control in the row is “+”.
@@ -108,14 +111,14 @@ final class TactusUITests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
 
-        XCTAssertTrue(app.buttons["Simulate connect"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["Simulate connect"].waitForExistence(timeout: uiTimeout))
         app.buttons["Simulate connect"].tap()
         app.buttons["Simulate V31 identity reply"].tap()
 
         // The Kit section only appears once the device is ready, so its presence
         // proves the identity round-trip reached the UI.
         XCTAssertTrue(
-            app.staticTexts["Kit"].waitForExistence(timeout: 3),
+            app.staticTexts["Kit"].waitForExistence(timeout: uiTimeout),
             "Kit section should appear once the device is ready")
         XCTAssertTrue(app.buttons["Rename kit…"].exists)
     }
@@ -139,7 +142,7 @@ final class TactusUITests: XCTestCase {
 
         let tempo = tempoElement(in: app)
         XCTAssertTrue(
-            tempo.waitForExistence(timeout: 5),
+            tempo.waitForExistence(timeout: uiTimeout),
             "the full ready state (kit + tempo) should be reached before auditing")
         XCTAssertTrue(waitForValue("120.0 BPM", of: tempo))
 

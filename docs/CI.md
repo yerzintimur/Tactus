@@ -68,15 +68,31 @@ Details worth knowing:
 
 ### When CI goes red
 
-1. Open the run → the failing job → the failing step; the log ends with the
-   actual error. (Reading step logs requires being signed in to GitHub.)
-2. When the Apple *test* step fails, the workflow also surfaces the error lines
+1. Fastest: the **GitHub CLI** straight from the terminal —
+   `gh run list --workflow ci.yml`, then `gh run view <run-id>` (job/step
+   summary + annotations) and `gh run view <run-id> --log --job <job-id>` for
+   the full log. `gh run watch` follows a run live; `gh run rerun <run-id>
+   --failed` re-runs just the failed jobs.
+2. On github.com: open the run → the failing job → the failing step; the log
+   ends with the actual error. (Reading step logs requires being signed in.)
+3. When the Apple *test* step fails, the workflow also surfaces the error lines
    as **annotations** on the run's Summary page (readable without signing in)
    and attaches the full xcodebuild log as an **artifact** (Summary →
-   Artifacts) — start there.
-3. Reproduce locally with the same recipe (`just test-core`, `just ios-test`, …).
-4. Simulator/infra flake (rare, but real on shared macOS runners)? **Re-run
+   Artifacts).
+4. Reproduce locally with the same recipe (`just test-core`, `just ios-test`, …).
+5. Simulator/infra flake (rare, but real on shared macOS runners)? **Re-run
    failed jobs** once before digging.
+
+### Lesson learned: CI runners are slow — UI-test waits must be generous
+
+A shared macOS runner is far slower than a dev Mac: in our first runs a cold
+app launch took ~30 s and a UI test that finishes locally in 15 s took 43 s.
+A `waitForExistence(timeout: 3)` tuned on fast local hardware then fails on CI
+even though the app is *correct* — the value arrives a moment after the wait
+expires. The rule: **XCUITest waits should be generous (we use one shared
+15 s constant), because a fulfilled wait returns immediately** — long timeouts
+cost nothing on the green path, they only buy headroom on the red one. Never
+"fix" flakiness with `sleep`; always wait on an explicit condition.
 
 ---
 
