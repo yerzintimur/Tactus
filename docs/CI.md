@@ -69,9 +69,13 @@ Details worth knowing:
 ### When CI goes red
 
 1. Open the run → the failing job → the failing step; the log ends with the
-   actual error.
-2. Reproduce locally with the same recipe (`just test-core`, `just ios-test`, …).
-3. Simulator/infra flake (rare, but real on shared macOS runners)? **Re-run
+   actual error. (Reading step logs requires being signed in to GitHub.)
+2. When the Apple *test* step fails, the workflow also surfaces the error lines
+   as **annotations** on the run's Summary page (readable without signing in)
+   and attaches the full xcodebuild log as an **artifact** (Summary →
+   Artifacts) — start there.
+3. Reproduce locally with the same recipe (`just test-core`, `just ios-test`, …).
+4. Simulator/infra flake (rare, but real on shared macOS runners)? **Re-run
    failed jobs** once before digging.
 
 ---

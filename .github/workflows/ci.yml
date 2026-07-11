@@ -91,10 +91,11 @@ jobs:
         run: just ios-gen
 
       # Runner images ship different simulator sets per Xcode version, so pick
-      # the newest available iPhone instead of hardcoding a model name. Since
-      # Xcode 15 the iOS simulator runtime is a separate download and fresh
-      # runner images occasionally lack it — download it as a fallback, and
-      # fail THIS step loudly rather than hand xcodebuild a bogus destination.
+      # the newest available iPhone (by udid — names can repeat across runtime
+      # versions) instead of hardcoding a model name. Since Xcode 15 the iOS
+      # simulator runtime is a separate download and fresh runner images
+      # occasionally lack it — download it as a fallback, and fail THIS step
+      # loudly rather than hand xcodebuild a bogus destination.
       - name: Pick a simulator
         id: sim
         run: |
@@ -104,23 +105,53 @@ jobs:
               | to_entries
               | map(select(.key | test("SimRuntime\\.iOS")))
               | sort_by(.key)
-              | last.value
+              | (last.value // [])
               | map(select(.name | startswith("iPhone")))
-              | first.name'
+              | first
+              | if . == null then "" else "\(.udid)\t\(.name)" end'
           }
-          name=$(pick)
-          if [ -z "$name" ] || [ "$name" = "null" ]; then
+          picked="$(pick)"
+          if [ -z "$picked" ]; then
             echo "No iOS simulator available — downloading the iOS platform…"
             sudo xcodebuild -downloadPlatform iOS
-            name=$(pick)
+            picked="$(pick)"
           fi
-          xcrun simctl list devices available
-          if [ -z "$name" ] || [ "$name" = "null" ]; then
+          xcrun simctl list devices available || true
+          if [ -z "$picked" ]; then
             echo "::error::No iPhone simulator available on this runner"
             exit 1
           fi
-          echo "Using simulator: $name"
-          echo "name=$name" >> "$GITHUB_OUTPUT"
+          udid="${picked%%$'\t'*}"
+          name="${picked#*$'\t'}"
+          echo "Using simulator: $name ($udid)"
+          echo "udid=$udid" >> "$GITHUB_OUTPUT"
+
+      # Booting up front (instead of letting xcodebuild race a cold boot) is
+      # the classic stabiliser for simulator tests on shared CI machines.
+      - name: Pre-boot the simulator
+        run: |
+          xcrun simctl boot "${{ steps.sim.outputs.udid }}" || true
+          xcrun simctl bootstatus "${{ steps.sim.outputs.udid }}" -b
 
       - name: Unit + UI tests (incl. the accessibility audit)
-        run: just ios-test sim="${{ steps.sim.outputs.name }}"
+        id: tests
+        run: |
+          set -o pipefail
+          just ios-test-dest "platform=iOS Simulator,id=${{ steps.sim.outputs.udid }}" 2>&1 | tee xcodebuild.log
+
+      # Reading logs on github.com requires signing in, so on failure surface
+      # the interesting lines as annotations (visible on the run page without
+      # auth) and attach the full log as an artifact.
+      - name: Surface the failure
+        if: failure() && steps.tests.outcome == 'failure'
+        run: |
+          { grep -E "error:|error =|xcodebuild: error|Testing failed|Fatal error|failed to|Ineligible destinations" xcodebuild.log | tail -n 10; tail -n 5 xcodebuild.log; } \
+            | while IFS= read -r l; do echo "::error::${l:0:400}"; done
+          true
+
+      - name: Upload the xcodebuild log
+        if: failure() && steps.tests.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcodebuild-log
+          path: xcodebuild.log
