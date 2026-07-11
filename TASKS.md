@@ -99,12 +99,24 @@ and verified; keep this file honest about real state.
 
 ## M3 — Data pipeline (catalogs)
 
-- [ ] **`P2` Data List PDF parser** (`tools/`, currently empty): emit
-  instruments / FX / ambience JSON; cross-check the parameter address map.
-- [ ] **`P2` Populate V31 catalogs** (`profiles/catalogs/roland-v31/*.json`) and
-  wire them into the profile + `model`.
-- [ ] **`P2` Expand the V31 parameter map**: pad/layer, FX, ambience parameters
-  (from the MIDI Implementation).
+- [x] **`P2` PDF parsers** (`tools/parse_datalist.py`, `tools/parse_midi_impl.py`,
+  `just data-derive`): drum kits (200), instruments (246 preset + 3 EXV packs =
+  764), FX types (95) into `profiles/catalogs/roland-v31/`; the full MIDI
+  Implementation §3 into `profiles/maps/roland-v31-address-map.json` (25 blocks,
+  792 parameters). Fail-loud parsing + golden-fact validation; see
+  [tools/README.md](tools/README.md).
+- [x] **`P2` Populate V31 catalogs** and wire them in: embedded via
+  `device::builtin_catalog_json` + typed `device::catalogs`;
+  `model::InstrumentCatalog::v31()` speaks real names (35 = "DW Concrete S"),
+  unknown numbers still degrade gracefully.
+- [x] **`P2` Expand the V31 parameter map**: `dims` schema (per-layer/unit/pad/
+  FX-slot repeats), `signed_nibble` encoding, and 21 new curated parameters
+  (pad/layer instrument-bank-volume-pitch-decay, per-unit ambience sends, pan,
+  bus FX type/switch, overhead/room/reverb) — every parameter carries a `doc`
+  ref and is **cross-checked byte-for-byte against the parsed map** by
+  `device/tests/map_crosscheck.rs`. Found & fixed: `sub_name` is 64 bytes, not
+  16. *(Deferred: per-FX-type parameter names for the 95 MFX types; expansion
+  bank numbering to confirm on hardware.)*
 
 ## M4 — Finish the Apple app toward V1
 

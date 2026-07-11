@@ -8,6 +8,45 @@ use crate::profile::DeviceProfile;
 const ROLAND_V31_JSON: &str =
     include_str!(concat!(env!("WORKSPACE_DIR"), "/profiles/roland-v31.json"));
 
+/// Embedded catalog JSON for built-in profiles: (profile id, catalog name in
+/// the profile's `catalogs` map) → file contents. Downloadable profile packs
+/// will carry their catalogs alongside the profile instead.
+const BUILTIN_CATALOGS: &[(&str, &str, &str)] = &[
+    (
+        "roland-v31",
+        "drum-kits",
+        include_str!(concat!(
+            env!("WORKSPACE_DIR"),
+            "/profiles/catalogs/roland-v31/drum-kits.json"
+        )),
+    ),
+    (
+        "roland-v31",
+        "instruments",
+        include_str!(concat!(
+            env!("WORKSPACE_DIR"),
+            "/profiles/catalogs/roland-v31/instruments.json"
+        )),
+    ),
+    (
+        "roland-v31",
+        "fx-types",
+        include_str!(concat!(
+            env!("WORKSPACE_DIR"),
+            "/profiles/catalogs/roland-v31/fx-types.json"
+        )),
+    ),
+];
+
+/// The embedded catalog JSON for a built-in profile, by the name used in the
+/// profile's `catalogs` map (e.g. `("roland-v31", "instruments")`).
+pub fn builtin_catalog_json(profile_id: &str, catalog: &str) -> Option<&'static str> {
+    BUILTIN_CATALOGS
+        .iter()
+        .find(|(p, c, _)| *p == profile_id && *c == catalog)
+        .map(|(_, _, json)| *json)
+}
+
 /// A collection of device profiles, looked up by Model ID.
 ///
 /// Built-in profiles are registered at startup (task #6 embeds the V31 profile);
@@ -86,6 +125,20 @@ mod tests {
         let reg = ProfileRegistry::new();
         assert!(reg.is_empty());
         assert!(reg.match_model(&[1, 6, 1]).is_none());
+    }
+
+    #[test]
+    fn every_declared_catalog_is_embedded() {
+        // The profile's catalogs map and the embedded table must not drift.
+        let reg = ProfileRegistry::with_builtin();
+        let v31 = reg.match_model(&[1, 6, 1]).unwrap();
+        assert!(!v31.catalogs.is_empty());
+        for name in v31.catalogs.keys() {
+            assert!(
+                builtin_catalog_json(&v31.profile_id, name).is_some(),
+                "catalog {name:?} declared in the profile but not embedded"
+            );
+        }
     }
 
     #[test]

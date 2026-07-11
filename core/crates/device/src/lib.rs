@@ -7,15 +7,17 @@
 //! docs/DEVELOPMENT.md §3.
 #![forbid(unsafe_code)]
 
+pub mod catalogs;
 pub mod firmware;
 mod profile;
 mod registry;
 
 pub use firmware::{FirmwareSupport, FirmwareVersion};
 pub use profile::{
-    AreaDef, Capabilities, DeviceProfile, FirmwareConfig, Identity, ParameterDef, ValueRange,
+    AreaDef, Capabilities, DeviceProfile, DimDef, FirmwareConfig, Identity, ParameterDef,
+    ValueRange,
 };
-pub use registry::ProfileRegistry;
+pub use registry::{ProfileRegistry, builtin_catalog_json};
 
 /// Crate version, exposed so higher layers can sanity-check linkage.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
