@@ -16,7 +16,7 @@ The pipeline itself is one file: [.github/workflows/ci.yml](../.github/workflows
 | **Workflow** | A YAML file in `.github/workflows/` describing what to run and when. | `ci.yml`, named "CI". |
 | **Trigger** (`on:`) | The event that starts a workflow. | Push to `main`, any pull request, or the manual **Run workflow** button (`workflow_dispatch`). |
 | **Job** | A group of steps on one fresh virtual machine. Jobs run in parallel. | `core` and `apple`. |
-| **Runner** | The VM a job runs on. GitHub hosts Linux, Windows, macOS. | `ubuntu-latest` for the core, `macos-latest` for the Apple leg (the Apple toolchain only exists on macOS). |
+| **Runner** | The VM a job runs on. GitHub hosts Linux, Windows, macOS. | `ubuntu-latest` for the core; a pinned `macos-26` for the Apple leg (the Apple toolchain only exists on macOS, and pinning keeps the Xcode major matching local dev while GitHub migrates `-latest`). |
 | **Step** | One shell command or a reusable **action** (a published building block, versioned like `actions/checkout@v5`). | Checkout, caches, then the same `just` recipes you run locally. |
 
 Where to look: the **Actions** tab of the repo lists runs; click a run → a job
@@ -43,7 +43,7 @@ is reproducible on your machine with the exact command shown in the log.
 | Job | Runner | What it runs | Local equivalent |
 |---|---|---|---|
 | **Rust core** | `ubuntu-latest` | fmt check, clippy `-D warnings` (incl. the `simffi` feature), all tests, then the virtual-device e2e suite — all **inside the same pinned Docker image** as local dev (`scripts/cargo-docker.sh` builds it on first use). | `just test-core` + `just test-e2e` |
-| **Apple app** | `macos-latest` | Build the XCFramework + Swift bindings, generate the Xcode project, run unit + UI tests (the full simulated-module pipeline **and the accessibility-audit gate**) on an iOS Simulator. | `just build-ios` + `just ios-gen` + `just ios-test` |
+| **Apple app** | `macos-26` | Build the XCFramework + Swift bindings, generate the Xcode project, run unit + UI tests (the full simulated-module pipeline **and the accessibility-audit gate**) on an iOS Simulator. | `just build-ios` + `just ios-gen` + `just ios-test` |
 
 Details worth knowing:
 
