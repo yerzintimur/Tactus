@@ -15,6 +15,12 @@ pub enum Encoding {
     /// Signed, Roland convention centred at 0: a plain7 value minus `64·128^(len-1)`
     /// (1-byte: 00=-64, 40=0, 7F=+63; 2-byte: 00 00=-8192, 40 00=0, 7F 7F=+8191).
     Signed,
+    /// Nibble-packed two's complement over `4·len` bits — the V31 stores signed
+    /// multi-nibble fields this way (e.g. volume raw −601 in 4 nibbles =
+    /// 0xFDA7 → `0F 0D 0A 07`). Inferred from the negative range spans in the
+    /// MIDI Implementation; every live edit is confirmed by read-back anyway
+    /// (no blind writes).
+    SignedNibble,
     /// ASCII text, one char per byte — use [`decode_ascii`] / [`encode_ascii`].
     Ascii,
 }
@@ -26,6 +32,11 @@ impl Encoding {
             Encoding::Plain7 => Some(decode_base(bytes, 128) as i64),
             Encoding::Nibble => Some(decode_base(bytes, 16) as i64),
             Encoding::Signed => Some(decode_base(bytes, 128) as i64 - signed_centre(bytes.len())),
+            Encoding::SignedNibble => {
+                let raw = decode_base(bytes, 16) as i64;
+                let span = 1i64 << (4 * bytes.len());
+                Some(if raw >= span / 2 { raw - span } else { raw })
+            }
             Encoding::Ascii => None,
         }
     }
@@ -39,6 +50,14 @@ impl Encoding {
             Encoding::Signed => {
                 let raw = value.checked_add(signed_centre(len))?;
                 encode_base(u64::try_from(raw).ok()?, 128, len)
+            }
+            Encoding::SignedNibble => {
+                let span = 1i64 << (4 * len.min(15));
+                if value < -span / 2 || value >= span / 2 {
+                    return None;
+                }
+                let raw = if value < 0 { value + span } else { value };
+                encode_base(raw as u64, 16, len)
             }
             Encoding::Ascii => None,
         }
@@ -129,6 +148,33 @@ mod tests {
     }
 
     #[test]
+    fn signed_nibble_twos_complement() {
+        // Volume raw -601 = 0xFDA7 over 16 bits -> nibbles 0F 0D 0A 07.
+        assert_eq!(
+            Encoding::SignedNibble.decode_int(&[0x0F, 0x0D, 0x0A, 0x07]),
+            Some(-601)
+        );
+        assert_eq!(
+            Encoding::SignedNibble.encode_int(-601, 4),
+            Some(vec![0x0F, 0x0D, 0x0A, 0x07])
+        );
+        // Positive values look like plain nibbles: +60 = 0x003C.
+        assert_eq!(
+            Encoding::SignedNibble.decode_int(&[0x00, 0x00, 0x03, 0x0C]),
+            Some(60)
+        );
+        // 2-nibble: -5 = 0xFB -> 0F 0B.
+        assert_eq!(Encoding::SignedNibble.decode_int(&[0x0F, 0x0B]), Some(-5));
+        assert_eq!(
+            Encoding::SignedNibble.encode_int(-5, 2),
+            Some(vec![0x0F, 0x0B])
+        );
+        // Out of range for the width.
+        assert_eq!(Encoding::SignedNibble.encode_int(128, 2), None);
+        assert_eq!(Encoding::SignedNibble.encode_int(-129, 2), None);
+    }
+
+    #[test]
     fn ascii_roundtrip() {
         assert_eq!(decode_ascii(b"TR-808  "), "TR-808");
         assert_eq!(encode_ascii("TR-808", 8), b"TR-808  ".to_vec());
@@ -160,6 +206,12 @@ mod tests {
         fn signed2_roundtrip(v in -8192i64..=8191) {
             let bytes = Encoding::Signed.encode_int(v, 2).unwrap();
             prop_assert_eq!(Encoding::Signed.decode_int(&bytes), Some(v));
+        }
+
+        #[test]
+        fn signed_nibble4_roundtrip(v in -32768i64..=32767) {
+            let bytes = Encoding::SignedNibble.encode_int(v, 4).unwrap();
+            prop_assert_eq!(Encoding::SignedNibble.decode_int(&bytes), Some(v));
         }
     }
 }

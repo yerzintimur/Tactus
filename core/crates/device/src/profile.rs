@@ -92,6 +92,11 @@ pub struct ParameterDef {
     pub len: usize,
     #[serde(deserialize_with = "de_encoding")]
     pub encoding: Encoding,
+    /// Repeat dimensions inside the area (per-layer, per-pad, per-FX-slot …),
+    /// outermost first. `address_of` consumes one index per dimension, after
+    /// the area index.
+    #[serde(default)]
+    pub dims: Vec<DimDef>,
     #[serde(default)]
     pub range: Option<ValueRange>,
     /// Divisor applied for display (e.g. tempo 1200 -> 120.0). Presentation only.
@@ -101,6 +106,23 @@ pub struct ParameterDef {
     pub unit: Option<String>,
     #[serde(default)]
     pub i18n_key: Option<String>,
+    /// Enum value labels (raw = range.min + position), verbatim from the docs.
+    #[serde(default)]
+    pub labels: Option<Vec<String>>,
+    /// Provenance: `"Block/Parameter Name"` in the parsed address map
+    /// (profiles/maps/…), cross-checked by tests.
+    #[serde(default)]
+    pub doc: Option<String>,
+}
+
+/// One repeat dimension of a parameter: how many instances and how far apart.
+#[derive(Debug, Clone, Deserialize)]
+pub struct DimDef {
+    /// What the dimension ranges over ("unit", "layer", "pad", "fx" …).
+    pub name: String,
+    pub count: u32,
+    /// Right-aligned address step between instances (7-bit bytes, like offsets).
+    pub stride: Vec<u8>,
 }
 
 /// Inclusive valid range of a parameter's raw value.
@@ -123,16 +145,28 @@ impl DeviceProfile {
 
     /// Resolve the absolute 4-byte address of a parameter.
     ///
-    /// `indices` supplies the index for an indexed area (e.g. the 0-based kit
-    /// number); extra indices are reserved for future nested addressing
-    /// (per-pad / per-layer).
+    /// `indices` are consumed in order: one for the area (when it repeats,
+    /// e.g. the 0-based kit number), then one per `dims` entry (layer, unit,
+    /// pad …). Missing indices default to 0; an out-of-range index is `None`
+    /// (never a silent write to a neighbouring address).
     pub fn address_of(&self, param_id: &str, indices: &[u32]) -> Option<[u8; 4]> {
         let param = self.parameter(param_id)?;
         let area = self.areas.get(&param.area)?;
+        let mut idx = indices.iter().copied();
         let mut base = area.address;
         if let Some(stride) = area.stride {
-            let index = indices.first().copied().unwrap_or(0);
+            let index = idx.next().unwrap_or(0);
+            if area.count.is_some_and(|c| index >= c) {
+                return None;
+            }
             base = sysex::address::with_stride(base, stride, index);
+        }
+        for dim in &param.dims {
+            let index = idx.next().unwrap_or(0);
+            if index >= dim.count {
+                return None;
+            }
+            base = sysex::address::with_stride(base, pad_stride(&dim.stride), index);
         }
         Some(sysex::address::add_offset(base, &param.offset))
     }
@@ -143,14 +177,24 @@ impl DeviceProfile {
     }
 }
 
-/// Deserialize an encoding tag ("plain7" | "nibble" | "signed" | "ascii") into the
-/// shared `sysex::Encoding`.
+/// Left-pad a right-aligned stride (1–4 bytes) to the full 4-byte form.
+fn pad_stride(stride: &[u8]) -> [u8; 4] {
+    let mut out = [0u8; 4];
+    for (slot, &b) in out.iter_mut().rev().zip(stride.iter().rev()) {
+        *slot = b & 0x7F;
+    }
+    out
+}
+
+/// Deserialize an encoding tag ("plain7" | "nibble" | "signed" | "signed_nibble"
+/// | "ascii") into the shared `sysex::Encoding`.
 fn de_encoding<'de, D: Deserializer<'de>>(d: D) -> Result<Encoding, D::Error> {
     let s = String::deserialize(d)?;
     match s.as_str() {
         "plain7" => Ok(Encoding::Plain7),
         "nibble" => Ok(Encoding::Nibble),
         "signed" => Ok(Encoding::Signed),
+        "signed_nibble" => Ok(Encoding::SignedNibble),
         "ascii" => Ok(Encoding::Ascii),
         other => Err(serde::de::Error::custom(format!(
             "unknown encoding: {other}"
@@ -233,6 +277,53 @@ mod tests {
         let p = profile();
         assert!(p.parameter("nope").is_none());
         assert_eq!(p.address_of("nope", &[0]), None);
+    }
+
+    const DIMS_PROFILE: &str = r#"{
+        "schema_version": 1,
+        "profile_id": "test-dims",
+        "display_name": "Test Dims",
+        "model_id": [1, 6, 1],
+        "areas": {
+            "kit": { "address": [4, 0, 0, 0], "stride": [0, 4, 0, 0], "count": 200 }
+        },
+        "parameters": [
+            { "id": "kit.unit.layer.instrument", "area": "kit",
+              "offset": [0, 80, 1], "len": 4, "encoding": "nibble",
+              "dims": [
+                  { "name": "layer", "count": 3, "stride": [0, 64, 0] },
+                  { "name": "unit", "count": 28, "stride": [0, 2, 0] }
+              ] }
+        ]
+    }"#;
+
+    #[test]
+    fn resolves_dims_addresses() {
+        let p = DeviceProfile::from_json(DIMS_PROFILE).unwrap();
+        // Kit 1, layer A, unit 1: kit base + Kit Unit LayerA 1 (00 50 00) + leaf 01.
+        assert_eq!(
+            p.address_of("kit.unit.layer.instrument", &[0, 0, 0]),
+            Some([0x04, 0x00, 0x50, 0x01])
+        );
+        // Layer B, unit 2 lands on the doc's "Kit Unit LayerB 2" row (01 12 00):
+        // 00 50 00 + 00 40 00 + 00 02 00 = 01 12 00 in 7-bit arithmetic.
+        assert_eq!(
+            p.address_of("kit.unit.layer.instrument", &[0, 1, 1]),
+            Some([0x04, 0x01, 0x12, 0x01])
+        );
+        // Missing dim indices default to 0.
+        assert_eq!(
+            p.address_of("kit.unit.layer.instrument", &[0]),
+            Some([0x04, 0x00, 0x50, 0x01])
+        );
+    }
+
+    #[test]
+    fn out_of_range_indices_are_none() {
+        let p = DeviceProfile::from_json(DIMS_PROFILE).unwrap();
+        assert_eq!(p.address_of("kit.unit.layer.instrument", &[200]), None); // kit
+        assert_eq!(p.address_of("kit.unit.layer.instrument", &[0, 3, 0]), None); // layer
+        assert_eq!(p.address_of("kit.unit.layer.instrument", &[0, 0, 28]), None); // unit
     }
 
     #[test]

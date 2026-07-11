@@ -6,7 +6,7 @@
   "model_id": [1, 6, 1],
   "device_id_default": 16,
   "identity": { "manufacturer": 65, "family": [1, 6], "member": [3, 0] },
-  "source": "Derived from Roland 'V31 MIDI Implementation' v2.00 (2025-11-11) and 'V31 Data List' (eng02), (c) Roland. Facts only; see docs/PROTOCOL.md. Validated live on the real V31 (2026-06-15): kit-tempo offset 0x6C, DT1 write persistence across power-cycle, firmware 00 02 01 00 (module shows '0.2.10').",
+  "source": "Derived from Roland 'V31 MIDI Implementation' v2.00 (2025-11-11) and 'V31 Data List' (eng02), (c) Roland. Facts only; see docs/PROTOCOL.md. Validated live on the real V31 (2026-06-15): kit-tempo offset 0x6C, DT1 write persistence across power-cycle, firmware 00 02 01 00 (module shows '0.2.10'). Every parameter's `doc` field points into profiles/maps/roland-v31-address-map.json (cross-checked by tests).",
   "firmware": {
     "tested": [[0, 2, 1, 0]],
     "version_format": "raw4"
@@ -31,7 +31,8 @@
       "len": 4,
       "encoding": "nibble",
       "range": { "min": 0, "max": 199 },
-      "i18n_key": "param.kit_num"
+      "i18n_key": "param.kit_num",
+      "doc": "Current/KitNum"
     },
     {
       "id": "kit.common.name",
@@ -39,15 +40,28 @@
       "offset": [0, 0],
       "len": 16,
       "encoding": "ascii",
-      "i18n_key": "param.kit_name"
+      "i18n_key": "param.kit_name",
+      "doc": "KitCommon/Kit Name"
     },
     {
       "id": "kit.common.sub_name",
       "area": "kit",
       "offset": [0, 16],
-      "len": 16,
+      "len": 64,
       "encoding": "ascii",
-      "i18n_key": "param.kit_sub_name"
+      "i18n_key": "param.kit_sub_name",
+      "doc": "KitCommon/Kit Sub Name"
+    },
+    {
+      "id": "kit.common.volume",
+      "area": "kit",
+      "offset": [0, 80],
+      "len": 4,
+      "encoding": "signed_nibble",
+      "range": { "min": -601, "max": 60 },
+      "scale": 10,
+      "unit": "db",
+      "doc": "KitCommon/Volume"
     },
     {
       "id": "kit.common.tempo",
@@ -58,7 +72,8 @@
       "scale": 10,
       "unit": "bpm",
       "range": { "min": 200, "max": 2600 },
-      "i18n_key": "param.tempo"
+      "i18n_key": "param.tempo",
+      "doc": "KitCommon/Kit Tempo"
     },
     {
       "id": "kit.common.tempo_switch",
@@ -67,8 +82,271 @@
       "len": 1,
       "encoding": "plain7",
       "range": { "min": 0, "max": 1 },
-      "i18n_key": "param.tempo_switch"
+      "labels": ["OFF", "ON"],
+      "i18n_key": "param.tempo_switch",
+      "doc": "KitCommon/Kit Tempo Switch"
+    },
+
+    {
+      "id": "kit.unit.common.volume",
+      "area": "kit",
+      "offset": [0, 32, 2],
+      "len": 4,
+      "encoding": "signed_nibble",
+      "dims": [{ "name": "unit", "count": 28, "stride": [0, 1, 0] }],
+      "range": { "min": -601, "max": 60 },
+      "scale": 10,
+      "unit": "db",
+      "doc": "KitUnitCommon/Volume"
+    },
+    {
+      "id": "kit.unit.common.overhead_send",
+      "area": "kit",
+      "offset": [0, 32, 35],
+      "len": 4,
+      "encoding": "signed_nibble",
+      "dims": [{ "name": "unit", "count": 28, "stride": [0, 1, 0] }],
+      "range": { "min": -601, "max": 60 },
+      "scale": 10,
+      "unit": "db",
+      "doc": "KitUnitCommon/Overhead Send Level"
+    },
+    {
+      "id": "kit.unit.common.room_send",
+      "area": "kit",
+      "offset": [0, 32, 39],
+      "len": 4,
+      "encoding": "signed_nibble",
+      "dims": [{ "name": "unit", "count": 28, "stride": [0, 1, 0] }],
+      "range": { "min": -601, "max": 60 },
+      "scale": 10,
+      "unit": "db",
+      "doc": "KitUnitCommon/Room Send Level"
+    },
+    {
+      "id": "kit.unit.common.reverb_send",
+      "area": "kit",
+      "offset": [0, 32, 43],
+      "len": 4,
+      "encoding": "signed_nibble",
+      "dims": [{ "name": "unit", "count": 28, "stride": [0, 1, 0] }],
+      "range": { "min": -601, "max": 60 },
+      "scale": 10,
+      "unit": "db",
+      "doc": "KitUnitCommon/Reverb Send Level"
+    },
+
+    {
+      "id": "kit.unit.layer.switch",
+      "area": "kit",
+      "offset": [0, 80, 0],
+      "len": 1,
+      "encoding": "plain7",
+      "dims": [
+        { "name": "layer", "count": 3, "stride": [0, 64, 0] },
+        { "name": "unit", "count": 28, "stride": [0, 2, 0] }
+      ],
+      "range": { "min": 0, "max": 1 },
+      "labels": ["OFF", "ON"],
+      "doc": "KitUnitLayer/Inst Switch"
+    },
+    {
+      "id": "kit.unit.layer.instrument",
+      "area": "kit",
+      "offset": [0, 80, 1],
+      "len": 4,
+      "encoding": "nibble",
+      "dims": [
+        { "name": "layer", "count": 3, "stride": [0, 64, 0] },
+        { "name": "unit", "count": 28, "stride": [0, 2, 0] }
+      ],
+      "doc": "KitUnitLayer/Instrument"
+    },
+    {
+      "id": "kit.unit.layer.inst_bank",
+      "area": "kit",
+      "offset": [0, 80, 5],
+      "len": 4,
+      "encoding": "nibble",
+      "dims": [
+        { "name": "layer", "count": 3, "stride": [0, 64, 0] },
+        { "name": "unit", "count": 28, "stride": [0, 2, 0] }
+      ],
+      "doc": "KitUnitLayer/Inst Bank"
+    },
+    {
+      "id": "kit.unit.layer.volume",
+      "area": "kit",
+      "offset": [0, 80, 9],
+      "len": 4,
+      "encoding": "signed_nibble",
+      "dims": [
+        { "name": "layer", "count": 3, "stride": [0, 64, 0] },
+        { "name": "unit", "count": 28, "stride": [0, 2, 0] }
+      ],
+      "range": { "min": -601, "max": 60 },
+      "scale": 10,
+      "unit": "db",
+      "doc": "KitUnitLayer/Volume"
+    },
+    {
+      "id": "kit.unit.layer.pitch",
+      "area": "kit",
+      "offset": [0, 80, 23],
+      "len": 4,
+      "encoding": "signed_nibble",
+      "dims": [
+        { "name": "layer", "count": 3, "stride": [0, 64, 0] },
+        { "name": "unit", "count": 28, "stride": [0, 2, 0] }
+      ],
+      "range": { "min": -4800, "max": 4800 },
+      "unit": "cents",
+      "doc": "KitUnitLayer/Inst Pitch"
+    },
+    {
+      "id": "kit.unit.layer.decay",
+      "area": "kit",
+      "offset": [0, 80, 27],
+      "len": 1,
+      "encoding": "plain7",
+      "dims": [
+        { "name": "layer", "count": 3, "stride": [0, 64, 0] },
+        { "name": "unit", "count": 28, "stride": [0, 2, 0] }
+      ],
+      "range": { "min": 1, "max": 100 },
+      "doc": "KitUnitLayer/Inst Decay"
+    },
+
+    {
+      "id": "kit.pad.pan",
+      "area": "kit",
+      "offset": [2, 16, 0],
+      "len": 2,
+      "encoding": "signed_nibble",
+      "dims": [{ "name": "pad", "count": 14, "stride": [0, 1, 0] }],
+      "range": { "min": -30, "max": 30 },
+      "doc": "KitPad/Pan"
+    },
+
+    {
+      "id": "kit.fx.type",
+      "area": "kit",
+      "offset": [0, 16, 0],
+      "len": 1,
+      "encoding": "plain7",
+      "dims": [{ "name": "fx", "count": 8, "stride": [0, 2, 0] }],
+      "range": { "min": 0, "max": 94 },
+      "doc": "KitFx/Bus Fx Type"
+    },
+    {
+      "id": "kit.fx.switch",
+      "area": "kit",
+      "offset": [0, 16, 1],
+      "len": 1,
+      "encoding": "plain7",
+      "dims": [{ "name": "fx", "count": 8, "stride": [0, 2, 0] }],
+      "range": { "min": 0, "max": 1 },
+      "labels": ["OFF", "ON"],
+      "doc": "KitFx/Bus Fx Switch"
+    },
+
+    {
+      "id": "kit.overhead.switch",
+      "area": "kit",
+      "offset": [2, 80, 0],
+      "len": 1,
+      "encoding": "plain7",
+      "range": { "min": 0, "max": 1 },
+      "labels": ["OFF", "ON"],
+      "doc": "KitOverhead/Overhead Switch"
+    },
+    {
+      "id": "kit.overhead.mic_type",
+      "area": "kit",
+      "offset": [2, 80, 5],
+      "len": 1,
+      "encoding": "plain7",
+      "range": { "min": 0, "max": 7 },
+      "labels": ["NATURAL", "SOLID", "CHIC", "WARM", "CLEAR", "DRY", "NARROW", "PUNCHY"],
+      "doc": "KitOverhead/Mic Type"
+    },
+    {
+      "id": "kit.overhead.level",
+      "area": "kit",
+      "offset": [2, 80, 6],
+      "len": 4,
+      "encoding": "signed_nibble",
+      "range": { "min": -601, "max": 120 },
+      "scale": 10,
+      "unit": "db",
+      "doc": "KitOverhead/Level"
+    },
+    {
+      "id": "kit.room.switch",
+      "area": "kit",
+      "offset": [2, 48, 0],
+      "len": 1,
+      "encoding": "plain7",
+      "range": { "min": 0, "max": 1 },
+      "labels": ["OFF", "ON"],
+      "doc": "KitRoom/Room Switch"
+    },
+    {
+      "id": "kit.room.type",
+      "area": "kit",
+      "offset": [2, 48, 1],
+      "len": 1,
+      "encoding": "plain7",
+      "range": { "min": 0, "max": 1 },
+      "labels": ["REALISTIC", "SYNTHETIC"],
+      "doc": "KitRoom/Type"
+    },
+    {
+      "id": "kit.room.level",
+      "area": "kit",
+      "offset": [2, 48, 2],
+      "len": 4,
+      "encoding": "signed_nibble",
+      "range": { "min": -601, "max": 120 },
+      "scale": 10,
+      "unit": "db",
+      "doc": "KitRoom/Level"
+    },
+    {
+      "id": "kit.reverb.switch",
+      "area": "kit",
+      "offset": [2, 112, 0],
+      "len": 1,
+      "encoding": "plain7",
+      "range": { "min": 0, "max": 1 },
+      "labels": ["OFF", "ON"],
+      "doc": "KitReverb/Reverb Switch"
+    },
+    {
+      "id": "kit.reverb.type",
+      "area": "kit",
+      "offset": [2, 112, 1],
+      "len": 1,
+      "encoding": "plain7",
+      "range": { "min": 0, "max": 6 },
+      "labels": ["TD-50 REVERB", "TD-50 ROOM", "WARM HALL", "SRV-2000", "SRV-2000(NLR)", "SIMPLE REVERB", "LONG REVERB"],
+      "doc": "KitReverb/ReverbType"
+    },
+    {
+      "id": "kit.reverb.level",
+      "area": "kit",
+      "offset": [2, 112, 2],
+      "len": 4,
+      "encoding": "signed_nibble",
+      "range": { "min": -601, "max": 120 },
+      "scale": 10,
+      "unit": "db",
+      "doc": "KitReverb/Level"
     }
   ],
-  "catalogs": {}
+  "catalogs": {
+    "drum-kits": "catalogs/roland-v31/drum-kits.json",
+    "instruments": "catalogs/roland-v31/instruments.json",
+    "fx-types": "catalogs/roland-v31/fx-types.json"
+  }
 }
