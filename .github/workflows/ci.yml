@@ -1,0 +1,108 @@
+# Continuous integration for Tactus.
+#
+# New to GitHub Actions? Read docs/CI.md — it explains the concepts and walks
+# through this exact file. The golden rule: CI runs the SAME `just` recipes you
+# run locally, so the justfile stays the single source of truth and any CI
+# failure is reproducible on your machine with the same command.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch: # the manual "Run workflow" button in the Actions tab
+
+concurrency:
+  # A new push to the same branch cancels the still-running CI for the old one.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  core:
+    name: Rust core (pinned Docker)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install just
+        uses: taiki-e/install-action@v2
+        with:
+          tool: just
+
+      # Cargo's registry and the build dir live under .docker/ (see
+      # scripts/cargo-docker.sh), so caching that one directory turns a cold
+      # ~10 min build into a warm ~3 min one.
+      - name: Cache cargo home + build dir
+        uses: actions/cache@v4
+        with:
+          path: .docker
+          key: core-${{ hashFiles('Cargo.lock', 'rust-toolchain.toml', 'docker/Dockerfile') }}
+          restore-keys: core-
+
+      # Identical commands, identical pinned image as local dev; the script
+      # builds the Docker image on first use.
+      - name: Format check + lint + tests
+        run: just test-core
+
+      - name: End-to-end tests (virtual device + cassette replay)
+        run: just test-e2e
+
+  apple:
+    name: Apple app (bindings + simulator tests)
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+
+      # rustup reads rust-toolchain.toml and fetches the pinned toolchain on
+      # first use; this also covers the two iOS cross-compilation targets.
+      - name: Show toolchains, install Rust iOS targets
+        run: |
+          sw_vers
+          xcodebuild -version
+          rustup show
+          rustup target add aarch64-apple-ios aarch64-apple-ios-sim
+
+      - name: Cache cargo home + build dir
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: apple-${{ hashFiles('Cargo.lock', 'rust-toolchain.toml') }}
+          restore-keys: apple-
+
+      - name: Install cargo-swift
+        uses: taiki-e/cache-cargo-install-action@v2
+        with:
+          tool: cargo-swift@0.11
+
+      - name: Install just + XcodeGen
+        run: brew install just xcodegen
+
+      - name: Build the core bindings (XCFramework + Swift package)
+        run: just build-ios
+
+      - name: Generate the Xcode project
+        run: just ios-gen
+
+      # Runner images ship different simulator sets per Xcode version, so pick
+      # the newest available iPhone instead of hardcoding a model name.
+      - name: Pick a simulator
+        id: sim
+        run: |
+          name=$(xcrun simctl list -j devices available | jq -r '
+            .devices
+            | to_entries
+            | map(select(.key | test("SimRuntime\\.iOS")))
+            | sort_by(.key)
+            | last.value
+            | map(select(.name | startswith("iPhone")))
+            | first.name')
+          echo "Using simulator: $name"
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+
+      - name: Unit + UI tests (incl. the accessibility audit)
+        run: just ios-test sim="${{ steps.sim.outputs.name }}"

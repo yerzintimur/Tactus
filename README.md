@@ -1,5 +1,7 @@
 # Tactus
 
+[![CI](https://github.com/yerzintimur/tactus/actions/workflows/ci.yml/badge.svg)](https://github.com/yerzintimur/tactus/actions/workflows/ci.yml)
+
 **An accessibility-first companion app for blind and low-vision drummers**,
 starting with the Roland V31 drum module. Choose kits, read and edit settings, and
 build custom kits — all by ear, through your phone's screen reader, speech, and
@@ -51,6 +53,7 @@ inverse of "build it visual, then bolt on accessibility." Litmus test:
 | **[docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md)** | How we serve blind users; the input-modality decision; concrete a11y requirements & testing. **Read if you've never built for blind users.** |
 | **[docs/PROTOCOL.md](docs/PROTOCOL.md)** | V31 MIDI/SysEx: framing, checksum, addresses, value encodings, **golden test vectors**. |
 | **[docs/HARDWARE_TESTING.md](docs/HARDWARE_TESTING.md)** | Is testing against a real V31 safe? (yes) + the per-session safety/debug protocol. |
+| **[docs/CI.md](docs/CI.md)** | How CI works (GitHub Actions from scratch) + a primer on future mobile releases. |
 | **[ROADMAP.md](ROADMAP.md)** | Phased plan: PoC → MVP → V1. |
 | **[CONTRIBUTING.md](CONTRIBUTING.md)** | The Nonvisual-first contributor gate + PR checklist. |
 | **[docs/adr/](docs/adr/)** | Architecture decision records (incl. [ADR-0006: Nonvisual-first](docs/adr/0006-nonvisual-first.md)). |
