@@ -37,6 +37,19 @@ build-core:
 cargo *ARGS:
     ./scripts/cargo-docker.sh {{ARGS}}
 
+# --- Data pipeline (HOST — needs the vendor PDFs in docs/vendor/) ---
+# Parses the Roland PDFs into committed derived data; see tools/README.md.
+
+# One-time: create the parser venv (host Python is externally managed).
+data-venv:
+    python3 -m venv .docker/pyenv
+    .docker/pyenv/bin/pip install -r tools/requirements.txt
+
+# Regenerate the address map + catalogs from the vendor PDFs.
+data-derive:
+    .docker/pyenv/bin/python tools/parse_midi_impl.py
+    .docker/pyenv/bin/python tools/parse_datalist.py
+
 # --- iOS (HOST macOS + Xcode — NOT Docker) ---
 # Apple's toolchain can't run in Docker. One-time host setup:
 #   rustup target add aarch64-apple-ios aarch64-apple-ios-sim

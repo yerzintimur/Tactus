@@ -1,0 +1,6699 @@
+{
+ "schema_version": 1,
+ "source": "Derived from Roland 'V31 Data List' (eng02), (c) Roland Corporation — facts (names/numbers) extracted by tools/parse_datalist.py.",
+ "remark_flags": {
+  "M": "supports Mic Size / Mic Distance editing (Mic Size: kick only)",
+  "P": "positional sensing (strike position / rim depth changes the sound)",
+  "X": "on a snare rim, pairs the matching cross-stick sound on XSTICK",
+  "O": "supports Overtone editing",
+  "L": "supports Lo Cut editing"
+ },
+ "preset": [
+  {
+   "number": 0,
+   "group": "OFF",
+   "name": "OFF",
+   "flags": []
+  },
+  {
+   "number": 1,
+   "group": "KICK",
+   "name": "TM SL Maple K",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 2,
+   "group": "KICK",
+   "name": "TM SL MtOff K",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 3,
+   "group": "KICK",
+   "name": "TM SL Jazz K",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 4,
+   "group": "KICK",
+   "name": "TM SL Jz MltB K",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 5,
+   "group": "KICK",
+   "name": "TM SC Mpl Jazz K",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 6,
+   "group": "KICK",
+   "name": "TM SC Bubinga K",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 7,
+   "group": "KICK",
+   "name": "Gr USC Maple K",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 8,
+   "group": "KICK",
+   "name": "Gr CD Maple K",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 9,
+   "group": "KICK",
+   "name": "Ld VL Acrylic K",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 10,
+   "group": "KICK",
+   "name": "DW 90’CS Maple K",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 11,
+   "group": "KICK",
+   "name": "NC SCP Maple  K",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 12,
+   "group": "KICK",
+   "name": "Bd Jarrah K",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 13,
+   "group": "KICK",
+   "name": "So PL Maple K",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 14,
+   "group": "KICK",
+   "name": "So PL Jazz K",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 15,
+   "group": "KICK",
+   "name": "So Sig Bubinga K",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 16,
+   "group": "KICK",
+   "name": "YH RC Birch K",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 17,
+   "group": "KICK",
+   "name": "YH RT Mahogany1K",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 18,
+   "group": "KICK",
+   "name": "YH RT Mahogany2K",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 19,
+   "group": "KICK",
+   "name": "Mx VT Maple 1 K",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 20,
+   "group": "KICK",
+   "name": "Mx VT Maple 2 K",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 21,
+   "group": "KICK",
+   "name": "Mx VT Maple 3 K",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 22,
+   "group": "KICK",
+   "name": "Close Mic 22” K",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 23,
+   "group": "KICK OTHERS",
+   "name": "Plugged Kick 1",
+   "flags": []
+  },
+  {
+   "number": 24,
+   "group": "KICK OTHERS",
+   "name": "Plugged Kick 2",
+   "flags": []
+  },
+  {
+   "number": 25,
+   "group": "KICK OTHERS",
+   "name": "Plugged Kick 3",
+   "flags": []
+  },
+  {
+   "number": 26,
+   "group": "KICK OTHERS",
+   "name": "Tight Kick 1",
+   "flags": []
+  },
+  {
+   "number": 27,
+   "group": "KICK OTHERS",
+   "name": "Tight Kick 2",
+   "flags": []
+  },
+  {
+   "number": 28,
+   "group": "KICK OTHERS",
+   "name": "Tight Kick 3",
+   "flags": []
+  },
+  {
+   "number": 29,
+   "group": "KICK OTHERS",
+   "name": "Meat Kick",
+   "flags": []
+  },
+  {
+   "number": 30,
+   "group": "KICK OTHERS",
+   "name": "Hard Attack Kick",
+   "flags": []
+  },
+  {
+   "number": 31,
+   "group": "KICK OTHERS",
+   "name": "Power & Low K",
+   "flags": []
+  },
+  {
+   "number": 32,
+   "group": "KICK OTHERS",
+   "name": "SubSharpness K",
+   "flags": []
+  },
+  {
+   "number": 33,
+   "group": "KICK OTHERS",
+   "name": "Metal & Low K",
+   "flags": []
+  },
+  {
+   "number": 34,
+   "group": "KICK OTHERS",
+   "name": "InYourFace K",
+   "flags": []
+  },
+  {
+   "number": 35,
+   "group": "SNARE",
+   "name": "DW Concrete S",
+   "flags": [
+    "M",
+    "P",
+    "X",
+    "O"
+   ]
+  },
+  {
+   "number": 36,
+   "group": "SNARE",
+   "name": "DW Concrete SR",
+   "flags": [
+    "M",
+    "P",
+    "X",
+    "O"
+   ]
+  },
+  {
+   "number": 37,
+   "group": "SNARE",
+   "name": "Pl MapleShell S",
+   "flags": [
+    "M",
+    "P",
+    "X",
+    "O"
+   ]
+  },
+  {
+   "number": 38,
+   "group": "SNARE",
+   "name": "Pl MapleShell SR",
+   "flags": [
+    "M",
+    "P",
+    "X",
+    "O"
+   ]
+  },
+  {
+   "number": 39,
+   "group": "SNARE",
+   "name": "Gr BH Poplar S",
+   "flags": [
+    "M",
+    "P",
+    "X",
+    "O"
+   ]
+  },
+  {
+   "number": 40,
+   "group": "SNARE",
+   "name": "Gr BH Poplar SR",
+   "flags": [
+    "M",
+    "P",
+    "X",
+    "O"
+   ]
+  },
+  {
+   "number": 41,
+   "group": "SNARE",
+   "name": "Ld BB Brass S",
+   "flags": [
+    "M",
+    "P",
+    "X",
+    "O"
+   ]
+  },
+  {
+   "number": 42,
+   "group": "SNARE",
+   "name": "Ld BB Brass SR",
+   "flags": [
+    "M",
+    "P",
+    "X",
+    "O"
+   ]
+  },
+  {
+   "number": 43,
+   "group": "SNARE",
+   "name": "Gr Silver Mpl S",
+   "flags": [
+    "M",
+    "P",
+    "X",
+    "O"
+   ]
+  },
+  {
+   "number": 44,
+   "group": "SNARE",
+   "name": "Gr Silver Mpl SR",
+   "flags": [
+    "M",
+    "P",
+    "X",
+    "O"
+   ]
+  },
+  {
+   "number": 45,
+   "group": "SNARE",
+   "name": "DW CS Maple S",
+   "flags": [
+    "M",
+    "P",
+    "X",
+    "O"
+   ]
+  },
+  {
+   "number": 46,
+   "group": "SNARE",
+   "name": "DW CS Maple SR",
+   "flags": [
+    "M",
+    "P",
+    "X",
+    "O"
+   ]
+  },
+  {
+   "number": 47,
+   "group": "SNARE",
+   "name": "Mx Piccolo S",
+   "flags": [
+    "M",
+    "P",
+    "X",
+    "O"
+   ]
+  },
+  {
+   "number": 48,
+   "group": "SNARE",
+   "name": "Mx Piccolo SR",
+   "flags": [
+    "M",
+    "P",
+    "X",
+    "O"
+   ]
+  },
+  {
+   "number": 49,
+   "group": "SNARE",
+   "name": "Gr 50’Maple S",
+   "flags": [
+    "M",
+    "P",
+    "X"
+   ]
+  },
+  {
+   "number": 50,
+   "group": "SNARE",
+   "name": "Gr 50’Maple SR",
+   "flags": [
+    "M",
+    "P",
+    "X"
+   ]
+  },
+  {
+   "number": 51,
+   "group": "SNARE",
+   "name": "Cp MapleBirch S",
+   "flags": [
+    "M",
+    "P",
+    "X"
+   ]
+  },
+  {
+   "number": 52,
+   "group": "SNARE",
+   "name": "Cp MapleBirch SR",
+   "flags": [
+    "M",
+    "P",
+    "X"
+   ]
+  },
+  {
+   "number": 53,
+   "group": "SNARE",
+   "name": "YH 80’Maple S",
+   "flags": [
+    "M",
+    "P",
+    "X"
+   ]
+  },
+  {
+   "number": 54,
+   "group": "SNARE",
+   "name": "YH 80’Maple SR",
+   "flags": [
+    "M",
+    "P",
+    "X"
+   ]
+  },
+  {
+   "number": 55,
+   "group": "SNARE",
+   "name": "DW Pure Steel S",
+   "flags": [
+    "M",
+    "P",
+    "X",
+    "O"
+   ]
+  },
+  {
+   "number": 56,
+   "group": "SNARE",
+   "name": "DW Pure Steel SR",
+   "flags": [
+    "M",
+    "P",
+    "X",
+    "O"
+   ]
+  },
+  {
+   "number": 57,
+   "group": "CROSS STICK",
+   "name": "DW Concrete X",
+   "flags": [
+    "X"
+   ]
+  },
+  {
+   "number": 58,
+   "group": "CROSS STICK",
+   "name": "Pl MapleShell X",
+   "flags": [
+    "X"
+   ]
+  },
+  {
+   "number": 59,
+   "group": "CROSS STICK",
+   "name": "Gr BH Poplar X",
+   "flags": [
+    "X"
+   ]
+  },
+  {
+   "number": 60,
+   "group": "CROSS STICK",
+   "name": "Ld BB Brass X",
+   "flags": [
+    "X"
+   ]
+  },
+  {
+   "number": 61,
+   "group": "CROSS STICK",
+   "name": "Gr Silver Mpl X",
+   "flags": [
+    "X"
+   ]
+  },
+  {
+   "number": 62,
+   "group": "CROSS STICK",
+   "name": "DW CS Maple X",
+   "flags": [
+    "X"
+   ]
+  },
+  {
+   "number": 63,
+   "group": "CROSS STICK",
+   "name": "Mx Piccolo X",
+   "flags": [
+    "X"
+   ]
+  },
+  {
+   "number": 64,
+   "group": "CROSS STICK",
+   "name": "Gr 50’Maple X",
+   "flags": [
+    "X"
+   ]
+  },
+  {
+   "number": 65,
+   "group": "CROSS STICK",
+   "name": "Cp MapleBirch X",
+   "flags": [
+    "X"
+   ]
+  },
+  {
+   "number": 66,
+   "group": "CROSS STICK",
+   "name": "YH 80’Maple X",
+   "flags": [
+    "X"
+   ]
+  },
+  {
+   "number": 67,
+   "group": "CROSS STICK",
+   "name": "DW Pure Steel X",
+   "flags": [
+    "X"
+   ]
+  },
+  {
+   "number": 68,
+   "group": "SNARE OTHERS",
+   "name": "Plugged Snare 1",
+   "flags": []
+  },
+  {
+   "number": 69,
+   "group": "SNARE OTHERS",
+   "name": "Plugged Snare 2",
+   "flags": []
+  },
+  {
+   "number": 70,
+   "group": "SNARE OTHERS",
+   "name": "Plugged Snare 3",
+   "flags": []
+  },
+  {
+   "number": 71,
+   "group": "SNARE OTHERS",
+   "name": "Plugged Snare 4",
+   "flags": []
+  },
+  {
+   "number": 72,
+   "group": "SNARE OTHERS",
+   "name": "Plugged Snare 5",
+   "flags": []
+  },
+  {
+   "number": 73,
+   "group": "SNARE OTHERS",
+   "name": "Plugged Snare 6",
+   "flags": []
+  },
+  {
+   "number": 74,
+   "group": "SNARE OTHERS",
+   "name": "Custom Wood S",
+   "flags": []
+  },
+  {
+   "number": 75,
+   "group": "SNARE OTHERS",
+   "name": "Custom Wood SR",
+   "flags": []
+  },
+  {
+   "number": 76,
+   "group": "SNARE OTHERS",
+   "name": "Power Amb S",
+   "flags": []
+  },
+  {
+   "number": 77,
+   "group": "SNARE OTHERS",
+   "name": "Power Amb SR",
+   "flags": []
+  },
+  {
+   "number": 78,
+   "group": "SNARE OTHERS",
+   "name": "Fat Comp 1 S",
+   "flags": []
+  },
+  {
+   "number": 79,
+   "group": "SNARE OTHERS",
+   "name": "Fat Comp 1 SR",
+   "flags": []
+  },
+  {
+   "number": 80,
+   "group": "SNARE OTHERS",
+   "name": "Fat Comp 2 S",
+   "flags": []
+  },
+  {
+   "number": 81,
+   "group": "SNARE OTHERS",
+   "name": "Fat Comp 2 SR",
+   "flags": []
+  },
+  {
+   "number": 82,
+   "group": "SNARE OTHERS",
+   "name": "Power Fat S",
+   "flags": []
+  },
+  {
+   "number": 83,
+   "group": "SNARE OTHERS",
+   "name": "Power Fat SR",
+   "flags": []
+  },
+  {
+   "number": 84,
+   "group": "SNARE OTHERS",
+   "name": "Power Buzz 1 S",
+   "flags": []
+  },
+  {
+   "number": 85,
+   "group": "SNARE OTHERS",
+   "name": "Power Buzz 1 SR",
+   "flags": []
+  },
+  {
+   "number": 86,
+   "group": "SNARE OTHERS",
+   "name": "Power Buzz 2 S",
+   "flags": []
+  },
+  {
+   "number": 87,
+   "group": "SNARE OTHERS",
+   "name": "Power Buzz 2 SR",
+   "flags": []
+  },
+  {
+   "number": 88,
+   "group": "SNARE OTHERS",
+   "name": "Proc Op Metal S",
+   "flags": []
+  },
+  {
+   "number": 89,
+   "group": "SNARE OTHERS",
+   "name": "Proc Op Metal SR",
+   "flags": []
+  },
+  {
+   "number": 90,
+   "group": "TOM",
+   "name": "Gr USC Maple T1",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 91,
+   "group": "TOM",
+   "name": "Gr USC Maple T1R",
+   "flags": [
+    "M",
+    "P"
+   ]
+  },
+  {
+   "number": 92,
+   "group": "TOM",
+   "name": "Gr USC Maple T2",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 93,
+   "group": "TOM",
+   "name": "Gr USC Maple T2R",
+   "flags": [
+    "M",
+    "P"
+   ]
+  },
+  {
+   "number": 94,
+   "group": "TOM",
+   "name": "Gr USC Maple T3",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 95,
+   "group": "TOM",
+   "name": "Gr USC Maple T3R",
+   "flags": [
+    "M",
+    "P"
+   ]
+  },
+  {
+   "number": 96,
+   "group": "TOM",
+   "name": "Gr USC Maple T4",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 97,
+   "group": "TOM",
+   "name": "Gr USC Maple T4R",
+   "flags": [
+    "M",
+    "P"
+   ]
+  },
+  {
+   "number": 98,
+   "group": "TOM",
+   "name": "Gr USC Maple T5",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 99,
+   "group": "TOM",
+   "name": "Gr USC Maple T5R",
+   "flags": [
+    "M",
+    "P"
+   ]
+  },
+  {
+   "number": 100,
+   "group": "TOM",
+   "name": "Gr USC Maple T6",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 101,
+   "group": "TOM",
+   "name": "Gr USC Maple T6R",
+   "flags": [
+    "M",
+    "P"
+   ]
+  },
+  {
+   "number": 102,
+   "group": "TOM",
+   "name": "Ld VLAcrylic T1",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 103,
+   "group": "TOM",
+   "name": "Ld VLAcrylic T1R",
+   "flags": [
+    "M",
+    "P"
+   ]
+  },
+  {
+   "number": 104,
+   "group": "TOM",
+   "name": "Ld VLAcrylic T2",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 105,
+   "group": "TOM",
+   "name": "Ld VLAcrylic T2R",
+   "flags": [
+    "M",
+    "P"
+   ]
+  },
+  {
+   "number": 106,
+   "group": "TOM",
+   "name": "Ld VLAcrylic T3",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 107,
+   "group": "TOM",
+   "name": "Ld VLAcrylic T3R",
+   "flags": [
+    "M",
+    "P"
+   ]
+  },
+  {
+   "number": 108,
+   "group": "TOM",
+   "name": "Ld VLAcrylic T4",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 109,
+   "group": "TOM",
+   "name": "Ld VLAcrylic T4R",
+   "flags": [
+    "M",
+    "P"
+   ]
+  },
+  {
+   "number": 110,
+   "group": "TOM",
+   "name": "Ld VLAcrylic T5",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 111,
+   "group": "TOM",
+   "name": "Ld VLAcrylic T5R",
+   "flags": [
+    "M",
+    "P"
+   ]
+  },
+  {
+   "number": 112,
+   "group": "TOM",
+   "name": "So PL Maple T1",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 113,
+   "group": "TOM",
+   "name": "So PL Maple T1R",
+   "flags": [
+    "M",
+    "P"
+   ]
+  },
+  {
+   "number": 114,
+   "group": "TOM",
+   "name": "So PL Maple T2",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 115,
+   "group": "TOM",
+   "name": "So PL Maple T2R",
+   "flags": [
+    "M",
+    "P"
+   ]
+  },
+  {
+   "number": 116,
+   "group": "TOM",
+   "name": "So PL Maple T3",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 117,
+   "group": "TOM",
+   "name": "So PL Maple T3R",
+   "flags": [
+    "M",
+    "P"
+   ]
+  },
+  {
+   "number": 118,
+   "group": "TOM",
+   "name": "So PL Maple T4",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 119,
+   "group": "TOM",
+   "name": "So PL Maple T4R",
+   "flags": [
+    "M",
+    "P"
+   ]
+  },
+  {
+   "number": 120,
+   "group": "TOM",
+   "name": "So PL Maple T5",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 121,
+   "group": "TOM",
+   "name": "So PL Maple T5R",
+   "flags": [
+    "M",
+    "P"
+   ]
+  },
+  {
+   "number": 122,
+   "group": "TOM",
+   "name": "YH Mahogany T1",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 123,
+   "group": "TOM",
+   "name": "YH Mahogany T1R",
+   "flags": [
+    "M",
+    "P"
+   ]
+  },
+  {
+   "number": 124,
+   "group": "TOM",
+   "name": "YH Mahogany T2",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 125,
+   "group": "TOM",
+   "name": "YH Mahogany T2R",
+   "flags": [
+    "M",
+    "P"
+   ]
+  },
+  {
+   "number": 126,
+   "group": "TOM",
+   "name": "YH Mahogany T3",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 127,
+   "group": "TOM",
+   "name": "YH Mahogany T3R",
+   "flags": [
+    "M",
+    "P"
+   ]
+  },
+  {
+   "number": 128,
+   "group": "TOM",
+   "name": "YH Mahogany T4",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 129,
+   "group": "TOM",
+   "name": "YH Mahogany T4R",
+   "flags": [
+    "M",
+    "P"
+   ]
+  },
+  {
+   "number": 130,
+   "group": "TOM",
+   "name": "TM Gong Drum",
+   "flags": [
+    "M"
+   ]
+  },
+  {
+   "number": 131,
+   "group": "TOM OTHERS",
+   "name": "Plugged Tom 1 T1",
+   "flags": []
+  },
+  {
+   "number": 132,
+   "group": "TOM OTHERS",
+   "name": "Plugged Tom 1 T2",
+   "flags": []
+  },
+  {
+   "number": 133,
+   "group": "TOM OTHERS",
+   "name": "Plugged Tom 1 T3",
+   "flags": []
+  },
+  {
+   "number": 134,
+   "group": "TOM OTHERS",
+   "name": "Plugged Tom 1 T4",
+   "flags": []
+  },
+  {
+   "number": 135,
+   "group": "TOM OTHERS",
+   "name": "Plugged Tom 2 T1",
+   "flags": []
+  },
+  {
+   "number": 136,
+   "group": "TOM OTHERS",
+   "name": "Plugged Tom 2 T2",
+   "flags": []
+  },
+  {
+   "number": 137,
+   "group": "TOM OTHERS",
+   "name": "Plugged Tom 2 T3",
+   "flags": []
+  },
+  {
+   "number": 138,
+   "group": "TOM OTHERS",
+   "name": "Plugged Tom 3 T1",
+   "flags": []
+  },
+  {
+   "number": 139,
+   "group": "TOM OTHERS",
+   "name": "Plugged Tom 3 T2",
+   "flags": []
+  },
+  {
+   "number": 140,
+   "group": "TOM OTHERS",
+   "name": "Plugged Tom 3 T3",
+   "flags": []
+  },
+  {
+   "number": 141,
+   "group": "TOM OTHERS",
+   "name": "Plugged Tom 4 T1",
+   "flags": []
+  },
+  {
+   "number": 142,
+   "group": "TOM OTHERS",
+   "name": "Plugged Tom 4 T2",
+   "flags": []
+  },
+  {
+   "number": 143,
+   "group": "HI-HAT",
+   "name": "Mn BzTradMed HH",
+   "flags": [
+    "P"
+   ]
+  },
+  {
+   "number": 144,
+   "group": "HI-HAT",
+   "name": "Mn BzTradMed HHE",
+   "flags": [
+    "P"
+   ]
+  },
+  {
+   "number": 145,
+   "group": "HI-HAT",
+   "name": "Zd K&A-DB HH",
+   "flags": [
+    "P"
+   ]
+  },
+  {
+   "number": 146,
+   "group": "HI-HAT",
+   "name": "Zd K&A-DB HHE",
+   "flags": [
+    "P"
+   ]
+  },
+  {
+   "number": 147,
+   "group": "HI-HAT",
+   "name": "Zd KC D HH",
+   "flags": [
+    "P"
+   ]
+  },
+  {
+   "number": 148,
+   "group": "HI-HAT",
+   "name": "Zd KC D HHE",
+   "flags": [
+    "P"
+   ]
+  },
+  {
+   "number": 149,
+   "group": "HI-HAT",
+   "name": "Ps 602 HH",
+   "flags": [
+    "P"
+   ]
+  },
+  {
+   "number": 150,
+   "group": "HI-HAT",
+   "name": "Ps 602 HHE",
+   "flags": [
+    "P"
+   ]
+  },
+  {
+   "number": 151,
+   "group": "HI-HAT",
+   "name": "Sb HX HH",
+   "flags": [
+    "P"
+   ]
+  },
+  {
+   "number": 152,
+   "group": "HI-HAT",
+   "name": "Sb HX HHE",
+   "flags": [
+    "P"
+   ]
+  },
+  {
+   "number": 153,
+   "group": "HI-HAT",
+   "name": "Zd AC HH",
+   "flags": [
+    "P"
+   ]
+  },
+  {
+   "number": 154,
+   "group": "HI-HAT",
+   "name": "Zd AC HHE",
+   "flags": [
+    "P"
+   ]
+  },
+  {
+   "number": 155,
+   "group": "RIDE",
+   "name": "Mn BzTradMed Rd",
+   "flags": [
+    "P",
+    "L"
+   ]
+  },
+  {
+   "number": 156,
+   "group": "RIDE",
+   "name": "Mn BzTradMed RdE",
+   "flags": [
+    "P",
+    "L"
+   ]
+  },
+  {
+   "number": 157,
+   "group": "RIDE",
+   "name": "Mn BzTradMed RdB",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 158,
+   "group": "RIDE",
+   "name": "Zd KC H Rd",
+   "flags": [
+    "P",
+    "L"
+   ]
+  },
+  {
+   "number": 159,
+   "group": "RIDE",
+   "name": "Zd KC H RdE",
+   "flags": [
+    "P",
+    "L"
+   ]
+  },
+  {
+   "number": 160,
+   "group": "RIDE",
+   "name": "Zd KC H RdB",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 161,
+   "group": "RIDE",
+   "name": "Zd KC D Rd",
+   "flags": [
+    "P",
+    "L"
+   ]
+  },
+  {
+   "number": 162,
+   "group": "RIDE",
+   "name": "Zd KC D RdE",
+   "flags": [
+    "P",
+    "L"
+   ]
+  },
+  {
+   "number": 163,
+   "group": "RIDE",
+   "name": "Zd KC D RdB",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 164,
+   "group": "RIDE",
+   "name": "Zd K Jazz Rd",
+   "flags": [
+    "P",
+    "L"
+   ]
+  },
+  {
+   "number": 165,
+   "group": "RIDE",
+   "name": "Zd K Jazz RdE",
+   "flags": [
+    "P",
+    "L"
+   ]
+  },
+  {
+   "number": 166,
+   "group": "RIDE",
+   "name": "Zd K Jazz RdB",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 167,
+   "group": "RIDE",
+   "name": "Zd AC Rd",
+   "flags": [
+    "P",
+    "L"
+   ]
+  },
+  {
+   "number": 168,
+   "group": "RIDE",
+   "name": "Zd AC RdE",
+   "flags": [
+    "P",
+    "L"
+   ]
+  },
+  {
+   "number": 169,
+   "group": "RIDE",
+   "name": "Zd AC RdB",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 170,
+   "group": "RIDE",
+   "name": "Sb HX Rd",
+   "flags": [
+    "P",
+    "L"
+   ]
+  },
+  {
+   "number": 171,
+   "group": "RIDE",
+   "name": "Sb HX RdE",
+   "flags": [
+    "P",
+    "L"
+   ]
+  },
+  {
+   "number": 172,
+   "group": "RIDE",
+   "name": "Sb HX RdB",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 173,
+   "group": "RIDE",
+   "name": "Mn Bz Dry Rd",
+   "flags": [
+    "P",
+    "L"
+   ]
+  },
+  {
+   "number": 174,
+   "group": "RIDE",
+   "name": "Mn Bz Dry RdE",
+   "flags": [
+    "P",
+    "L"
+   ]
+  },
+  {
+   "number": 175,
+   "group": "RIDE",
+   "name": "Mn Bz Dry RdB",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 176,
+   "group": "CRASH",
+   "name": "Mn BzTrd MT1 Cr",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 177,
+   "group": "CRASH",
+   "name": "Mn BzTrd MT1 CrE",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 178,
+   "group": "CRASH",
+   "name": "Mn BzTrd MT2 Cr",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 179,
+   "group": "CRASH",
+   "name": "Mn BzTrd MT2 CrE",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 180,
+   "group": "CRASH",
+   "name": "Zd AThin 1 Cr",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 181,
+   "group": "CRASH",
+   "name": "Zd AThin 1 CrE",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 182,
+   "group": "CRASH",
+   "name": "Zd AThin 2 Cr",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 183,
+   "group": "CRASH",
+   "name": "Zd AThin 2 CrE",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 184,
+   "group": "CRASH",
+   "name": "Zd AC Pjt 1 Cr",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 185,
+   "group": "CRASH",
+   "name": "Zd AC Pjt 1 CrE",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 186,
+   "group": "CRASH",
+   "name": "Zd AC Pjt 2 Cr",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 187,
+   "group": "CRASH",
+   "name": "Zd AC Pjt 2 CrE",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 188,
+   "group": "CRASH",
+   "name": "Zd KHybd 1 Cr",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 189,
+   "group": "CRASH",
+   "name": "Zd KHybd 1 CrE",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 190,
+   "group": "CRASH",
+   "name": "Zd KHybd 2 Cr",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 191,
+   "group": "CRASH",
+   "name": "Zd KHybd 2 CrE",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 192,
+   "group": "CRASH",
+   "name": "Zd KHybd 3 Cr",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 193,
+   "group": "CRASH",
+   "name": "Zd KHybd 3 CrE",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 194,
+   "group": "CRASH",
+   "name": "Zd KC D-Thin1Cr",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 195,
+   "group": "CRASH",
+   "name": "Zd KC D-Thin1CrE",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 196,
+   "group": "CRASH",
+   "name": "Zd KC D-Thin2Cr",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 197,
+   "group": "CRASH",
+   "name": "Zd KC D-Thin2CrE",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 198,
+   "group": "CRASH",
+   "name": "Mn Bz DTrash1Cr",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 199,
+   "group": "CRASH",
+   "name": "Mn Bz DTrash1CrE",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 200,
+   "group": "CRASH",
+   "name": "Mn Bz DTrash2Cr",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 201,
+   "group": "CRASH",
+   "name": "Mn Bz DTrash2CrE",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 202,
+   "group": "CRASH",
+   "name": "Zd AC Cr",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 203,
+   "group": "CRASH",
+   "name": "Zd AC CrE",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 204,
+   "group": "CRASH",
+   "name": "Sb HX Cr",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 205,
+   "group": "CRASH",
+   "name": "Sb HX CrE",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 206,
+   "group": "CHINA",
+   "name": "Mn Bz Trad Ch",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 207,
+   "group": "CHINA",
+   "name": "Mn Bz Trad ChE",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 208,
+   "group": "CHINA",
+   "name": "Zd C-B 1 Ch",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 209,
+   "group": "CHINA",
+   "name": "Zd C-B 1 ChE",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 210,
+   "group": "CHINA",
+   "name": "Zd C-B 2 Ch",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 211,
+   "group": "CHINA",
+   "name": "Zd C-B 2 ChE",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 212,
+   "group": "SPLASH",
+   "name": "Mn Bz Dual Sp",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 213,
+   "group": "SPLASH",
+   "name": "Mn Bz Dual SpE",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 214,
+   "group": "SPLASH",
+   "name": "Ib Agp Sp",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 215,
+   "group": "SPLASH",
+   "name": "Ib Agp SpE",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 216,
+   "group": "SPLASH",
+   "name": "Ps Pxrs Sp",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 217,
+   "group": "SPLASH",
+   "name": "Ps Pxrs SpE",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 218,
+   "group": "SPLASH",
+   "name": "Zd APeperThinSp",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 219,
+   "group": "SPLASH",
+   "name": "Zd APeperThinSpE",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 220,
+   "group": "STACKED CYMBAL",
+   "name": "Mn+Zd Stacked1",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 221,
+   "group": "STACKED CYMBAL",
+   "name": "Mn+Zd Stacked1 E",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 222,
+   "group": "STACKED CYMBAL",
+   "name": "Mn+Zd Stacked2",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 223,
+   "group": "STACKED CYMBAL",
+   "name": "Mn+Zd Stacked2 E",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 224,
+   "group": "STACKED CYMBAL",
+   "name": "Sb NoiseChop Sp",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 225,
+   "group": "STACKED CYMBAL",
+   "name": "Sb NoiseChop SpE",
+   "flags": [
+    "L"
+   ]
+  },
+  {
+   "number": 226,
+   "group": "BELL/CHIME/GONG",
+   "name": "Trad Gong",
+   "flags": []
+  },
+  {
+   "number": 227,
+   "group": "BLOCK/COWBELL",
+   "name": "Cowbell Tip",
+   "flags": []
+  },
+  {
+   "number": 228,
+   "group": "BLOCK/COWBELL",
+   "name": "Cowbell",
+   "flags": []
+  },
+  {
+   "number": 229,
+   "group": "BLOCK/COWBELL",
+   "name": "ChaCha Bell Tip",
+   "flags": []
+  },
+  {
+   "number": 230,
+   "group": "BLOCK/COWBELL",
+   "name": "ChaCha Bell",
+   "flags": []
+  },
+  {
+   "number": 231,
+   "group": "BLOCK/COWBELL",
+   "name": "Jam Block",
+   "flags": []
+  },
+  {
+   "number": 232,
+   "group": "PERCUSSION",
+   "name": "Tambourine",
+   "flags": []
+  },
+  {
+   "number": 233,
+   "group": "PERCUSSION",
+   "name": "Shaker Down",
+   "flags": []
+  },
+  {
+   "number": 234,
+   "group": "PERCUSSION",
+   "name": "Shaker Up",
+   "flags": []
+  },
+  {
+   "number": 235,
+   "group": "CLAP",
+   "name": "Clap",
+   "flags": []
+  },
+  {
+   "number": 236,
+   "group": "ELEMENTS",
+   "name": "Kick Low Freq 1",
+   "flags": []
+  },
+  {
+   "number": 237,
+   "group": "ELEMENTS",
+   "name": "Kick Low Freq 2",
+   "flags": []
+  },
+  {
+   "number": 238,
+   "group": "ELEMENTS",
+   "name": "Kick Low Freq 3",
+   "flags": []
+  },
+  {
+   "number": 239,
+   "group": "ELEMENTS",
+   "name": "Kick Low Freq 4",
+   "flags": []
+  },
+  {
+   "number": 240,
+   "group": "ELEMENTS",
+   "name": "Attack 1",
+   "flags": []
+  },
+  {
+   "number": 241,
+   "group": "ELEMENTS",
+   "name": "Attack 2",
+   "flags": []
+  },
+  {
+   "number": 242,
+   "group": "ELEMENTS",
+   "name": "Attack 3",
+   "flags": []
+  },
+  {
+   "number": 243,
+   "group": "ELEMENTS",
+   "name": "Attack 4",
+   "flags": []
+  },
+  {
+   "number": 244,
+   "group": "ELEMENTS",
+   "name": "Attack 5",
+   "flags": []
+  },
+  {
+   "number": 245,
+   "group": "ELEMENTS",
+   "name": "For Pad Check",
+   "flags": []
+  }
+ ],
+ "expansions": [
+  {
+   "id": "EXV001",
+   "title": "Wood Room Studio UK 1",
+   "instruments": [
+    {
+     "number": 1,
+     "group": "KICK",
+     "name": "Cm Vintage K",
+     "flags": [
+      "M"
+     ]
+    },
+    {
+     "number": 2,
+     "group": "KICK",
+     "name": "Cm AmbLess K",
+     "flags": [
+      "M"
+     ]
+    },
+    {
+     "number": 3,
+     "group": "SNARE",
+     "name": "Cv Vintage S",
+     "flags": [
+      "M",
+      "P",
+      "X"
+     ]
+    },
+    {
+     "number": 4,
+     "group": "SNARE",
+     "name": "Cv Vintage SR",
+     "flags": [
+      "M",
+      "P",
+      "X"
+     ]
+    },
+    {
+     "number": 5,
+     "group": "SNARE",
+     "name": "Ld SP Vintage S",
+     "flags": [
+      "M",
+      "P",
+      "X",
+      "O"
+     ]
+    },
+    {
+     "number": 6,
+     "group": "SNARE",
+     "name": "Ld SP Vintage SR",
+     "flags": [
+      "M",
+      "P",
+      "X",
+      "O"
+     ]
+    },
+    {
+     "number": 7,
+     "group": "SNARE",
+     "name": "Cv AmbLess S",
+     "flags": [
+      "M",
+      "P",
+      "X"
+     ]
+    },
+    {
+     "number": 8,
+     "group": "SNARE",
+     "name": "Cv AmbLess SR",
+     "flags": [
+      "M",
+      "P",
+      "X"
+     ]
+    },
+    {
+     "number": 9,
+     "group": "SNARE",
+     "name": "Ld SP AmbLess S",
+     "flags": [
+      "M",
+      "P",
+      "X",
+      "O"
+     ]
+    },
+    {
+     "number": 10,
+     "group": "SNARE",
+     "name": "Ld SP AmbLess SR",
+     "flags": [
+      "M",
+      "P",
+      "X",
+      "O"
+     ]
+    },
+    {
+     "number": 11,
+     "group": "CROSS STICK",
+     "name": "Cv Vintage X",
+     "flags": [
+      "X"
+     ]
+    },
+    {
+     "number": 12,
+     "group": "CROSS STICK",
+     "name": "Ld SP Vintage X",
+     "flags": [
+      "X"
+     ]
+    },
+    {
+     "number": 13,
+     "group": "CROSS STICK",
+     "name": "Cv AmbLess X",
+     "flags": [
+      "X"
+     ]
+    },
+    {
+     "number": 14,
+     "group": "CROSS STICK",
+     "name": "Ld SP AmbLess X",
+     "flags": [
+      "X"
+     ]
+    },
+    {
+     "number": 15,
+     "group": "TOM",
+     "name": "Cm Vintage T1",
+     "flags": [
+      "M"
+     ]
+    },
+    {
+     "number": 16,
+     "group": "TOM",
+     "name": "Cm Vintage T1R",
+     "flags": [
+      "M",
+      "P"
+     ]
+    },
+    {
+     "number": 17,
+     "group": "TOM",
+     "name": "Cm Vintage T2",
+     "flags": [
+      "M"
+     ]
+    },
+    {
+     "number": 18,
+     "group": "TOM",
+     "name": "Cm Vintage T2R",
+     "flags": [
+      "M",
+      "P"
+     ]
+    },
+    {
+     "number": 19,
+     "group": "TOM",
+     "name": "Cm Vintage T3",
+     "flags": [
+      "M"
+     ]
+    },
+    {
+     "number": 20,
+     "group": "TOM",
+     "name": "Cm Vintage T3R",
+     "flags": [
+      "M",
+      "P"
+     ]
+    },
+    {
+     "number": 21,
+     "group": "TOM",
+     "name": "Cm Vintage T4",
+     "flags": [
+      "M"
+     ]
+    },
+    {
+     "number": 22,
+     "group": "TOM",
+     "name": "Cm Vintage T4R",
+     "flags": [
+      "M",
+      "P"
+     ]
+    },
+    {
+     "number": 23,
+     "group": "TOM",
+     "name": "Cm AmbLess T1",
+     "flags": [
+      "M"
+     ]
+    },
+    {
+     "number": 24,
+     "group": "TOM",
+     "name": "Cm AmbLess T1R",
+     "flags": [
+      "M",
+      "P"
+     ]
+    },
+    {
+     "number": 25,
+     "group": "TOM",
+     "name": "Cm AmbLess T2",
+     "flags": [
+      "M"
+     ]
+    },
+    {
+     "number": 26,
+     "group": "TOM",
+     "name": "Cm AmbLess T2R",
+     "flags": [
+      "M",
+      "P"
+     ]
+    },
+    {
+     "number": 27,
+     "group": "TOM",
+     "name": "Cm AmbLess T3",
+     "flags": [
+      "M"
+     ]
+    },
+    {
+     "number": 28,
+     "group": "TOM",
+     "name": "Cm AmbLess T3R",
+     "flags": [
+      "M",
+      "P"
+     ]
+    },
+    {
+     "number": 29,
+     "group": "TOM",
+     "name": "Cm AmbLess T4",
+     "flags": [
+      "M"
+     ]
+    },
+    {
+     "number": 30,
+     "group": "TOM",
+     "name": "Cm AmbLess T4R",
+     "flags": [
+      "M",
+      "P"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "EXV002",
+   "title": "Electronic&Percussion 1",
+   "instruments": [
+    {
+     "number": 1,
+     "group": "KICK OTHERS",
+     "name": "Boom Low Kick",
+     "flags": []
+    },
+    {
+     "number": 2,
+     "group": "KICK OTHERS",
+     "name": "Knock & Low K",
+     "flags": []
+    },
+    {
+     "number": 3,
+     "group": "KICK OTHERS",
+     "name": "Full & Low K",
+     "flags": []
+    },
+    {
+     "number": 4,
+     "group": "KICK OTHERS",
+     "name": "TR 2021 K",
+     "flags": []
+    },
+    {
+     "number": 5,
+     "group": "KICK OTHERS",
+     "name": "Hybrid 2021 K",
+     "flags": []
+    },
+    {
+     "number": 6,
+     "group": "KICK OTHERS",
+     "name": "Wobbly Kick",
+     "flags": []
+    },
+    {
+     "number": 7,
+     "group": "KICK OTHERS",
+     "name": "Impact Kick",
+     "flags": []
+    },
+    {
+     "number": 8,
+     "group": "KICK OTHERS",
+     "name": "Hybrid Kick",
+     "flags": []
+    },
+    {
+     "number": 9,
+     "group": "KICK OTHERS",
+     "name": "Tronic Kick",
+     "flags": []
+    },
+    {
+     "number": 10,
+     "group": "KICK OTHERS",
+     "name": "Hip Hop Kick 1",
+     "flags": []
+    },
+    {
+     "number": 11,
+     "group": "KICK OTHERS",
+     "name": "Hip Hop Kick 2",
+     "flags": []
+    },
+    {
+     "number": 12,
+     "group": "KICK OTHERS",
+     "name": "Nu Hip Kick",
+     "flags": []
+    },
+    {
+     "number": 13,
+     "group": "KICK OTHERS",
+     "name": "Minimal House K",
+     "flags": []
+    },
+    {
+     "number": 14,
+     "group": "KICK OTHERS",
+     "name": "Early House Kick",
+     "flags": []
+    },
+    {
+     "number": 15,
+     "group": "KICK OTHERS",
+     "name": "House Kick",
+     "flags": []
+    },
+    {
+     "number": 16,
+     "group": "KICK OTHERS",
+     "name": "BreakBeats Kick1",
+     "flags": []
+    },
+    {
+     "number": 17,
+     "group": "KICK OTHERS",
+     "name": "BreakBeats Kick2",
+     "flags": []
+    },
+    {
+     "number": 18,
+     "group": "KICK OTHERS",
+     "name": "DnB Kick 1",
+     "flags": []
+    },
+    {
+     "number": 19,
+     "group": "KICK OTHERS",
+     "name": "DnB Kick 2",
+     "flags": []
+    },
+    {
+     "number": 20,
+     "group": "KICK OTHERS",
+     "name": "DnB Kick 3",
+     "flags": []
+    },
+    {
+     "number": 21,
+     "group": "KICK OTHERS",
+     "name": "DnB Kick 4",
+     "flags": []
+    },
+    {
+     "number": 22,
+     "group": "KICK OTHERS",
+     "name": "Lo-Fi Kick",
+     "flags": []
+    },
+    {
+     "number": 23,
+     "group": "KICK OTHERS",
+     "name": "Hi Jumper Kick",
+     "flags": []
+    },
+    {
+     "number": 24,
+     "group": "KICK OTHERS",
+     "name": "Lo Jumper Kick",
+     "flags": []
+    },
+    {
+     "number": 25,
+     "group": "KICK OTHERS",
+     "name": "Enhance Kick",
+     "flags": []
+    },
+    {
+     "number": 26,
+     "group": "KICK OTHERS",
+     "name": "Low Kick",
+     "flags": []
+    },
+    {
+     "number": 27,
+     "group": "KICK OTHERS",
+     "name": "Jungle Kick",
+     "flags": []
+    },
+    {
+     "number": 28,
+     "group": "KICK OTHERS",
+     "name": "Dance Kick",
+     "flags": []
+    },
+    {
+     "number": 29,
+     "group": "KICK OTHERS",
+     "name": "Dancer Kick",
+     "flags": []
+    },
+    {
+     "number": 30,
+     "group": "KICK OTHERS",
+     "name": "ScratchPhat Kick",
+     "flags": []
+    },
+    {
+     "number": 31,
+     "group": "KICK OTHERS",
+     "name": "Mellbourne Kick",
+     "flags": []
+    },
+    {
+     "number": 32,
+     "group": "KICK OTHERS",
+     "name": "Big Step Kick",
+     "flags": []
+    },
+    {
+     "number": 33,
+     "group": "KICK OTHERS",
+     "name": "Big Deep Kick",
+     "flags": []
+    },
+    {
+     "number": 34,
+     "group": "KICK OTHERS",
+     "name": "Dirty Kick",
+     "flags": []
+    },
+    {
+     "number": 35,
+     "group": "KICK OTHERS",
+     "name": "Low Stomper",
+     "flags": []
+    },
+    {
+     "number": 36,
+     "group": "KICK OTHERS",
+     "name": "Buzz Kick",
+     "flags": []
+    },
+    {
+     "number": 37,
+     "group": "KICK OTHERS",
+     "name": "TR Beef Kick",
+     "flags": []
+    },
+    {
+     "number": 38,
+     "group": "KICK OTHERS",
+     "name": "Electro Knock K",
+     "flags": []
+    },
+    {
+     "number": 39,
+     "group": "KICK OTHERS",
+     "name": "RetroFuture Kick",
+     "flags": []
+    },
+    {
+     "number": 40,
+     "group": "KICK OTHERS",
+     "name": "Hard Style Kick1",
+     "flags": []
+    },
+    {
+     "number": 41,
+     "group": "KICK OTHERS",
+     "name": "Hard Style Kick2",
+     "flags": []
+    },
+    {
+     "number": 42,
+     "group": "KICK OTHERS",
+     "name": "HardAttack Kick1",
+     "flags": []
+    },
+    {
+     "number": 43,
+     "group": "KICK OTHERS",
+     "name": "HardAttack Kick2",
+     "flags": []
+    },
+    {
+     "number": 44,
+     "group": "KICK OTHERS",
+     "name": "HardAttack Kick3",
+     "flags": []
+    },
+    {
+     "number": 45,
+     "group": "KICK OTHERS",
+     "name": "HardAttack Kick4",
+     "flags": []
+    },
+    {
+     "number": 46,
+     "group": "KICK OTHERS",
+     "name": "HardAttack Kick5",
+     "flags": []
+    },
+    {
+     "number": 47,
+     "group": "KICK OTHERS",
+     "name": "HardAttack Kick6",
+     "flags": []
+    },
+    {
+     "number": 48,
+     "group": "KICK OTHERS",
+     "name": "HardAttack Kick7",
+     "flags": []
+    },
+    {
+     "number": 49,
+     "group": "KICK OTHERS",
+     "name": "HardAttack Kick8",
+     "flags": []
+    },
+    {
+     "number": 50,
+     "group": "KICK OTHERS",
+     "name": "HardAttack Kick9",
+     "flags": []
+    },
+    {
+     "number": 51,
+     "group": "KICK OTHERS",
+     "name": "ClubMusic Kick 1",
+     "flags": []
+    },
+    {
+     "number": 52,
+     "group": "KICK OTHERS",
+     "name": "ClubMusic Kick 2",
+     "flags": []
+    },
+    {
+     "number": 53,
+     "group": "KICK OTHERS",
+     "name": "ClubMusic Kick 3",
+     "flags": []
+    },
+    {
+     "number": 54,
+     "group": "KICK OTHERS",
+     "name": "ClubMusic Kick 4",
+     "flags": []
+    },
+    {
+     "number": 55,
+     "group": "KICK OTHERS",
+     "name": "ClubMusic Kick 5",
+     "flags": []
+    },
+    {
+     "number": 56,
+     "group": "KICK OTHERS",
+     "name": "ClubMusic Kick 6",
+     "flags": []
+    },
+    {
+     "number": 57,
+     "group": "KICK OTHERS",
+     "name": "ClubMusic Kick 7",
+     "flags": []
+    },
+    {
+     "number": 58,
+     "group": "KICK OTHERS",
+     "name": "ClubMusic Kick 8",
+     "flags": []
+    },
+    {
+     "number": 59,
+     "group": "KICK OTHERS",
+     "name": "ClubMusic Kick 9",
+     "flags": []
+    },
+    {
+     "number": 60,
+     "group": "KICK OTHERS",
+     "name": "ClubMusic Kick10",
+     "flags": []
+    },
+    {
+     "number": 61,
+     "group": "KICK OTHERS",
+     "name": "ClubMusic Kick11",
+     "flags": []
+    },
+    {
+     "number": 62,
+     "group": "KICK OTHERS",
+     "name": "ClubMusic Kick12",
+     "flags": []
+    },
+    {
+     "number": 63,
+     "group": "KICK OTHERS",
+     "name": "ClubMusic Kick13",
+     "flags": []
+    },
+    {
+     "number": 64,
+     "group": "KICK OTHERS",
+     "name": "ClubMusic Kick14",
+     "flags": []
+    },
+    {
+     "number": 65,
+     "group": "KICK OTHERS",
+     "name": "ClubMusic Kick15",
+     "flags": []
+    },
+    {
+     "number": 66,
+     "group": "KICK OTHERS",
+     "name": "ClubMusic Kick16",
+     "flags": []
+    },
+    {
+     "number": 67,
+     "group": "KICK OTHERS",
+     "name": "ClubMusic Kick17",
+     "flags": []
+    },
+    {
+     "number": 68,
+     "group": "KICK OTHERS",
+     "name": "ClubMusic Kick18",
+     "flags": []
+    },
+    {
+     "number": 69,
+     "group": "KICK OTHERS",
+     "name": "ClubMusic Kick19",
+     "flags": []
+    },
+    {
+     "number": 70,
+     "group": "KICK OTHERS",
+     "name": "ClubMusic Kick20",
+     "flags": []
+    },
+    {
+     "number": 71,
+     "group": "KICK OTHERS",
+     "name": "ClubMusic Kick21",
+     "flags": []
+    },
+    {
+     "number": 72,
+     "group": "KICK OTHERS",
+     "name": "ClubMusic Kick22",
+     "flags": []
+    },
+    {
+     "number": 73,
+     "group": "KICK OTHERS",
+     "name": "ClubMusic Kick23",
+     "flags": []
+    },
+    {
+     "number": 74,
+     "group": "KICK OTHERS",
+     "name": "ClubMusic Kick24",
+     "flags": []
+    },
+    {
+     "number": 75,
+     "group": "KICK OTHERS",
+     "name": "ClubMusic Kick25",
+     "flags": []
+    },
+    {
+     "number": 76,
+     "group": "KICK OTHERS",
+     "name": "ClubMusic Kick26",
+     "flags": []
+    },
+    {
+     "number": 77,
+     "group": "KICK OTHERS",
+     "name": "ClubMusic Kick27",
+     "flags": []
+    },
+    {
+     "number": 78,
+     "group": "KICK OTHERS",
+     "name": "Voice Kick 1",
+     "flags": []
+    },
+    {
+     "number": 79,
+     "group": "KICK OTHERS",
+     "name": "Voice Kick 2",
+     "flags": []
+    },
+    {
+     "number": 80,
+     "group": "KICK OTHERS",
+     "name": "Voice Kick 3",
+     "flags": []
+    },
+    {
+     "number": 81,
+     "group": "KICK OTHERS",
+     "name": "Voice Kick 4",
+     "flags": []
+    },
+    {
+     "number": 82,
+     "group": "KICK OTHERS",
+     "name": "Processed Kick 1",
+     "flags": []
+    },
+    {
+     "number": 83,
+     "group": "KICK OTHERS",
+     "name": "Processed Kick 2",
+     "flags": []
+    },
+    {
+     "number": 84,
+     "group": "KICK OTHERS",
+     "name": "Processed Kick 3",
+     "flags": []
+    },
+    {
+     "number": 85,
+     "group": "KICK OTHERS",
+     "name": "Processed Kick 4",
+     "flags": []
+    },
+    {
+     "number": 86,
+     "group": "KICK OTHERS",
+     "name": "Processed Kick 5",
+     "flags": []
+    },
+    {
+     "number": 87,
+     "group": "KICK OTHERS",
+     "name": "Processed Kick 6",
+     "flags": []
+    },
+    {
+     "number": 88,
+     "group": "KICK OTHERS",
+     "name": "Processed Kick 7",
+     "flags": []
+    },
+    {
+     "number": 89,
+     "group": "KICK OTHERS",
+     "name": "Processed Kick 8",
+     "flags": []
+    },
+    {
+     "number": 90,
+     "group": "KICK ELEC",
+     "name": "Analog Kick 1",
+     "flags": []
+    },
+    {
+     "number": 91,
+     "group": "KICK ELEC",
+     "name": "Analog Kick 2",
+     "flags": []
+    },
+    {
+     "number": 92,
+     "group": "KICK ELEC",
+     "name": "Analog Kick 3",
+     "flags": []
+    },
+    {
+     "number": 93,
+     "group": "KICK ELEC",
+     "name": "Analog Kick 4",
+     "flags": []
+    },
+    {
+     "number": 94,
+     "group": "KICK ELEC",
+     "name": "Analog Kick 5",
+     "flags": []
+    },
+    {
+     "number": 95,
+     "group": "KICK ELEC",
+     "name": "Analog Kick 6",
+     "flags": []
+    },
+    {
+     "number": 96,
+     "group": "KICK ELEC",
+     "name": "CR-78 Kick",
+     "flags": []
+    },
+    {
+     "number": 97,
+     "group": "KICK ELEC",
+     "name": "TR-808 Kick 1",
+     "flags": []
+    },
+    {
+     "number": 98,
+     "group": "KICK ELEC",
+     "name": "TR-808 Kick 2",
+     "flags": []
+    },
+    {
+     "number": 99,
+     "group": "KICK ELEC",
+     "name": "TR-808 Kick Long",
+     "flags": []
+    },
+    {
+     "number": 100,
+     "group": "KICK ELEC",
+     "name": "TR-808 Atk Kick",
+     "flags": []
+    },
+    {
+     "number": 101,
+     "group": "KICK ELEC",
+     "name": "TR-808 Soft Kick",
+     "flags": []
+    },
+    {
+     "number": 102,
+     "group": "KICK ELEC",
+     "name": "TR-808 Hard Kick",
+     "flags": []
+    },
+    {
+     "number": 103,
+     "group": "KICK ELEC",
+     "name": "TR-909 Kick 1",
+     "flags": []
+    },
+    {
+     "number": 104,
+     "group": "KICK ELEC",
+     "name": "TR-909 Kick 2",
+     "flags": []
+    },
+    {
+     "number": 105,
+     "group": "KICK ELEC",
+     "name": "TR-909 Kick 3",
+     "flags": []
+    },
+    {
+     "number": 106,
+     "group": "KICK ELEC",
+     "name": "TR-909 Kick 4",
+     "flags": []
+    },
+    {
+     "number": 107,
+     "group": "KICK ELEC",
+     "name": "TR-909 Hard Kick",
+     "flags": []
+    },
+    {
+     "number": 108,
+     "group": "KICK ELEC",
+     "name": "TR-909 Dist Kick",
+     "flags": []
+    },
+    {
+     "number": 109,
+     "group": "KICK ELEC",
+     "name": "TR-909 Low Kick",
+     "flags": []
+    },
+    {
+     "number": 110,
+     "group": "KICK ELEC",
+     "name": "TR-606 Kick",
+     "flags": []
+    },
+    {
+     "number": 111,
+     "group": "KICK ELEC",
+     "name": "TR-707 Kick",
+     "flags": []
+    },
+    {
+     "number": 112,
+     "group": "KICK ELEC",
+     "name": "TR-626 Kick",
+     "flags": []
+    },
+    {
+     "number": 113,
+     "group": "KICK ELEC",
+     "name": "DR-110 Kick",
+     "flags": []
+    },
+    {
+     "number": 114,
+     "group": "KICK ELEC",
+     "name": "R-8 Kick",
+     "flags": []
+    },
+    {
+     "number": 115,
+     "group": "KICK ELEC",
+     "name": "Synth Kick",
+     "flags": []
+    },
+    {
+     "number": 116,
+     "group": "KICK ELEC",
+     "name": "TR-Synth Kick 1",
+     "flags": []
+    },
+    {
+     "number": 117,
+     "group": "KICK ELEC",
+     "name": "TR-Synth Kick 2",
+     "flags": []
+    },
+    {
+     "number": 118,
+     "group": "KICK ELEC",
+     "name": "TR-Synth Kick 3",
+     "flags": []
+    },
+    {
+     "number": 119,
+     "group": "KICK ELEC",
+     "name": "Hi-Q Kick",
+     "flags": []
+    },
+    {
+     "number": 120,
+     "group": "KICK ELEC",
+     "name": "Attack Bass Kick",
+     "flags": []
+    },
+    {
+     "number": 121,
+     "group": "SNARE OTHERS",
+     "name": "Concert 1 S",
+     "flags": []
+    },
+    {
+     "number": 122,
+     "group": "SNARE OTHERS",
+     "name": "Concert 1 SR",
+     "flags": [
+      "P"
+     ]
+    },
+    {
+     "number": 123,
+     "group": "SNARE OTHERS",
+     "name": "Concert 1 X",
+     "flags": []
+    },
+    {
+     "number": 124,
+     "group": "SNARE OTHERS",
+     "name": "Concert 2 S",
+     "flags": []
+    },
+    {
+     "number": 125,
+     "group": "SNARE OTHERS",
+     "name": "Proc Tight 1 S",
+     "flags": []
+    },
+    {
+     "number": 126,
+     "group": "SNARE OTHERS",
+     "name": "Proc Tight 1 SR",
+     "flags": []
+    },
+    {
+     "number": 127,
+     "group": "SNARE OTHERS",
+     "name": "Proc Tight 2 S",
+     "flags": []
+    },
+    {
+     "number": 128,
+     "group": "SNARE OTHERS",
+     "name": "Proc Tight 2 SR",
+     "flags": []
+    },
+    {
+     "number": 129,
+     "group": "SNARE OTHERS",
+     "name": "Layering S",
+     "flags": []
+    },
+    {
+     "number": 130,
+     "group": "SNARE OTHERS",
+     "name": "Layering SR",
+     "flags": []
+    },
+    {
+     "number": 131,
+     "group": "SNARE OTHERS",
+     "name": "Fat & Low S",
+     "flags": []
+    },
+    {
+     "number": 132,
+     "group": "SNARE OTHERS",
+     "name": "Fat & Low SR",
+     "flags": []
+    },
+    {
+     "number": 133,
+     "group": "SNARE OTHERS",
+     "name": "LA Fat Snare",
+     "flags": []
+    },
+    {
+     "number": 134,
+     "group": "SNARE OTHERS",
+     "name": "House Low Snare",
+     "flags": []
+    },
+    {
+     "number": 135,
+     "group": "SNARE OTHERS",
+     "name": "Garage Snare",
+     "flags": []
+    },
+    {
+     "number": 136,
+     "group": "SNARE OTHERS",
+     "name": "Hip Hop Snare 1",
+     "flags": []
+    },
+    {
+     "number": 137,
+     "group": "SNARE OTHERS",
+     "name": "Hip Hop Snare 2",
+     "flags": []
+    },
+    {
+     "number": 138,
+     "group": "SNARE OTHERS",
+     "name": "Radio Snare",
+     "flags": []
+    },
+    {
+     "number": 139,
+     "group": "SNARE OTHERS",
+     "name": "DnB Snare 1",
+     "flags": []
+    },
+    {
+     "number": 140,
+     "group": "SNARE OTHERS",
+     "name": "DnB Snare 2",
+     "flags": []
+    },
+    {
+     "number": 141,
+     "group": "SNARE OTHERS",
+     "name": "DnB Snare 3",
+     "flags": []
+    },
+    {
+     "number": 142,
+     "group": "SNARE OTHERS",
+     "name": "Dub Step Snare 1",
+     "flags": []
+    },
+    {
+     "number": 143,
+     "group": "SNARE OTHERS",
+     "name": "Dub Step Snare 2",
+     "flags": []
+    },
+    {
+     "number": 144,
+     "group": "SNARE OTHERS",
+     "name": "Fat Snare",
+     "flags": []
+    },
+    {
+     "number": 145,
+     "group": "SNARE OTHERS",
+     "name": "Fat Box Snare",
+     "flags": []
+    },
+    {
+     "number": 146,
+     "group": "SNARE OTHERS",
+     "name": "Gate Snare",
+     "flags": []
+    },
+    {
+     "number": 147,
+     "group": "SNARE OTHERS",
+     "name": "106 Snare",
+     "flags": []
+    },
+    {
+     "number": 148,
+     "group": "SNARE OTHERS",
+     "name": "Tight-o-Gate S",
+     "flags": []
+    },
+    {
+     "number": 149,
+     "group": "SNARE OTHERS",
+     "name": "DnBark Snare",
+     "flags": []
+    },
+    {
+     "number": 150,
+     "group": "SNARE OTHERS",
+     "name": "Clap Slap Snare",
+     "flags": []
+    },
+    {
+     "number": 151,
+     "group": "SNARE OTHERS",
+     "name": "Slap Snare",
+     "flags": []
+    },
+    {
+     "number": 152,
+     "group": "SNARE OTHERS",
+     "name": "Slapper Snare",
+     "flags": []
+    },
+    {
+     "number": 153,
+     "group": "SNARE OTHERS",
+     "name": "Clapper Snare",
+     "flags": []
+    },
+    {
+     "number": 154,
+     "group": "SNARE OTHERS",
+     "name": "Low&Mid Shaper S",
+     "flags": []
+    },
+    {
+     "number": 155,
+     "group": "SNARE OTHERS",
+     "name": "Old School Snare",
+     "flags": []
+    },
+    {
+     "number": 156,
+     "group": "SNARE OTHERS",
+     "name": "ShortFbk Snare 1",
+     "flags": []
+    },
+    {
+     "number": 157,
+     "group": "SNARE OTHERS",
+     "name": "ShortFbk Snare 2",
+     "flags": []
+    },
+    {
+     "number": 158,
+     "group": "SNARE OTHERS",
+     "name": "Laser Snare",
+     "flags": []
+    },
+    {
+     "number": 159,
+     "group": "SNARE OTHERS",
+     "name": "Echo Snare 1",
+     "flags": []
+    },
+    {
+     "number": 160,
+     "group": "SNARE OTHERS",
+     "name": "Echo Snare 2",
+     "flags": []
+    },
+    {
+     "number": 161,
+     "group": "SNARE OTHERS",
+     "name": "OD Break Snare",
+     "flags": []
+    },
+    {
+     "number": 162,
+     "group": "SNARE OTHERS",
+     "name": "OD Jungle Snare",
+     "flags": []
+    },
+    {
+     "number": 163,
+     "group": "SNARE OTHERS",
+     "name": "Stereofyer Snare",
+     "flags": []
+    },
+    {
+     "number": 164,
+     "group": "SNARE OTHERS",
+     "name": "R-Bright Snare",
+     "flags": []
+    },
+    {
+     "number": 165,
+     "group": "SNARE OTHERS",
+     "name": "Rimflection S",
+     "flags": []
+    },
+    {
+     "number": 166,
+     "group": "SNARE OTHERS",
+     "name": "Soprano Ring S",
+     "flags": []
+    },
+    {
+     "number": 167,
+     "group": "SNARE OTHERS",
+     "name": "LoFi FX Snare",
+     "flags": []
+    },
+    {
+     "number": 168,
+     "group": "SNARE OTHERS",
+     "name": "ClubMusic Snr 1",
+     "flags": []
+    },
+    {
+     "number": 169,
+     "group": "SNARE OTHERS",
+     "name": "ClubMusic Snr 2",
+     "flags": []
+    },
+    {
+     "number": 170,
+     "group": "SNARE OTHERS",
+     "name": "ClubMusic Snr 3",
+     "flags": []
+    },
+    {
+     "number": 171,
+     "group": "SNARE OTHERS",
+     "name": "ClubMusic Snr 4",
+     "flags": []
+    },
+    {
+     "number": 172,
+     "group": "SNARE OTHERS",
+     "name": "ClubMusic Snr 5",
+     "flags": []
+    },
+    {
+     "number": 173,
+     "group": "SNARE OTHERS",
+     "name": "ClubMusic Snr 6",
+     "flags": []
+    },
+    {
+     "number": 174,
+     "group": "SNARE OTHERS",
+     "name": "ClubMusic Snr 7",
+     "flags": []
+    },
+    {
+     "number": 175,
+     "group": "SNARE OTHERS",
+     "name": "ClubMusic Snr 8",
+     "flags": []
+    },
+    {
+     "number": 176,
+     "group": "SNARE OTHERS",
+     "name": "ClubMusic Snr 9",
+     "flags": []
+    },
+    {
+     "number": 177,
+     "group": "SNARE OTHERS",
+     "name": "ClubMusic Snr 10",
+     "flags": []
+    },
+    {
+     "number": 178,
+     "group": "SNARE OTHERS",
+     "name": "ClubMusic Snr 11",
+     "flags": []
+    },
+    {
+     "number": 179,
+     "group": "SNARE OTHERS",
+     "name": "ClubMusic Snr 12",
+     "flags": []
+    },
+    {
+     "number": 180,
+     "group": "SNARE OTHERS",
+     "name": "ClubMusic Snr 13",
+     "flags": []
+    },
+    {
+     "number": 181,
+     "group": "SNARE OTHERS",
+     "name": "ClubMusic Snr 14",
+     "flags": []
+    },
+    {
+     "number": 182,
+     "group": "SNARE OTHERS",
+     "name": "ClubMusic Snr 15",
+     "flags": []
+    },
+    {
+     "number": 183,
+     "group": "SNARE OTHERS",
+     "name": "ClubMusic Snr 16",
+     "flags": []
+    },
+    {
+     "number": 184,
+     "group": "SNARE OTHERS",
+     "name": "ClubMusic Snr 17",
+     "flags": []
+    },
+    {
+     "number": 185,
+     "group": "SNARE OTHERS",
+     "name": "ClubMusic Snr 18",
+     "flags": []
+    },
+    {
+     "number": 186,
+     "group": "SNARE OTHERS",
+     "name": "ClubMusic Snr 19",
+     "flags": []
+    },
+    {
+     "number": 187,
+     "group": "SNARE OTHERS",
+     "name": "ClubMusic Snr 20",
+     "flags": []
+    },
+    {
+     "number": 188,
+     "group": "SNARE OTHERS",
+     "name": "ClubMusic Snr 21",
+     "flags": []
+    },
+    {
+     "number": 189,
+     "group": "SNARE OTHERS",
+     "name": "ClubMusic Snr 22",
+     "flags": []
+    },
+    {
+     "number": 190,
+     "group": "SNARE OTHERS",
+     "name": "ClubMusic Snr 23",
+     "flags": []
+    },
+    {
+     "number": 191,
+     "group": "SNARE OTHERS",
+     "name": "ClubMusic Snr 24",
+     "flags": []
+    },
+    {
+     "number": 192,
+     "group": "SNARE OTHERS",
+     "name": "ClubMusic Snr 25",
+     "flags": []
+    },
+    {
+     "number": 193,
+     "group": "SNARE OTHERS",
+     "name": "ClubMusic Snr 26",
+     "flags": []
+    },
+    {
+     "number": 194,
+     "group": "SNARE OTHERS",
+     "name": "ClubMusic Snr 27",
+     "flags": []
+    },
+    {
+     "number": 195,
+     "group": "SNARE OTHERS",
+     "name": "ClubMusic Snr 28",
+     "flags": []
+    },
+    {
+     "number": 196,
+     "group": "SNARE OTHERS",
+     "name": "ClubMusic Snr 29",
+     "flags": []
+    },
+    {
+     "number": 197,
+     "group": "SNARE OTHERS",
+     "name": "Voice Snare 1",
+     "flags": []
+    },
+    {
+     "number": 198,
+     "group": "SNARE OTHERS",
+     "name": "Voice Snare 2",
+     "flags": []
+    },
+    {
+     "number": 199,
+     "group": "SNARE OTHERS",
+     "name": "Voice Snare 3",
+     "flags": []
+    },
+    {
+     "number": 200,
+     "group": "SNARE OTHERS",
+     "name": "Voice Snare 4",
+     "flags": []
+    },
+    {
+     "number": 201,
+     "group": "SNARE OTHERS",
+     "name": "Voice Snare 5",
+     "flags": []
+    },
+    {
+     "number": 202,
+     "group": "SNARE OTHERS",
+     "name": "Voice Snare 6",
+     "flags": []
+    },
+    {
+     "number": 203,
+     "group": "SNARE OTHERS",
+     "name": "Voice Snare 7",
+     "flags": []
+    },
+    {
+     "number": 204,
+     "group": "SNARE OTHERS",
+     "name": "Voice Snare 8",
+     "flags": []
+    },
+    {
+     "number": 205,
+     "group": "SNARE OTHERS",
+     "name": "Electro Snare",
+     "flags": []
+    },
+    {
+     "number": 206,
+     "group": "SNARE OTHERS",
+     "name": "Thick Clap Snare",
+     "flags": []
+    },
+    {
+     "number": 207,
+     "group": "SNARE OTHERS",
+     "name": "Timbale Snare",
+     "flags": []
+    },
+    {
+     "number": 208,
+     "group": "SNARE OTHERS",
+     "name": "Plugged X 1",
+     "flags": []
+    },
+    {
+     "number": 209,
+     "group": "SNARE OTHERS",
+     "name": "Plugged X 2",
+     "flags": []
+    },
+    {
+     "number": 210,
+     "group": "SNARE OTHERS",
+     "name": "Plugged X 3",
+     "flags": []
+    },
+    {
+     "number": 211,
+     "group": "SNARE OTHERS",
+     "name": "Tight Buzz X",
+     "flags": []
+    },
+    {
+     "number": 212,
+     "group": "SNARE OTHERS",
+     "name": "Voice X 1",
+     "flags": []
+    },
+    {
+     "number": 213,
+     "group": "SNARE OTHERS",
+     "name": "Voice X 2",
+     "flags": []
+    },
+    {
+     "number": 214,
+     "group": "SNARE OTHERS",
+     "name": "Gate Reverb X",
+     "flags": []
+    },
+    {
+     "number": 215,
+     "group": "SNARE ELEC",
+     "name": "Analog Snare 1",
+     "flags": []
+    },
+    {
+     "number": 216,
+     "group": "SNARE ELEC",
+     "name": "Analog Snare 2",
+     "flags": []
+    },
+    {
+     "number": 217,
+     "group": "SNARE ELEC",
+     "name": "Classic Fat S",
+     "flags": []
+    },
+    {
+     "number": 218,
+     "group": "SNARE ELEC",
+     "name": "Classic Fat SR",
+     "flags": []
+    },
+    {
+     "number": 219,
+     "group": "SNARE ELEC",
+     "name": "CR-78 Snare",
+     "flags": []
+    },
+    {
+     "number": 220,
+     "group": "SNARE ELEC",
+     "name": "TR-808 Snare 1",
+     "flags": []
+    },
+    {
+     "number": 221,
+     "group": "SNARE ELEC",
+     "name": "TR-808 Snare 2",
+     "flags": []
+    },
+    {
+     "number": 222,
+     "group": "SNARE ELEC",
+     "name": "TR-808 Power S",
+     "flags": []
+    },
+    {
+     "number": 223,
+     "group": "SNARE ELEC",
+     "name": "TR-808 Power SR",
+     "flags": []
+    },
+    {
+     "number": 224,
+     "group": "SNARE ELEC",
+     "name": "TR-808 Fat 1 S",
+     "flags": []
+    },
+    {
+     "number": 225,
+     "group": "SNARE ELEC",
+     "name": "TR-808 Fat 1 SR",
+     "flags": []
+    },
+    {
+     "number": 226,
+     "group": "SNARE ELEC",
+     "name": "TR-808 Fat 2 S",
+     "flags": []
+    },
+    {
+     "number": 227,
+     "group": "SNARE ELEC",
+     "name": "TR-808 Fat 2 SR",
+     "flags": []
+    },
+    {
+     "number": 228,
+     "group": "SNARE ELEC",
+     "name": "TR-808 Fat 3 S",
+     "flags": []
+    },
+    {
+     "number": 229,
+     "group": "SNARE ELEC",
+     "name": "TR-808 Fat 3 SR",
+     "flags": []
+    },
+    {
+     "number": 230,
+     "group": "SNARE ELEC",
+     "name": "TR-909 Snare 1",
+     "flags": []
+    },
+    {
+     "number": 231,
+     "group": "SNARE ELEC",
+     "name": "TR-909 Snare 2",
+     "flags": []
+    },
+    {
+     "number": 232,
+     "group": "SNARE ELEC",
+     "name": "TR-909 S w/ Clap",
+     "flags": []
+    },
+    {
+     "number": 233,
+     "group": "SNARE ELEC",
+     "name": "TR-909 Power S",
+     "flags": []
+    },
+    {
+     "number": 234,
+     "group": "SNARE ELEC",
+     "name": "TR-909 Power SR",
+     "flags": []
+    },
+    {
+     "number": 235,
+     "group": "SNARE ELEC",
+     "name": "TR-909 DS Snare",
+     "flags": []
+    },
+    {
+     "number": 236,
+     "group": "SNARE ELEC",
+     "name": "TR-606 Snare 1",
+     "flags": []
+    },
+    {
+     "number": 237,
+     "group": "SNARE ELEC",
+     "name": "TR-606 Snare 2",
+     "flags": []
+    },
+    {
+     "number": 238,
+     "group": "SNARE ELEC",
+     "name": "TR-707 Snare",
+     "flags": []
+    },
+    {
+     "number": 239,
+     "group": "SNARE ELEC",
+     "name": "TR-707 EFX Snare",
+     "flags": []
+    },
+    {
+     "number": 240,
+     "group": "SNARE ELEC",
+     "name": "TR-626 Snare",
+     "flags": []
+    },
+    {
+     "number": 241,
+     "group": "SNARE ELEC",
+     "name": "TR-626 EFX Snare",
+     "flags": []
+    },
+    {
+     "number": 242,
+     "group": "SNARE ELEC",
+     "name": "DR-110 Snare",
+     "flags": []
+    },
+    {
+     "number": 243,
+     "group": "SNARE ELEC",
+     "name": "Synth S",
+     "flags": []
+    },
+    {
+     "number": 244,
+     "group": "SNARE ELEC",
+     "name": "Synth SR",
+     "flags": []
+    },
+    {
+     "number": 245,
+     "group": "SNARE ELEC",
+     "name": "CR-78 Rim",
+     "flags": []
+    },
+    {
+     "number": 246,
+     "group": "SNARE ELEC",
+     "name": "TR-808 Rim",
+     "flags": []
+    },
+    {
+     "number": 247,
+     "group": "SNARE ELEC",
+     "name": "TR-909 Rim 1",
+     "flags": []
+    },
+    {
+     "number": 248,
+     "group": "SNARE ELEC",
+     "name": "TR-909 Rim 2",
+     "flags": []
+    },
+    {
+     "number": 249,
+     "group": "SNARE ELEC",
+     "name": "TR-707 Rim",
+     "flags": []
+    },
+    {
+     "number": 250,
+     "group": "SNARE ELEC",
+     "name": "TR-626 Rim",
+     "flags": []
+    },
+    {
+     "number": 251,
+     "group": "TOM OTHERS",
+     "name": "Voice Tom 1",
+     "flags": []
+    },
+    {
+     "number": 252,
+     "group": "TOM OTHERS",
+     "name": "Voice Tom 2",
+     "flags": []
+    },
+    {
+     "number": 253,
+     "group": "TOM OTHERS",
+     "name": "Voice Tom 3",
+     "flags": []
+    },
+    {
+     "number": 254,
+     "group": "TOM ELEC",
+     "name": "Analog Tom 1 T1",
+     "flags": []
+    },
+    {
+     "number": 255,
+     "group": "TOM ELEC",
+     "name": "Analog Tom 1 T2",
+     "flags": []
+    },
+    {
+     "number": 256,
+     "group": "TOM ELEC",
+     "name": "Analog Tom 1 T3",
+     "flags": []
+    },
+    {
+     "number": 257,
+     "group": "TOM ELEC",
+     "name": "Analog Tom 1 T4",
+     "flags": []
+    },
+    {
+     "number": 258,
+     "group": "TOM ELEC",
+     "name": "Analog Tom 2 T1",
+     "flags": []
+    },
+    {
+     "number": 259,
+     "group": "TOM ELEC",
+     "name": "Analog Tom 2 T2",
+     "flags": []
+    },
+    {
+     "number": 260,
+     "group": "TOM ELEC",
+     "name": "Analog Tom 2 T3",
+     "flags": []
+    },
+    {
+     "number": 261,
+     "group": "TOM ELEC",
+     "name": "Analog Tom 2 T4",
+     "flags": []
+    },
+    {
+     "number": 262,
+     "group": "TOM ELEC",
+     "name": "Analog Tom 3 T1",
+     "flags": []
+    },
+    {
+     "number": 263,
+     "group": "TOM ELEC",
+     "name": "Analog Tom 3 T2",
+     "flags": []
+    },
+    {
+     "number": 264,
+     "group": "TOM ELEC",
+     "name": "Analog Tom 3 T3",
+     "flags": []
+    },
+    {
+     "number": 265,
+     "group": "TOM ELEC",
+     "name": "Analog Tom 3 T4",
+     "flags": []
+    },
+    {
+     "number": 266,
+     "group": "TOM ELEC",
+     "name": "Analog Tom 4 T1",
+     "flags": []
+    },
+    {
+     "number": 267,
+     "group": "TOM ELEC",
+     "name": "Analog Tom 4 T2",
+     "flags": []
+    },
+    {
+     "number": 268,
+     "group": "TOM ELEC",
+     "name": "Analog Tom 4 T3",
+     "flags": []
+    },
+    {
+     "number": 269,
+     "group": "TOM ELEC",
+     "name": "Analog Tom 4 T4",
+     "flags": []
+    },
+    {
+     "number": 270,
+     "group": "TOM ELEC",
+     "name": "Analog Tom 5 T1",
+     "flags": []
+    },
+    {
+     "number": 271,
+     "group": "TOM ELEC",
+     "name": "Analog Tom 5 T2",
+     "flags": []
+    },
+    {
+     "number": 272,
+     "group": "TOM ELEC",
+     "name": "Analog Tom 5 T3",
+     "flags": []
+    },
+    {
+     "number": 273,
+     "group": "TOM ELEC",
+     "name": "Analog Tom 5 T4",
+     "flags": []
+    },
+    {
+     "number": 274,
+     "group": "TOM ELEC",
+     "name": "Analog Tom 6 T1",
+     "flags": []
+    },
+    {
+     "number": 275,
+     "group": "TOM ELEC",
+     "name": "Analog Tom 6 T2",
+     "flags": []
+    },
+    {
+     "number": 276,
+     "group": "TOM ELEC",
+     "name": "Analog Tom 6 T3",
+     "flags": []
+    },
+    {
+     "number": 277,
+     "group": "TOM ELEC",
+     "name": "TR-808 Tom T1",
+     "flags": []
+    },
+    {
+     "number": 278,
+     "group": "TOM ELEC",
+     "name": "TR-808 Tom T2",
+     "flags": []
+    },
+    {
+     "number": 279,
+     "group": "TOM ELEC",
+     "name": "TR-808 Tom T3",
+     "flags": []
+    },
+    {
+     "number": 280,
+     "group": "TOM ELEC",
+     "name": "TR-808 Tom T4",
+     "flags": []
+    },
+    {
+     "number": 281,
+     "group": "TOM ELEC",
+     "name": "TR-909 Tom 1 T1",
+     "flags": []
+    },
+    {
+     "number": 282,
+     "group": "TOM ELEC",
+     "name": "TR-909 Tom 1 T2",
+     "flags": []
+    },
+    {
+     "number": 283,
+     "group": "TOM ELEC",
+     "name": "TR-909 Tom 1 T3",
+     "flags": []
+    },
+    {
+     "number": 284,
+     "group": "TOM ELEC",
+     "name": "TR-909 Tom 1 T4",
+     "flags": []
+    },
+    {
+     "number": 285,
+     "group": "TOM ELEC",
+     "name": "TR-909 Tom 2 T1",
+     "flags": []
+    },
+    {
+     "number": 286,
+     "group": "TOM ELEC",
+     "name": "TR-909 Tom 2 T2",
+     "flags": []
+    },
+    {
+     "number": 287,
+     "group": "TOM ELEC",
+     "name": "TR-909 Tom 2 T3",
+     "flags": []
+    },
+    {
+     "number": 288,
+     "group": "TOM ELEC",
+     "name": "TR-606 Tom T1",
+     "flags": []
+    },
+    {
+     "number": 289,
+     "group": "TOM ELEC",
+     "name": "TR-606 Tom T2",
+     "flags": []
+    },
+    {
+     "number": 290,
+     "group": "TOM ELEC",
+     "name": "TR-707 Tom T1",
+     "flags": []
+    },
+    {
+     "number": 291,
+     "group": "TOM ELEC",
+     "name": "TR-707 Tom T2",
+     "flags": []
+    },
+    {
+     "number": 292,
+     "group": "TOM ELEC",
+     "name": "TR-707 Tom T3",
+     "flags": []
+    },
+    {
+     "number": 293,
+     "group": "TOM ELEC",
+     "name": "TR-626 Tom T1",
+     "flags": []
+    },
+    {
+     "number": 294,
+     "group": "TOM ELEC",
+     "name": "TR-626 Tom T2",
+     "flags": []
+    },
+    {
+     "number": 295,
+     "group": "TOM ELEC",
+     "name": "TR-626 Tom T3",
+     "flags": []
+    },
+    {
+     "number": 296,
+     "group": "HI-HAT OTHERS",
+     "name": "Club Hi-Hat",
+     "flags": []
+    },
+    {
+     "number": 297,
+     "group": "HI-HAT OTHERS",
+     "name": "Sharp Hi-Hat",
+     "flags": []
+    },
+    {
+     "number": 298,
+     "group": "HI-HAT OTHERS",
+     "name": "Hip Hi-Hat",
+     "flags": []
+    },
+    {
+     "number": 299,
+     "group": "HI-HAT OTHERS",
+     "name": "House Hi-Hat",
+     "flags": []
+    },
+    {
+     "number": 300,
+     "group": "HI-HAT OTHERS",
+     "name": "DnB Hi-Hat",
+     "flags": []
+    },
+    {
+     "number": 301,
+     "group": "HI-HAT OTHERS",
+     "name": "Low Step Hi-Hat",
+     "flags": []
+    },
+    {
+     "number": 302,
+     "group": "HI-HAT OTHERS",
+     "name": "Voice Hi-Hat 1",
+     "flags": []
+    },
+    {
+     "number": 303,
+     "group": "HI-HAT OTHERS",
+     "name": "Voice Hi-Hat 2",
+     "flags": []
+    },
+    {
+     "number": 304,
+     "group": "HI-HAT OTHERS",
+     "name": "Voice Hi-Hat 3",
+     "flags": []
+    },
+    {
+     "number": 305,
+     "group": "HI-HAT OTHERS",
+     "name": "Spoke Hi-Hat",
+     "flags": []
+    },
+    {
+     "number": 306,
+     "group": "HI-HAT OTHERS",
+     "name": "Jingle Hi-Hat",
+     "flags": []
+    },
+    {
+     "number": 307,
+     "group": "HI-HAT ELEC",
+     "name": "CR-78 Hi-Hat",
+     "flags": []
+    },
+    {
+     "number": 308,
+     "group": "HI-HAT ELEC",
+     "name": "CR-78 Metal HH",
+     "flags": []
+    },
+    {
+     "number": 309,
+     "group": "HI-HAT ELEC",
+     "name": "TR-808 Hi-Hat",
+     "flags": []
+    },
+    {
+     "number": 310,
+     "group": "HI-HAT ELEC",
+     "name": "TR-909 Hi-Hat",
+     "flags": []
+    },
+    {
+     "number": 311,
+     "group": "HI-HAT FIXED",
+     "name": "TR-808 HH Close",
+     "flags": []
+    },
+    {
+     "number": 312,
+     "group": "HI-HAT FIXED",
+     "name": "TR-808 HH Open",
+     "flags": []
+    },
+    {
+     "number": 313,
+     "group": "HI-HAT FIXED",
+     "name": "TR-909 HH Close",
+     "flags": []
+    },
+    {
+     "number": 314,
+     "group": "HI-HAT FIXED",
+     "name": "TR-909 HH Open",
+     "flags": []
+    },
+    {
+     "number": 315,
+     "group": "HI-HAT FIXED",
+     "name": "TR-606 HH Close",
+     "flags": []
+    },
+    {
+     "number": 316,
+     "group": "HI-HAT FIXED",
+     "name": "TR-606 HH Open",
+     "flags": []
+    },
+    {
+     "number": 317,
+     "group": "HI-HAT FIXED",
+     "name": "TR-707 HH Close",
+     "flags": []
+    },
+    {
+     "number": 318,
+     "group": "HI-HAT FIXED",
+     "name": "TR-707 HH Open",
+     "flags": []
+    },
+    {
+     "number": 319,
+     "group": "HI-HAT FIXED",
+     "name": "TR-626 HH Close",
+     "flags": []
+    },
+    {
+     "number": 320,
+     "group": "HI-HAT FIXED",
+     "name": "TR-626 HH Open",
+     "flags": []
+    },
+    {
+     "number": 321,
+     "group": "CYMBAL OTHERS",
+     "name": "Concert Cymbal",
+     "flags": []
+    },
+    {
+     "number": 322,
+     "group": "CYMBAL OTHERS",
+     "name": "Sweep Crash",
+     "flags": []
+    },
+    {
+     "number": 323,
+     "group": "CYMBAL OTHERS",
+     "name": "Lo-Fi Crash",
+     "flags": []
+    },
+    {
+     "number": 324,
+     "group": "CYMBAL OTHERS",
+     "name": "Ambient Crash",
+     "flags": []
+    },
+    {
+     "number": 325,
+     "group": "CYMBAL OTHERS",
+     "name": "Verby Crash",
+     "flags": []
+    },
+    {
+     "number": 326,
+     "group": "CYMBAL OTHERS",
+     "name": "Phasing Crash",
+     "flags": []
+    },
+    {
+     "number": 327,
+     "group": "CYMBAL OTHERS",
+     "name": "Voice Crash",
+     "flags": []
+    },
+    {
+     "number": 328,
+     "group": "CYMBAL OTHERS",
+     "name": "Trashy Ride",
+     "flags": []
+    },
+    {
+     "number": 329,
+     "group": "CYMBAL OTHERS",
+     "name": "Phasing Ride",
+     "flags": []
+    },
+    {
+     "number": 330,
+     "group": "CYMBAL OTHERS",
+     "name": "DnB Ride",
+     "flags": []
+    },
+    {
+     "number": 331,
+     "group": "CYMBAL OTHERS",
+     "name": "Mainly Bell Ride",
+     "flags": []
+    },
+    {
+     "number": 332,
+     "group": "CYMBAL OTHERS",
+     "name": "Cosmo Bell",
+     "flags": []
+    },
+    {
+     "number": 333,
+     "group": "CYMBAL OTHERS",
+     "name": "Electra Bell",
+     "flags": []
+    },
+    {
+     "number": 334,
+     "group": "CYMBAL OTHERS",
+     "name": "Reflective Bell",
+     "flags": []
+    },
+    {
+     "number": 335,
+     "group": "CYMBAL OTHERS",
+     "name": "Reverse Crash 1",
+     "flags": []
+    },
+    {
+     "number": 336,
+     "group": "CYMBAL OTHERS",
+     "name": "Reverse Crash 2",
+     "flags": []
+    },
+    {
+     "number": 337,
+     "group": "CYMBAL OTHERS",
+     "name": "Reverse China 1",
+     "flags": []
+    },
+    {
+     "number": 338,
+     "group": "CYMBAL OTHERS",
+     "name": "Reverse China 2",
+     "flags": []
+    },
+    {
+     "number": 339,
+     "group": "CYMBAL OTHERS",
+     "name": "Fat Box CloseHH",
+     "flags": []
+    },
+    {
+     "number": 340,
+     "group": "CYMBAL OTHERS",
+     "name": "HipHop CloseHH 1",
+     "flags": []
+    },
+    {
+     "number": 341,
+     "group": "CYMBAL OTHERS",
+     "name": "HipHop CloseHH 2",
+     "flags": []
+    },
+    {
+     "number": 342,
+     "group": "CYMBAL OTHERS",
+     "name": "Voice Cymbal 1",
+     "flags": []
+    },
+    {
+     "number": 343,
+     "group": "CYMBAL OTHERS",
+     "name": "Voice Cymbal 2",
+     "flags": []
+    },
+    {
+     "number": 344,
+     "group": "CYMBAL OTHERS",
+     "name": "Voice Cymbal 3",
+     "flags": []
+    },
+    {
+     "number": 345,
+     "group": "CYMBAL OTHERS",
+     "name": "Voice Cymbal 4",
+     "flags": []
+    },
+    {
+     "number": 346,
+     "group": "CYMBAL ELEC",
+     "name": "Analog Cymbal",
+     "flags": []
+    },
+    {
+     "number": 347,
+     "group": "CYMBAL ELEC",
+     "name": "CR-78 Cymbal",
+     "flags": []
+    },
+    {
+     "number": 348,
+     "group": "CYMBAL ELEC",
+     "name": "TR-808 Cymbal 1",
+     "flags": []
+    },
+    {
+     "number": 349,
+     "group": "CYMBAL ELEC",
+     "name": "TR-808 Cymbal 2",
+     "flags": []
+    },
+    {
+     "number": 350,
+     "group": "CYMBAL ELEC",
+     "name": "TR-909 Crash 1",
+     "flags": []
+    },
+    {
+     "number": 351,
+     "group": "CYMBAL ELEC",
+     "name": "TR-909 Crash 2",
+     "flags": []
+    },
+    {
+     "number": 352,
+     "group": "CYMBAL ELEC",
+     "name": "TR-909 Ride",
+     "flags": []
+    },
+    {
+     "number": 353,
+     "group": "CYMBAL ELEC",
+     "name": "TR-606 Cymbal 1",
+     "flags": []
+    },
+    {
+     "number": 354,
+     "group": "CYMBAL ELEC",
+     "name": "TR-606 Cymbal 2",
+     "flags": []
+    },
+    {
+     "number": 355,
+     "group": "CYMBAL ELEC",
+     "name": "TR-707 Crash",
+     "flags": []
+    },
+    {
+     "number": 356,
+     "group": "CYMBAL ELEC",
+     "name": "TR-707 Ride",
+     "flags": []
+    },
+    {
+     "number": 357,
+     "group": "CYMBAL ELEC",
+     "name": "TR-626 Crash",
+     "flags": []
+    },
+    {
+     "number": 358,
+     "group": "CYMBAL ELEC",
+     "name": "TR-626 Ride",
+     "flags": []
+    },
+    {
+     "number": 359,
+     "group": "CYMBAL ELEC",
+     "name": "TR-626 China",
+     "flags": []
+    },
+    {
+     "number": 360,
+     "group": "BELL/CHIME/GONG",
+     "name": "Finger Cymbals 1",
+     "flags": []
+    },
+    {
+     "number": 361,
+     "group": "BELL/CHIME/GONG",
+     "name": "Finger Cymbals 2",
+     "flags": []
+    },
+    {
+     "number": 362,
+     "group": "BELL/CHIME/GONG",
+     "name": "Finger Cymbals 3",
+     "flags": []
+    },
+    {
+     "number": 363,
+     "group": "BELL/CHIME/GONG",
+     "name": "Sleigh Bells 1",
+     "flags": []
+    },
+    {
+     "number": 364,
+     "group": "BELL/CHIME/GONG",
+     "name": "Sleigh Bells 2",
+     "flags": []
+    },
+    {
+     "number": 365,
+     "group": "BELL/CHIME/GONG",
+     "name": "TreeChime 1 Down",
+     "flags": []
+    },
+    {
+     "number": 366,
+     "group": "BELL/CHIME/GONG",
+     "name": "TreeChime 1 Up",
+     "flags": []
+    },
+    {
+     "number": 367,
+     "group": "BELL/CHIME/GONG",
+     "name": "Tree Chime 2 Up",
+     "flags": []
+    },
+    {
+     "number": 368,
+     "group": "BELL/CHIME/GONG",
+     "name": "Bell Tree",
+     "flags": []
+    },
+    {
+     "number": 369,
+     "group": "BELL/CHIME/GONG",
+     "name": "Pin Chime",
+     "flags": []
+    },
+    {
+     "number": 370,
+     "group": "BELL/CHIME/GONG",
+     "name": "Tam Tam",
+     "flags": []
+    },
+    {
+     "number": 371,
+     "group": "BELL/CHIME/GONG",
+     "name": "Gong",
+     "flags": []
+    },
+    {
+     "number": 372,
+     "group": "BELL/CHIME/GONG",
+     "name": "Bender Gong",
+     "flags": []
+    },
+    {
+     "number": 373,
+     "group": "BLOCK/COWBELL",
+     "name": "Cowbell Rock Tip",
+     "flags": []
+    },
+    {
+     "number": 374,
+     "group": "BLOCK/COWBELL",
+     "name": "Cowbell Rock",
+     "flags": []
+    },
+    {
+     "number": 375,
+     "group": "BLOCK/COWBELL",
+     "name": "Cowbell Afro Tip",
+     "flags": []
+    },
+    {
+     "number": 376,
+     "group": "BLOCK/COWBELL",
+     "name": "Cowbell Afro",
+     "flags": []
+    },
+    {
+     "number": 377,
+     "group": "BLOCK/COWBELL",
+     "name": "Cowbell Mini Tip",
+     "flags": []
+    },
+    {
+     "number": 378,
+     "group": "BLOCK/COWBELL",
+     "name": "Cowbell Mini",
+     "flags": []
+    },
+    {
+     "number": 379,
+     "group": "BLOCK/COWBELL",
+     "name": "Agogo Hi",
+     "flags": []
+    },
+    {
+     "number": 380,
+     "group": "BLOCK/COWBELL",
+     "name": "Agogo Lo",
+     "flags": []
+    },
+    {
+     "number": 381,
+     "group": "BLOCK/COWBELL",
+     "name": "Mounted Agogo Hi",
+     "flags": []
+    },
+    {
+     "number": 382,
+     "group": "BLOCK/COWBELL",
+     "name": "Mounted Agogo Lo",
+     "flags": []
+    },
+    {
+     "number": 383,
+     "group": "BLOCK/COWBELL",
+     "name": "Plastic Block Hi",
+     "flags": []
+    },
+    {
+     "number": 384,
+     "group": "BLOCK/COWBELL",
+     "name": "Plastic Block Lo",
+     "flags": []
+    },
+    {
+     "number": 385,
+     "group": "BLOCK/COWBELL",
+     "name": "Mini Block",
+     "flags": []
+    },
+    {
+     "number": 386,
+     "group": "BLOCK/COWBELL",
+     "name": "Temple Block Hi",
+     "flags": []
+    },
+    {
+     "number": 387,
+     "group": "BLOCK/COWBELL",
+     "name": "Temple Block Lo",
+     "flags": []
+    },
+    {
+     "number": 388,
+     "group": "PERCUSSION",
+     "name": "Bongo 1 Hi Open",
+     "flags": []
+    },
+    {
+     "number": 389,
+     "group": "PERCUSSION",
+     "name": "Bongo 1 Hi Slap",
+     "flags": [
+      "P"
+     ]
+    },
+    {
+     "number": 390,
+     "group": "PERCUSSION",
+     "name": "Bongo 1 Low Open",
+     "flags": []
+    },
+    {
+     "number": 391,
+     "group": "PERCUSSION",
+     "name": "Bongo 1 Low Slap",
+     "flags": [
+      "P"
+     ]
+    },
+    {
+     "number": 392,
+     "group": "PERCUSSION",
+     "name": "Bongo 2 Hi Open",
+     "flags": []
+    },
+    {
+     "number": 393,
+     "group": "PERCUSSION",
+     "name": "Bongo 2 Hi Slap",
+     "flags": []
+    },
+    {
+     "number": 394,
+     "group": "PERCUSSION",
+     "name": "Bongo 2 Lo Open",
+     "flags": []
+    },
+    {
+     "number": 395,
+     "group": "PERCUSSION",
+     "name": "Bongo 2 Lo Slap",
+     "flags": []
+    },
+    {
+     "number": 396,
+     "group": "PERCUSSION",
+     "name": "Quinto 1 Open",
+     "flags": []
+    },
+    {
+     "number": 397,
+     "group": "PERCUSSION",
+     "name": "Quinto 1 Slap",
+     "flags": []
+    },
+    {
+     "number": 398,
+     "group": "PERCUSSION",
+     "name": "Quinto 2 Open",
+     "flags": []
+    },
+    {
+     "number": 399,
+     "group": "PERCUSSION",
+     "name": "Quinto 2 Slap",
+     "flags": [
+      "P"
+     ]
+    },
+    {
+     "number": 400,
+     "group": "PERCUSSION",
+     "name": "Conga 1 Open",
+     "flags": []
+    },
+    {
+     "number": 401,
+     "group": "PERCUSSION",
+     "name": "Conga 1 Slap",
+     "flags": []
+    },
+    {
+     "number": 402,
+     "group": "PERCUSSION",
+     "name": "Conga 2 Open",
+     "flags": []
+    },
+    {
+     "number": 403,
+     "group": "PERCUSSION",
+     "name": "Conga 2 Slap",
+     "flags": []
+    },
+    {
+     "number": 404,
+     "group": "PERCUSSION",
+     "name": "Conga 2 Bass",
+     "flags": []
+    },
+    {
+     "number": 405,
+     "group": "PERCUSSION",
+     "name": "Conga 2 Gliss",
+     "flags": []
+    },
+    {
+     "number": 406,
+     "group": "PERCUSSION",
+     "name": "Tumba Open",
+     "flags": []
+    },
+    {
+     "number": 407,
+     "group": "PERCUSSION",
+     "name": "Tumba Slap",
+     "flags": []
+    },
+    {
+     "number": 408,
+     "group": "PERCUSSION",
+     "name": "Tumba Bass",
+     "flags": []
+    },
+    {
+     "number": 409,
+     "group": "PERCUSSION",
+     "name": "Tumba Gliss",
+     "flags": []
+    },
+    {
+     "number": 410,
+     "group": "PERCUSSION",
+     "name": "Timbale1 Hi Open",
+     "flags": []
+    },
+    {
+     "number": 411,
+     "group": "PERCUSSION",
+     "name": "Timbale1 Hi Rim",
+     "flags": [
+      "P"
+     ]
+    },
+    {
+     "number": 412,
+     "group": "PERCUSSION",
+     "name": "Timbale1 Lo Open",
+     "flags": []
+    },
+    {
+     "number": 413,
+     "group": "PERCUSSION",
+     "name": "Timbale1 Lo Rim",
+     "flags": [
+      "P"
+     ]
+    },
+    {
+     "number": 414,
+     "group": "PERCUSSION",
+     "name": "Timbale2 Hi Open",
+     "flags": []
+    },
+    {
+     "number": 415,
+     "group": "PERCUSSION",
+     "name": "Timbale2 Hi Rim",
+     "flags": [
+      "P"
+     ]
+    },
+    {
+     "number": 416,
+     "group": "PERCUSSION",
+     "name": "Timbale2 Lo Open",
+     "flags": []
+    },
+    {
+     "number": 417,
+     "group": "PERCUSSION",
+     "name": "Timbale2 Lo Rim",
+     "flags": [
+      "P"
+     ]
+    },
+    {
+     "number": 418,
+     "group": "PERCUSSION",
+     "name": "Timbale3 Hi Open",
+     "flags": []
+    },
+    {
+     "number": 419,
+     "group": "PERCUSSION",
+     "name": "Timbale3 Hi Rim",
+     "flags": []
+    },
+    {
+     "number": 420,
+     "group": "PERCUSSION",
+     "name": "Timbale3 HiPaila",
+     "flags": []
+    },
+    {
+     "number": 421,
+     "group": "PERCUSSION",
+     "name": "Timbale3 Lo Open",
+     "flags": []
+    },
+    {
+     "number": 422,
+     "group": "PERCUSSION",
+     "name": "Timbale3 Lo Rim",
+     "flags": []
+    },
+    {
+     "number": 423,
+     "group": "PERCUSSION",
+     "name": "Timbale3 LoPaila",
+     "flags": []
+    },
+    {
+     "number": 424,
+     "group": "PERCUSSION",
+     "name": "Cajon Open",
+     "flags": []
+    },
+    {
+     "number": 425,
+     "group": "PERCUSSION",
+     "name": "Cajon Edge",
+     "flags": []
+    },
+    {
+     "number": 426,
+     "group": "PERCUSSION",
+     "name": "Cajon Slap",
+     "flags": []
+    },
+    {
+     "number": 427,
+     "group": "PERCUSSION",
+     "name": "Cajon Bass",
+     "flags": []
+    },
+    {
+     "number": 428,
+     "group": "PERCUSSION",
+     "name": "Djembe 1 Open",
+     "flags": []
+    },
+    {
+     "number": 429,
+     "group": "PERCUSSION",
+     "name": "Djembe 1 Slap",
+     "flags": []
+    },
+    {
+     "number": 430,
+     "group": "PERCUSSION",
+     "name": "Djembe 2 Open",
+     "flags": []
+    },
+    {
+     "number": 431,
+     "group": "PERCUSSION",
+     "name": "Djembe 2 Slap",
+     "flags": []
+    },
+    {
+     "number": 432,
+     "group": "PERCUSSION",
+     "name": "Djembe 2 Bass",
+     "flags": []
+    },
+    {
+     "number": 433,
+     "group": "PERCUSSION",
+     "name": "Djembe 2 Ears",
+     "flags": []
+    },
+    {
+     "number": 434,
+     "group": "PERCUSSION",
+     "name": "Tabla Na",
+     "flags": []
+    },
+    {
+     "number": 435,
+     "group": "PERCUSSION",
+     "name": "Tabla Te",
+     "flags": []
+    },
+    {
+     "number": 436,
+     "group": "PERCUSSION",
+     "name": "Tabla Tin",
+     "flags": []
+    },
+    {
+     "number": 437,
+     "group": "PERCUSSION",
+     "name": "Tabla Tun",
+     "flags": []
+    },
+    {
+     "number": 438,
+     "group": "PERCUSSION",
+     "name": "Baya Ge",
+     "flags": []
+    },
+    {
+     "number": 439,
+     "group": "PERCUSSION",
+     "name": "Baya Ge Slide",
+     "flags": []
+    },
+    {
+     "number": 440,
+     "group": "PERCUSSION",
+     "name": "Baya Gin",
+     "flags": []
+    },
+    {
+     "number": 441,
+     "group": "PERCUSSION",
+     "name": "Baya Ka",
+     "flags": []
+    },
+    {
+     "number": 442,
+     "group": "PERCUSSION",
+     "name": "Jang Gu",
+     "flags": []
+    },
+    {
+     "number": 443,
+     "group": "PERCUSSION",
+     "name": "Darbuka 1 Open",
+     "flags": []
+    },
+    {
+     "number": 444,
+     "group": "PERCUSSION",
+     "name": "Darbuka 1 Slap",
+     "flags": [
+      "P"
+     ]
+    },
+    {
+     "number": 445,
+     "group": "PERCUSSION",
+     "name": "Darbuka 2 Open",
+     "flags": []
+    },
+    {
+     "number": 446,
+     "group": "PERCUSSION",
+     "name": "Darbuka 2 Slap",
+     "flags": []
+    },
+    {
+     "number": 447,
+     "group": "PERCUSSION",
+     "name": "Darbuka 2 Bass",
+     "flags": []
+    },
+    {
+     "number": 448,
+     "group": "PERCUSSION",
+     "name": "Timpani G2",
+     "flags": []
+    },
+    {
+     "number": 449,
+     "group": "PERCUSSION",
+     "name": "Timpani D3",
+     "flags": []
+    },
+    {
+     "number": 450,
+     "group": "PERCUSSION",
+     "name": "Concert BD",
+     "flags": []
+    },
+    {
+     "number": 451,
+     "group": "PERCUSSION",
+     "name": "Concert BD Mt",
+     "flags": []
+    },
+    {
+     "number": 452,
+     "group": "PERCUSSION",
+     "name": "Doumdoumba",
+     "flags": []
+    },
+    {
+     "number": 453,
+     "group": "PERCUSSION",
+     "name": "Doumdoumba Rim",
+     "flags": []
+    },
+    {
+     "number": 454,
+     "group": "PERCUSSION",
+     "name": "Bombo",
+     "flags": []
+    },
+    {
+     "number": 455,
+     "group": "PERCUSSION",
+     "name": "Bendir",
+     "flags": []
+    },
+    {
+     "number": 456,
+     "group": "PERCUSSION",
+     "name": "Riq Open",
+     "flags": []
+    },
+    {
+     "number": 457,
+     "group": "PERCUSSION",
+     "name": "Riq Slap",
+     "flags": []
+    },
+    {
+     "number": 458,
+     "group": "PERCUSSION",
+     "name": "Tambourine 1",
+     "flags": []
+    },
+    {
+     "number": 459,
+     "group": "PERCUSSION",
+     "name": "Tambourine 2",
+     "flags": []
+    },
+    {
+     "number": 460,
+     "group": "PERCUSSION",
+     "name": "Tambourine 3",
+     "flags": []
+    },
+    {
+     "number": 461,
+     "group": "PERCUSSION",
+     "name": "Tambourine 4",
+     "flags": []
+    },
+    {
+     "number": 462,
+     "group": "PERCUSSION",
+     "name": "Tambourine 5",
+     "flags": []
+    },
+    {
+     "number": 463,
+     "group": "PERCUSSION",
+     "name": "Tambourine 6",
+     "flags": []
+    },
+    {
+     "number": 464,
+     "group": "PERCUSSION",
+     "name": "Triangle 1",
+     "flags": []
+    },
+    {
+     "number": 465,
+     "group": "PERCUSSION",
+     "name": "Triangle 1 Mute",
+     "flags": []
+    },
+    {
+     "number": 466,
+     "group": "PERCUSSION",
+     "name": "Triangle 2",
+     "flags": []
+    },
+    {
+     "number": 467,
+     "group": "PERCUSSION",
+     "name": "Triangle 2 Mute",
+     "flags": []
+    },
+    {
+     "number": 468,
+     "group": "PERCUSSION",
+     "name": "Castanets",
+     "flags": []
+    },
+    {
+     "number": 469,
+     "group": "PERCUSSION",
+     "name": "Clapsticks",
+     "flags": []
+    },
+    {
+     "number": 470,
+     "group": "PERCUSSION",
+     "name": "Claves",
+     "flags": []
+    },
+    {
+     "number": 471,
+     "group": "PERCUSSION",
+     "name": "Afro Claves",
+     "flags": []
+    },
+    {
+     "number": 472,
+     "group": "PERCUSSION",
+     "name": "Guiro 1 Slide",
+     "flags": []
+    },
+    {
+     "number": 473,
+     "group": "PERCUSSION",
+     "name": "Guiro 1 Shot",
+     "flags": []
+    },
+    {
+     "number": 474,
+     "group": "PERCUSSION",
+     "name": "Guiro 2 Slide",
+     "flags": []
+    },
+    {
+     "number": 475,
+     "group": "PERCUSSION",
+     "name": "Guiro 2 Shot",
+     "flags": []
+    },
+    {
+     "number": 476,
+     "group": "PERCUSSION",
+     "name": "Maracas Down",
+     "flags": []
+    },
+    {
+     "number": 477,
+     "group": "PERCUSSION",
+     "name": "Maracas Up",
+     "flags": []
+    },
+    {
+     "number": 478,
+     "group": "PERCUSSION",
+     "name": "Caxixi",
+     "flags": []
+    },
+    {
+     "number": 479,
+     "group": "PERCUSSION",
+     "name": "Large Caxixi",
+     "flags": []
+    },
+    {
+     "number": 480,
+     "group": "PERCUSSION",
+     "name": "Ganza",
+     "flags": []
+    },
+    {
+     "number": 481,
+     "group": "PERCUSSION",
+     "name": "Chafchas",
+     "flags": []
+    },
+    {
+     "number": 482,
+     "group": "PERCUSSION",
+     "name": "Afuche",
+     "flags": []
+    },
+    {
+     "number": 483,
+     "group": "PERCUSSION",
+     "name": "Pot Drum 1 Hole",
+     "flags": []
+    },
+    {
+     "number": 484,
+     "group": "PERCUSSION",
+     "name": "PotDrum 1 Bottom",
+     "flags": []
+    },
+    {
+     "number": 485,
+     "group": "PERCUSSION",
+     "name": "Pot Drum 1 Neck",
+     "flags": []
+    },
+    {
+     "number": 486,
+     "group": "PERCUSSION",
+     "name": "Pot Drum 2 Side",
+     "flags": []
+    },
+    {
+     "number": 487,
+     "group": "PERCUSSION",
+     "name": "Pot Drum 2 Bass",
+     "flags": []
+    },
+    {
+     "number": 488,
+     "group": "PERCUSSION",
+     "name": "PotDrum2 Release",
+     "flags": []
+    },
+    {
+     "number": 489,
+     "group": "PERCUSSION",
+     "name": "PotDrum2 Side/Mt",
+     "flags": []
+    },
+    {
+     "number": 490,
+     "group": "PERCUSSION",
+     "name": "African Bracelet",
+     "flags": []
+    },
+    {
+     "number": 491,
+     "group": "PERCUSSION",
+     "name": "African Jingle",
+     "flags": []
+    },
+    {
+     "number": 492,
+     "group": "PERCUSSION",
+     "name": "Ankle Beads",
+     "flags": []
+    },
+    {
+     "number": 493,
+     "group": "PERCUSSION",
+     "name": "Rain Stick",
+     "flags": []
+    },
+    {
+     "number": 494,
+     "group": "PERCUSSION",
+     "name": "Vibra-Slap",
+     "flags": []
+    },
+    {
+     "number": 495,
+     "group": "PERCUSSION",
+     "name": "Ratchet",
+     "flags": []
+    },
+    {
+     "number": 496,
+     "group": "PERCUSSION",
+     "name": "Flexatone Down",
+     "flags": []
+    },
+    {
+     "number": 497,
+     "group": "PERCUSSION",
+     "name": "Flexatone Up",
+     "flags": []
+    },
+    {
+     "number": 498,
+     "group": "PERCUSSION",
+     "name": "Steelpan D4",
+     "flags": []
+    },
+    {
+     "number": 499,
+     "group": "PERCUSSION",
+     "name": "Steelpan G4",
+     "flags": []
+    },
+    {
+     "number": 500,
+     "group": "PERCUSSION",
+     "name": "Steelpan B4",
+     "flags": []
+    },
+    {
+     "number": 501,
+     "group": "PERCUSSION",
+     "name": "Steelpan D5",
+     "flags": []
+    },
+    {
+     "number": 502,
+     "group": "PERCUSSION",
+     "name": "Steelpan G5",
+     "flags": []
+    },
+    {
+     "number": 503,
+     "group": "PERCUSSION",
+     "name": "Surdo Ens1 Open",
+     "flags": []
+    },
+    {
+     "number": 504,
+     "group": "PERCUSSION",
+     "name": "Surdo Ens1 Mute",
+     "flags": []
+    },
+    {
+     "number": 505,
+     "group": "PERCUSSION",
+     "name": "Surdo Ens1 Rim",
+     "flags": []
+    },
+    {
+     "number": 506,
+     "group": "PERCUSSION",
+     "name": "Surdo Ens2 Open",
+     "flags": []
+    },
+    {
+     "number": 507,
+     "group": "PERCUSSION",
+     "name": "Surdo Ens2 Mute",
+     "flags": []
+    },
+    {
+     "number": 508,
+     "group": "PERCUSSION",
+     "name": "Surdo Ens2 Rim",
+     "flags": []
+    },
+    {
+     "number": 509,
+     "group": "PERCUSSION",
+     "name": "Surdo Ens3 Open",
+     "flags": []
+    },
+    {
+     "number": 510,
+     "group": "PERCUSSION",
+     "name": "Surdo Ens3 Mute",
+     "flags": []
+    },
+    {
+     "number": 511,
+     "group": "PERCUSSION",
+     "name": "Surdo Ens3 Rim",
+     "flags": []
+    },
+    {
+     "number": 512,
+     "group": "PERCUSSION",
+     "name": "Caixa Ens",
+     "flags": []
+    },
+    {
+     "number": 513,
+     "group": "PERCUSSION",
+     "name": "Caixa Ens Rim",
+     "flags": [
+      "P"
+     ]
+    },
+    {
+     "number": 514,
+     "group": "PERCUSSION",
+     "name": "RepiniqueEns",
+     "flags": []
+    },
+    {
+     "number": 515,
+     "group": "PERCUSSION",
+     "name": "RepiniqueEns Rim",
+     "flags": [
+      "P"
+     ]
+    },
+    {
+     "number": 516,
+     "group": "PERCUSSION",
+     "name": "Chocalho Ens",
+     "flags": []
+    },
+    {
+     "number": 517,
+     "group": "PERCUSSION",
+     "name": "Tamborim Ens",
+     "flags": []
+    },
+    {
+     "number": 518,
+     "group": "PERCUSSION",
+     "name": "Surdo 1 Open",
+     "flags": []
+    },
+    {
+     "number": 519,
+     "group": "PERCUSSION",
+     "name": "Surdo 1 Mute",
+     "flags": []
+    },
+    {
+     "number": 520,
+     "group": "PERCUSSION",
+     "name": "Surdo 1 Rim",
+     "flags": []
+    },
+    {
+     "number": 521,
+     "group": "PERCUSSION",
+     "name": "Surdo 2 Open",
+     "flags": []
+    },
+    {
+     "number": 522,
+     "group": "PERCUSSION",
+     "name": "Surdo 2 Mute",
+     "flags": []
+    },
+    {
+     "number": 523,
+     "group": "PERCUSSION",
+     "name": "Surdo 2 Rim",
+     "flags": []
+    },
+    {
+     "number": 524,
+     "group": "PERCUSSION",
+     "name": "Surdo 3 Open",
+     "flags": []
+    },
+    {
+     "number": 525,
+     "group": "PERCUSSION",
+     "name": "Surdo 3 Mute",
+     "flags": []
+    },
+    {
+     "number": 526,
+     "group": "PERCUSSION",
+     "name": "Surdo 3 Rim",
+     "flags": []
+    },
+    {
+     "number": 527,
+     "group": "PERCUSSION",
+     "name": "Caixa",
+     "flags": []
+    },
+    {
+     "number": 528,
+     "group": "PERCUSSION",
+     "name": "Caixa Rim",
+     "flags": [
+      "P"
+     ]
+    },
+    {
+     "number": 529,
+     "group": "PERCUSSION",
+     "name": "Repinique",
+     "flags": []
+    },
+    {
+     "number": 530,
+     "group": "PERCUSSION",
+     "name": "Repinique Rim",
+     "flags": [
+      "P"
+     ]
+    },
+    {
+     "number": 531,
+     "group": "PERCUSSION",
+     "name": "Tamborim",
+     "flags": []
+    },
+    {
+     "number": 532,
+     "group": "PERCUSSION",
+     "name": "Chocalho",
+     "flags": []
+    },
+    {
+     "number": 533,
+     "group": "PERCUSSION",
+     "name": "Pandeiro Open",
+     "flags": []
+    },
+    {
+     "number": 534,
+     "group": "PERCUSSION",
+     "name": "Pandeiro Slap",
+     "flags": []
+    },
+    {
+     "number": 535,
+     "group": "PERCUSSION",
+     "name": "Pandeiro Bass",
+     "flags": []
+    },
+    {
+     "number": 536,
+     "group": "PERCUSSION",
+     "name": "Pandeiro Jingle",
+     "flags": []
+    },
+    {
+     "number": 537,
+     "group": "PERC ELEC",
+     "name": "CR-78 Bongo",
+     "flags": []
+    },
+    {
+     "number": 538,
+     "group": "PERC ELEC",
+     "name": "CR-78 Conga",
+     "flags": []
+    },
+    {
+     "number": 539,
+     "group": "PERC ELEC",
+     "name": "CR-78 Cowbell",
+     "flags": []
+    },
+    {
+     "number": 540,
+     "group": "PERC ELEC",
+     "name": "CR-78 Claves",
+     "flags": []
+    },
+    {
+     "number": 541,
+     "group": "PERC ELEC",
+     "name": "CR-78 Guiro",
+     "flags": []
+    },
+    {
+     "number": 542,
+     "group": "PERC ELEC",
+     "name": "CR-78 Maracas",
+     "flags": []
+    },
+    {
+     "number": 543,
+     "group": "PERC ELEC",
+     "name": "CR-78 Tambourine",
+     "flags": []
+    },
+    {
+     "number": 544,
+     "group": "PERC ELEC",
+     "name": "CR-78 Metal Beat",
+     "flags": []
+    },
+    {
+     "number": 545,
+     "group": "PERC ELEC",
+     "name": "TR-808 Conga Hi",
+     "flags": []
+    },
+    {
+     "number": 546,
+     "group": "PERC ELEC",
+     "name": "TR-808 Conga Mid",
+     "flags": []
+    },
+    {
+     "number": 547,
+     "group": "PERC ELEC",
+     "name": "TR-808 Conga Lo",
+     "flags": []
+    },
+    {
+     "number": 548,
+     "group": "PERC ELEC",
+     "name": "TR-808 Cowbell 1",
+     "flags": []
+    },
+    {
+     "number": 549,
+     "group": "PERC ELEC",
+     "name": "TR-808 Cowbell 2",
+     "flags": []
+    },
+    {
+     "number": 550,
+     "group": "PERC ELEC",
+     "name": "TR-808 Claves",
+     "flags": []
+    },
+    {
+     "number": 551,
+     "group": "PERC ELEC",
+     "name": "TR-808 Maracas",
+     "flags": []
+    },
+    {
+     "number": 552,
+     "group": "PERC ELEC",
+     "name": "TR-707 Cowbell",
+     "flags": []
+    },
+    {
+     "number": 553,
+     "group": "PERC ELEC",
+     "name": "TR-707 Tamb",
+     "flags": []
+    },
+    {
+     "number": 554,
+     "group": "PERC ELEC",
+     "name": "TR-626 Conga Hi",
+     "flags": []
+    },
+    {
+     "number": 555,
+     "group": "PERC ELEC",
+     "name": "TR-626 Conga Lo",
+     "flags": []
+    },
+    {
+     "number": 556,
+     "group": "PERC ELEC",
+     "name": "TR-626 Conga Mt",
+     "flags": []
+    },
+    {
+     "number": 557,
+     "group": "PERC ELEC",
+     "name": "TR-626 Cowbell",
+     "flags": []
+    },
+    {
+     "number": 558,
+     "group": "PERC ELEC",
+     "name": "TR-626 Agogo Hi",
+     "flags": []
+    },
+    {
+     "number": 559,
+     "group": "PERC ELEC",
+     "name": "TR-626 Agogo Lo",
+     "flags": []
+    },
+    {
+     "number": 560,
+     "group": "PERC ELEC",
+     "name": "TR-626 Claves",
+     "flags": []
+    },
+    {
+     "number": 561,
+     "group": "PERC ELEC",
+     "name": "TR-626 Shaker",
+     "flags": []
+    },
+    {
+     "number": 562,
+     "group": "PERC ELEC",
+     "name": "TR-626 Tamb",
+     "flags": []
+    },
+    {
+     "number": 563,
+     "group": "PERC ELEC",
+     "name": "TR-727 Bongo Hi",
+     "flags": []
+    },
+    {
+     "number": 564,
+     "group": "PERC ELEC",
+     "name": "TR-727 Bongo Lo",
+     "flags": []
+    },
+    {
+     "number": 565,
+     "group": "PERC ELEC",
+     "name": "TR-727 TimbaleHi",
+     "flags": []
+    },
+    {
+     "number": 566,
+     "group": "PERC ELEC",
+     "name": "TR-727 TimbaleLo",
+     "flags": []
+    },
+    {
+     "number": 567,
+     "group": "PERC ELEC",
+     "name": "TR-727 Agogo",
+     "flags": []
+    },
+    {
+     "number": 568,
+     "group": "PERC ELEC",
+     "name": "TR-727 Maracas",
+     "flags": []
+    },
+    {
+     "number": 569,
+     "group": "PERC ELEC",
+     "name": "TR-727 Cabasa",
+     "flags": []
+    },
+    {
+     "number": 570,
+     "group": "PERC ELEC",
+     "name": "TR-727 Whistle",
+     "flags": []
+    },
+    {
+     "number": 571,
+     "group": "PERC ELEC",
+     "name": "TR-727 Quijada",
+     "flags": []
+    },
+    {
+     "number": 572,
+     "group": "PERC ELEC",
+     "name": "DR-55 Claves",
+     "flags": []
+    },
+    {
+     "number": 573,
+     "group": "CLAP",
+     "name": "Verb Claps",
+     "flags": []
+    },
+    {
+     "number": 574,
+     "group": "CLAP",
+     "name": "House Clap",
+     "flags": []
+    },
+    {
+     "number": 575,
+     "group": "CLAP",
+     "name": "High Claps",
+     "flags": []
+    },
+    {
+     "number": 576,
+     "group": "CLAP",
+     "name": "ClubMusic Clap 1",
+     "flags": []
+    },
+    {
+     "number": 577,
+     "group": "CLAP",
+     "name": "ClubMusic Clap 2",
+     "flags": []
+    },
+    {
+     "number": 578,
+     "group": "CLAP",
+     "name": "ClubMusic Clap 3",
+     "flags": []
+    },
+    {
+     "number": 579,
+     "group": "CLAP",
+     "name": "ClubMusic Clap 4",
+     "flags": []
+    },
+    {
+     "number": 580,
+     "group": "CLAP",
+     "name": "ClubMusic Clap 5",
+     "flags": []
+    },
+    {
+     "number": 581,
+     "group": "CLAP",
+     "name": "ClubMusic Clap 6",
+     "flags": []
+    },
+    {
+     "number": 582,
+     "group": "CLAP",
+     "name": "ClubMusic Clap 7",
+     "flags": []
+    },
+    {
+     "number": 583,
+     "group": "CLAP",
+     "name": "ClubMusic Clap 8",
+     "flags": []
+    },
+    {
+     "number": 584,
+     "group": "CLAP",
+     "name": "ClubMusic Clap 9",
+     "flags": []
+    },
+    {
+     "number": 585,
+     "group": "CLAP",
+     "name": "ClubMusic Clap10",
+     "flags": []
+    },
+    {
+     "number": 586,
+     "group": "CLAP",
+     "name": "ClubMusic Clap11",
+     "flags": []
+    },
+    {
+     "number": 587,
+     "group": "CLAP",
+     "name": "TR-808 Clap 1",
+     "flags": []
+    },
+    {
+     "number": 588,
+     "group": "CLAP",
+     "name": "TR-808 Clap 2",
+     "flags": []
+    },
+    {
+     "number": 589,
+     "group": "CLAP",
+     "name": "TR-808 Clap 3",
+     "flags": []
+    },
+    {
+     "number": 590,
+     "group": "CLAP",
+     "name": "TR-808 Verb Clap",
+     "flags": []
+    },
+    {
+     "number": 591,
+     "group": "CLAP",
+     "name": "TR-909 Clap 1",
+     "flags": []
+    },
+    {
+     "number": 592,
+     "group": "CLAP",
+     "name": "TR-909 Clap 2",
+     "flags": []
+    },
+    {
+     "number": 593,
+     "group": "CLAP",
+     "name": "TR-909 EFX Clap1",
+     "flags": []
+    },
+    {
+     "number": 594,
+     "group": "CLAP",
+     "name": "TR-909 EFX Clap2",
+     "flags": []
+    },
+    {
+     "number": 595,
+     "group": "CLAP",
+     "name": "TR-707 Clap",
+     "flags": []
+    },
+    {
+     "number": 596,
+     "group": "CLAP",
+     "name": "TR-626 Clap",
+     "flags": []
+    },
+    {
+     "number": 597,
+     "group": "CLAP",
+     "name": "R-8 Clap",
+     "flags": []
+    },
+    {
+     "number": 598,
+     "group": "CLAP",
+     "name": "DR-110 Clap",
+     "flags": []
+    },
+    {
+     "number": 599,
+     "group": "CLAP",
+     "name": "MC Clap",
+     "flags": []
+    },
+    {
+     "number": 600,
+     "group": "CLAP",
+     "name": "Noise Clap 1",
+     "flags": []
+    },
+    {
+     "number": 601,
+     "group": "CLAP",
+     "name": "Noise Clap 2",
+     "flags": []
+    },
+    {
+     "number": 602,
+     "group": "CLAP",
+     "name": "White Nz Clap",
+     "flags": []
+    },
+    {
+     "number": 603,
+     "group": "CLAP",
+     "name": "Dist Clap",
+     "flags": []
+    },
+    {
+     "number": 604,
+     "group": "CLAP",
+     "name": "Hip Hop Clap 1",
+     "flags": []
+    },
+    {
+     "number": 605,
+     "group": "CLAP",
+     "name": "Hip Hop Clap 2",
+     "flags": []
+    },
+    {
+     "number": 606,
+     "group": "CLAP",
+     "name": "Fat EDM Clap 1",
+     "flags": []
+    },
+    {
+     "number": 607,
+     "group": "CLAP",
+     "name": "Fat EDM Clap 2",
+     "flags": []
+    },
+    {
+     "number": 608,
+     "group": "CLAP",
+     "name": "Metal Room Clap",
+     "flags": []
+    },
+    {
+     "number": 609,
+     "group": "CLAP",
+     "name": "Big Hall Clap",
+     "flags": []
+    },
+    {
+     "number": 610,
+     "group": "CLAP",
+     "name": "Afro Clap",
+     "flags": []
+    },
+    {
+     "number": 611,
+     "group": "CLAP",
+     "name": "Laid Back Clap",
+     "flags": []
+    },
+    {
+     "number": 612,
+     "group": "CLAP",
+     "name": "Stereo Gater",
+     "flags": []
+    },
+    {
+     "number": 613,
+     "group": "CLAP",
+     "name": "Shaker Clap",
+     "flags": []
+    },
+    {
+     "number": 614,
+     "group": "CLAP",
+     "name": "Gate S Clap",
+     "flags": []
+    },
+    {
+     "number": 615,
+     "group": "CLAP",
+     "name": "Bongo Clap",
+     "flags": []
+    },
+    {
+     "number": 616,
+     "group": "CLAP",
+     "name": "Dist Slap Snare",
+     "flags": []
+    },
+    {
+     "number": 617,
+     "group": "CLAP",
+     "name": "Clap Tail Snare",
+     "flags": []
+    },
+    {
+     "number": 618,
+     "group": "CLAP",
+     "name": "Ambient Snap",
+     "flags": []
+    },
+    {
+     "number": 619,
+     "group": "CLAP",
+     "name": "Torio Clap",
+     "flags": []
+    },
+    {
+     "number": 620,
+     "group": "CLAP",
+     "name": "Flamenco Clap",
+     "flags": []
+    },
+    {
+     "number": 621,
+     "group": "CLAP",
+     "name": "Stereo Clap",
+     "flags": []
+    },
+    {
+     "number": 622,
+     "group": "CLAP",
+     "name": "Hands Clap",
+     "flags": []
+    },
+    {
+     "number": 623,
+     "group": "CLAP",
+     "name": "Claps",
+     "flags": []
+    },
+    {
+     "number": 624,
+     "group": "CLAP",
+     "name": "Group Claps",
+     "flags": []
+    },
+    {
+     "number": 625,
+     "group": "CLAP",
+     "name": "Ambience Clap 1",
+     "flags": []
+    },
+    {
+     "number": 626,
+     "group": "CLAP",
+     "name": "Ambience Clap 2",
+     "flags": []
+    },
+    {
+     "number": 627,
+     "group": "CLAP",
+     "name": "Ambience Clap 3",
+     "flags": []
+    },
+    {
+     "number": 628,
+     "group": "CLAP",
+     "name": "Room Clap",
+     "flags": []
+    },
+    {
+     "number": 629,
+     "group": "CLAP",
+     "name": "Finger Snap",
+     "flags": []
+    },
+    {
+     "number": 630,
+     "group": "CLAP",
+     "name": "Dry Snap",
+     "flags": []
+    },
+    {
+     "number": 631,
+     "group": "SOUND FX",
+     "name": "Pulse",
+     "flags": []
+    },
+    {
+     "number": 632,
+     "group": "SOUND FX",
+     "name": "Sticks",
+     "flags": []
+    },
+    {
+     "number": 633,
+     "group": "SOUND FX",
+     "name": "Dense Click",
+     "flags": []
+    },
+    {
+     "number": 634,
+     "group": "SOUND FX",
+     "name": "High Q",
+     "flags": []
+    },
+    {
+     "number": 635,
+     "group": "SOUND FX",
+     "name": "Dyna Filter",
+     "flags": []
+    },
+    {
+     "number": 636,
+     "group": "SOUND FX",
+     "name": "Random Noise 1",
+     "flags": []
+    },
+    {
+     "number": 637,
+     "group": "SOUND FX",
+     "name": "Random Noise 2",
+     "flags": []
+    },
+    {
+     "number": 638,
+     "group": "SOUND FX",
+     "name": "Beep",
+     "flags": []
+    },
+    {
+     "number": 639,
+     "group": "SOUND FX",
+     "name": "Fat Beep",
+     "flags": []
+    },
+    {
+     "number": 640,
+     "group": "SOUND FX",
+     "name": "Dist Beep",
+     "flags": []
+    },
+    {
+     "number": 641,
+     "group": "SOUND FX",
+     "name": "Techno Beef",
+     "flags": []
+    },
+    {
+     "number": 642,
+     "group": "SOUND FX",
+     "name": "Space Beep",
+     "flags": []
+    },
+    {
+     "number": 643,
+     "group": "SOUND FX",
+     "name": "Voice Beep",
+     "flags": []
+    },
+    {
+     "number": 644,
+     "group": "SOUND FX",
+     "name": "Super Low",
+     "flags": []
+    },
+    {
+     "number": 645,
+     "group": "SOUND FX",
+     "name": "Sub Drop 1",
+     "flags": []
+    },
+    {
+     "number": 646,
+     "group": "SOUND FX",
+     "name": "Sub Drop 2",
+     "flags": []
+    },
+    {
+     "number": 647,
+     "group": "SOUND FX",
+     "name": "Sub Drop 3",
+     "flags": []
+    },
+    {
+     "number": 648,
+     "group": "SOUND FX",
+     "name": "Low Boom",
+     "flags": []
+    },
+    {
+     "number": 649,
+     "group": "SOUND FX",
+     "name": "Prevision",
+     "flags": []
+    },
+    {
+     "number": 650,
+     "group": "SOUND FX",
+     "name": "Ejector",
+     "flags": []
+    },
+    {
+     "number": 651,
+     "group": "SOUND FX",
+     "name": "Echoic Shot",
+     "flags": []
+    },
+    {
+     "number": 652,
+     "group": "SOUND FX",
+     "name": "Super Shot",
+     "flags": []
+    },
+    {
+     "number": 653,
+     "group": "SOUND FX",
+     "name": "R-8 Slap",
+     "flags": []
+    },
+    {
+     "number": 654,
+     "group": "SOUND FX",
+     "name": "Rusty Iron",
+     "flags": []
+    },
+    {
+     "number": 655,
+     "group": "SOUND FX",
+     "name": "Digi Cup",
+     "flags": []
+    },
+    {
+     "number": 656,
+     "group": "SOUND FX",
+     "name": "Abstract Noise",
+     "flags": []
+    },
+    {
+     "number": 657,
+     "group": "SOUND FX",
+     "name": "Industrial 1",
+     "flags": []
+    },
+    {
+     "number": 658,
+     "group": "SOUND FX",
+     "name": "Industrial 2",
+     "flags": []
+    },
+    {
+     "number": 659,
+     "group": "SOUND FX",
+     "name": "Junk",
+     "flags": []
+    },
+    {
+     "number": 660,
+     "group": "SOUND FX",
+     "name": "Electro Bell",
+     "flags": []
+    },
+    {
+     "number": 661,
+     "group": "SOUND FX",
+     "name": "Emergency",
+     "flags": []
+    },
+    {
+     "number": 662,
+     "group": "SOUND FX",
+     "name": "Discovery",
+     "flags": []
+    },
+    {
+     "number": 663,
+     "group": "SOUND FX",
+     "name": "Cave",
+     "flags": []
+    },
+    {
+     "number": 664,
+     "group": "SOUND FX",
+     "name": "Stomped Box",
+     "flags": []
+    },
+    {
+     "number": 665,
+     "group": "SOUND FX",
+     "name": "HH FX",
+     "flags": []
+    },
+    {
+     "number": 666,
+     "group": "SOUND FX",
+     "name": "Sub Heart Beat",
+     "flags": []
+    },
+    {
+     "number": 667,
+     "group": "SOUND FX",
+     "name": "Afro Stomp",
+     "flags": []
+    },
+    {
+     "number": 668,
+     "group": "SOUND FX",
+     "name": "Dist Shaker",
+     "flags": []
+    },
+    {
+     "number": 669,
+     "group": "SOUND FX",
+     "name": "Synth Drum 1",
+     "flags": []
+    },
+    {
+     "number": 670,
+     "group": "SOUND FX",
+     "name": "Synth Drum 2",
+     "flags": []
+    },
+    {
+     "number": 671,
+     "group": "SOUND FX",
+     "name": "Synth Drum 3",
+     "flags": []
+    },
+    {
+     "number": 672,
+     "group": "SOUND FX",
+     "name": "Room Delay Clave",
+     "flags": []
+    },
+    {
+     "number": 673,
+     "group": "SOUND FX",
+     "name": "Air Horn",
+     "flags": []
+    },
+    {
+     "number": 674,
+     "group": "SOUND FX",
+     "name": "Scratch 1",
+     "flags": []
+    },
+    {
+     "number": 675,
+     "group": "SOUND FX",
+     "name": "Scratch 2",
+     "flags": []
+    },
+    {
+     "number": 676,
+     "group": "SOUND FX",
+     "name": "Scratch 3",
+     "flags": []
+    },
+    {
+     "number": 677,
+     "group": "SOUND FX",
+     "name": "Scratch 4",
+     "flags": []
+    },
+    {
+     "number": 678,
+     "group": "SOUND FX",
+     "name": "Voice Scratch 1",
+     "flags": []
+    },
+    {
+     "number": 679,
+     "group": "SOUND FX",
+     "name": "Voice Scratch 2",
+     "flags": []
+    },
+    {
+     "number": 680,
+     "group": "SOUND FX",
+     "name": "Pink Noise Hit",
+     "flags": []
+    },
+    {
+     "number": 681,
+     "group": "SOUND FX",
+     "name": "Gate T",
+     "flags": []
+    },
+    {
+     "number": 682,
+     "group": "SOUND FX",
+     "name": "Hammer On",
+     "flags": []
+    },
+    {
+     "number": 683,
+     "group": "SOUND FX",
+     "name": "FullDistortion",
+     "flags": []
+    },
+    {
+     "number": 684,
+     "group": "SOUND FX",
+     "name": "Thrilling",
+     "flags": []
+    },
+    {
+     "number": 685,
+     "group": "SOUND FX",
+     "name": "Electronica S",
+     "flags": []
+    },
+    {
+     "number": 686,
+     "group": "SOUND FX",
+     "name": "Gunshot",
+     "flags": []
+    },
+    {
+     "number": 687,
+     "group": "SOUND FX",
+     "name": "Close Door FX",
+     "flags": []
+    },
+    {
+     "number": 688,
+     "group": "SOUND FX",
+     "name": "Metal Ring",
+     "flags": []
+    },
+    {
+     "number": 689,
+     "group": "SOUND FX",
+     "name": "Explosion",
+     "flags": []
+    },
+    {
+     "number": 690,
+     "group": "SOUND FX",
+     "name": "Bomb!",
+     "flags": []
+    },
+    {
+     "number": 691,
+     "group": "SOUND FX",
+     "name": "Brass Hit",
+     "flags": []
+    },
+    {
+     "number": 692,
+     "group": "SOUND FX",
+     "name": "Waterdrop",
+     "flags": []
+    },
+    {
+     "number": 693,
+     "group": "SOUND FX",
+     "name": "Noise 1",
+     "flags": []
+    },
+    {
+     "number": 694,
+     "group": "SOUND FX",
+     "name": "Noise 2",
+     "flags": []
+    },
+    {
+     "number": 695,
+     "group": "SOUND FX",
+     "name": "Noise 3",
+     "flags": []
+    },
+    {
+     "number": 696,
+     "group": "SOUND FX",
+     "name": "Noise 4",
+     "flags": []
+    },
+    {
+     "number": 697,
+     "group": "SOUND FX",
+     "name": "Noise 5",
+     "flags": []
+    },
+    {
+     "number": 698,
+     "group": "SOUND FX",
+     "name": "Noise 6",
+     "flags": []
+    },
+    {
+     "number": 699,
+     "group": "SOUND FX",
+     "name": "Noise 7",
+     "flags": []
+    },
+    {
+     "number": 700,
+     "group": "SOUND FX",
+     "name": "Noise 8",
+     "flags": []
+    },
+    {
+     "number": 701,
+     "group": "SOUND FX",
+     "name": "White Noise 1",
+     "flags": []
+    },
+    {
+     "number": 702,
+     "group": "SOUND FX",
+     "name": "White Noise 2",
+     "flags": []
+    },
+    {
+     "number": 703,
+     "group": "SOUND FX",
+     "name": "Sweep Noise",
+     "flags": []
+    },
+    {
+     "number": 704,
+     "group": "SOUND FX",
+     "name": "Glitch Nz 1",
+     "flags": []
+    },
+    {
+     "number": 705,
+     "group": "SOUND FX",
+     "name": "Glitch Nz 2",
+     "flags": []
+    },
+    {
+     "number": 706,
+     "group": "SOUND FX",
+     "name": "Glitch Nz 3",
+     "flags": []
+    },
+    {
+     "number": 707,
+     "group": "SOUND FX",
+     "name": "Elec Tom Drop 1",
+     "flags": []
+    },
+    {
+     "number": 708,
+     "group": "SOUND FX",
+     "name": "Elec Tom Drop 2",
+     "flags": []
+    },
+    {
+     "number": 709,
+     "group": "SOUND FX",
+     "name": "Synth Bass C 1",
+     "flags": []
+    },
+    {
+     "number": 710,
+     "group": "SOUND FX",
+     "name": "Synth Bass C 2",
+     "flags": []
+    },
+    {
+     "number": 711,
+     "group": "SOUND FX",
+     "name": "Super Saw C",
+     "flags": []
+    },
+    {
+     "number": 712,
+     "group": "SOUND FX",
+     "name": "LP Noise",
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "EXV003",
+   "title": "The Brush 1",
+   "instruments": [
+    {
+     "number": 1,
+     "group": "SNARE",
+     "name": "Pl MapleBrush S",
+     "flags": [
+      "P",
+      "X",
+      "B"
+     ]
+    },
+    {
+     "number": 2,
+     "group": "SNARE",
+     "name": "Pl MapleBrush SR",
+     "flags": [
+      "P",
+      "X",
+      "O"
+     ]
+    },
+    {
+     "number": 3,
+     "group": "CROSS STICK",
+     "name": "Pl MapleBrush X",
+     "flags": [
+      "X"
+     ]
+    },
+    {
+     "number": 4,
+     "group": "TOM",
+     "name": "So PL BrushT1",
+     "flags": []
+    },
+    {
+     "number": 5,
+     "group": "TOM",
+     "name": "So PL BrushT1R",
+     "flags": [
+      "P"
+     ]
+    },
+    {
+     "number": 6,
+     "group": "TOM",
+     "name": "So PL BrushT2",
+     "flags": []
+    },
+    {
+     "number": 7,
+     "group": "TOM",
+     "name": "So PL BrushT2R",
+     "flags": [
+      "P"
+     ]
+    },
+    {
+     "number": 8,
+     "group": "TOM",
+     "name": "So PL BrushT3",
+     "flags": []
+    },
+    {
+     "number": 9,
+     "group": "TOM",
+     "name": "So PL BrushT3R",
+     "flags": [
+      "P"
+     ]
+    },
+    {
+     "number": 10,
+     "group": "TOM",
+     "name": "So PL BrushT4",
+     "flags": []
+    },
+    {
+     "number": 11,
+     "group": "TOM",
+     "name": "So PL BrushT4R",
+     "flags": [
+      "P"
+     ]
+    },
+    {
+     "number": 12,
+     "group": "TOM",
+     "name": "So PL BrushT5",
+     "flags": []
+    },
+    {
+     "number": 13,
+     "group": "TOM",
+     "name": "So PL BrushT5R",
+     "flags": [
+      "P"
+     ]
+    },
+    {
+     "number": 14,
+     "group": "HI-HAT",
+     "name": "Zd AC Brush HH",
+     "flags": [
+      "P"
+     ]
+    },
+    {
+     "number": 15,
+     "group": "HI-HAT",
+     "name": "Zd AC Brush HHE",
+     "flags": [
+      "P"
+     ]
+    },
+    {
+     "number": 16,
+     "group": "RIDE",
+     "name": "Zd AC Brush Rd",
+     "flags": [
+      "P",
+      "L"
+     ]
+    },
+    {
+     "number": 17,
+     "group": "RIDE",
+     "name": "Zd AC Brush RdE",
+     "flags": [
+      "P",
+      "L"
+     ]
+    },
+    {
+     "number": 18,
+     "group": "RIDE",
+     "name": "Zd AC Brush RdB",
+     "flags": [
+      "L"
+     ]
+    },
+    {
+     "number": 19,
+     "group": "CRASH",
+     "name": "Zd AC Brush1 Cr",
+     "flags": [
+      "L"
+     ]
+    },
+    {
+     "number": 20,
+     "group": "CRASH",
+     "name": "Zd AC Brush1 CrE",
+     "flags": [
+      "L"
+     ]
+    },
+    {
+     "number": 21,
+     "group": "CRASH",
+     "name": "Zd AC Brush2 Cr",
+     "flags": [
+      "L"
+     ]
+    },
+    {
+     "number": 22,
+     "group": "CRASH",
+     "name": "Zd AC Brush2 CrE",
+     "flags": [
+      "L"
+     ]
+    }
+   ]
+  }
+ ]
+}

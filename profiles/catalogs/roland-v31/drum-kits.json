@@ -1,0 +1,1006 @@
+{
+ "schema_version": 1,
+ "source": "Derived from Roland 'V31 Data List' (eng02), (c) Roland Corporation — facts (names/numbers) extracted by tools/parse_datalist.py.",
+ "kits": [
+  {
+   "number": 1,
+   "name": "Studio A",
+   "sub_name": ""
+  },
+  {
+   "number": 2,
+   "name": "Studio B",
+   "sub_name": ""
+  },
+  {
+   "number": 3,
+   "name": "Rock Energy",
+   "sub_name": ""
+  },
+  {
+   "number": 4,
+   "name": "Jazz Sizzle",
+   "sub_name": ""
+  },
+  {
+   "number": 5,
+   "name": "Massive Metal",
+   "sub_name": ""
+  },
+  {
+   "number": 6,
+   "name": "Vintage Loose",
+   "sub_name": ""
+  },
+  {
+   "number": 7,
+   "name": "Neo Funk",
+   "sub_name": ""
+  },
+  {
+   "number": 8,
+   "name": "Drum’n’Bass",
+   "sub_name": ""
+  },
+  {
+   "number": 9,
+   "name": "Pure Analog",
+   "sub_name": "Mid-O Style"
+  },
+  {
+   "number": 10,
+   "name": "Deep Rock",
+   "sub_name": ""
+  },
+  {
+   "number": 11,
+   "name": "Ghost Note King",
+   "sub_name": ""
+  },
+  {
+   "number": 12,
+   "name": "Live is Life",
+   "sub_name": "Live Pop Rock"
+  },
+  {
+   "number": 13,
+   "name": "Piccolo Funk",
+   "sub_name": "Voice Samples on Tom Rim"
+  },
+  {
+   "number": 14,
+   "name": "Bop Shop",
+   "sub_name": "Sizzle Swing"
+  },
+  {
+   "number": 15,
+   "name": "Dark & Open",
+   "sub_name": ""
+  },
+  {
+   "number": 16,
+   "name": "Modern Gospel",
+   "sub_name": ""
+  },
+  {
+   "number": 17,
+   "name": "JS Garage",
+   "sub_name": "Snare Explosion"
+  },
+  {
+   "number": 18,
+   "name": "Hall Ambience",
+   "sub_name": ""
+  },
+  {
+   "number": 19,
+   "name": "Vintage e-Drums",
+   "sub_name": "Hexagonal Pads"
+  },
+  {
+   "number": 20,
+   "name": "Crush Comp",
+   "sub_name": ""
+  },
+  {
+   "number": 21,
+   "name": "Dry & Muffled",
+   "sub_name": ""
+  },
+  {
+   "number": 22,
+   "name": "Blast Attack",
+   "sub_name": "Thrash Metal"
+  },
+  {
+   "number": 23,
+   "name": "Crisp Drive",
+   "sub_name": "Preamped Beatmaker"
+  },
+  {
+   "number": 24,
+   "name": "All Big Sizes",
+   "sub_name": "Big Arena"
+  },
+  {
+   "number": 25,
+   "name": "Large Room",
+   "sub_name": ""
+  },
+  {
+   "number": 26,
+   "name": "Vintage Comp",
+   "sub_name": ""
+  },
+  {
+   "number": 27,
+   "name": "12”Ringing Snare",
+   "sub_name": ""
+  },
+  {
+   "number": 28,
+   "name": "Classic Rock",
+   "sub_name": ""
+  },
+  {
+   "number": 29,
+   "name": "Babylon Shuffle",
+   "sub_name": ""
+  },
+  {
+   "number": 30,
+   "name": "Hard Rock",
+   "sub_name": ""
+  },
+  {
+   "number": 31,
+   "name": "Jazz Legend",
+   "sub_name": "Floor Tom Kick"
+  },
+  {
+   "number": 32,
+   "name": "Funkifyer",
+   "sub_name": "Live Funk Studio"
+  },
+  {
+   "number": 33,
+   "name": "Jazzinator",
+   "sub_name": "Hybrid Jazz Gig"
+  },
+  {
+   "number": 34,
+   "name": "Pro Studio",
+   "sub_name": ""
+  },
+  {
+   "number": 35,
+   "name": "Viking Metal",
+   "sub_name": "Norwegian Metal"
+  },
+  {
+   "number": 36,
+   "name": "Shallow Pop",
+   "sub_name": ""
+  },
+  {
+   "number": 37,
+   "name": "Crossing Front",
+   "sub_name": ""
+  },
+  {
+   "number": 38,
+   "name": "Alternative Rock",
+   "sub_name": ""
+  },
+  {
+   "number": 39,
+   "name": "Acoustic Popper",
+   "sub_name": "Aggressive - Hip Hop"
+  },
+  {
+   "number": 40,
+   "name": "Heavy&Distorted",
+   "sub_name": ""
+  },
+  {
+   "number": 41,
+   "name": "Lowbit World",
+   "sub_name": "Bit Crusher"
+  },
+  {
+   "number": 42,
+   "name": "Gate in the Air",
+   "sub_name": "COMPRESSED"
+  },
+  {
+   "number": 43,
+   "name": "DIGIKIT!",
+   "sub_name": "SnappDkik"
+  },
+  {
+   "number": 44,
+   "name": "Synthetix",
+   "sub_name": ""
+  },
+  {
+   "number": 45,
+   "name": "Electro Synth",
+   "sub_name": ""
+  },
+  {
+   "number": 46,
+   "name": "UK Wet Booth",
+   "sub_name": ""
+  },
+  {
+   "number": 47,
+   "name": "UK Wet Studio",
+   "sub_name": ""
+  },
+  {
+   "number": 48,
+   "name": "LoFi Overdrive",
+   "sub_name": ""
+  },
+  {
+   "number": 49,
+   "name": "TR-808",
+   "sub_name": "Transistor Rhythm"
+  },
+  {
+   "number": 50,
+   "name": "TR-909",
+   "sub_name": "Transistor Rhythm"
+  },
+  {
+   "number": 51,
+   "name": "TR-707",
+   "sub_name": "Transistor Rhythm"
+  },
+  {
+   "number": 52,
+   "name": "CR-78",
+   "sub_name": "CompuRhythm"
+  },
+  {
+   "number": 53,
+   "name": "TR-909 Inspire",
+   "sub_name": ""
+  },
+  {
+   "number": 54,
+   "name": "TexMex FX",
+   "sub_name": ""
+  },
+  {
+   "number": 55,
+   "name": "R&B Ballad",
+   "sub_name": ""
+  },
+  {
+   "number": 56,
+   "name": "Mellow R&B",
+   "sub_name": ""
+  },
+  {
+   "number": 57,
+   "name": "The Big One",
+   "sub_name": "Tom Rim Bend"
+  },
+  {
+   "number": 58,
+   "name": "Detroit",
+   "sub_name": "Hip Hop"
+  },
+  {
+   "number": 59,
+   "name": "Dancing LA",
+   "sub_name": ""
+  },
+  {
+   "number": 60,
+   "name": "Junk Noise",
+   "sub_name": ""
+  },
+  {
+   "number": 61,
+   "name": "Orchestral",
+   "sub_name": "Pedal Bend"
+  },
+  {
+   "number": 62,
+   "name": "Mermaid",
+   "sub_name": "Steelpan"
+  },
+  {
+   "number": 63,
+   "name": "Bateria",
+   "sub_name": "Carnaval do Brasil"
+  },
+  {
+   "number": 64,
+   "name": "Latin Festa!",
+   "sub_name": ""
+  },
+  {
+   "number": 65,
+   "name": "Wild Drumming",
+   "sub_name": "Conga & Djembe"
+  },
+  {
+   "number": 66,
+   "name": "Ethnic Perc",
+   "sub_name": ""
+  },
+  {
+   "number": 67,
+   "name": "Camel Journey",
+   "sub_name": ""
+  },
+  {
+   "number": 68,
+   "name": "Air From Asia",
+   "sub_name": "Pedal Bend"
+  },
+  {
+   "number": 69,
+   "name": "Jazz Brushes",
+   "sub_name": "Small Room"
+  },
+  {
+   "number": 70,
+   "name": "Modern Brushes",
+   "sub_name": "Large Room w/ Sizzle"
+  },
+  {
+   "number": 71,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 72,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 73,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 74,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 75,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 76,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 77,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 78,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 79,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 80,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 81,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 82,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 83,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 84,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 85,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 86,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 87,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 88,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 89,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 90,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 91,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 92,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 93,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 94,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 95,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 96,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 97,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 98,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 99,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 100,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 101,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 102,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 103,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 104,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 105,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 106,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 107,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 108,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 109,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 110,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 111,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 112,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 113,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 114,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 115,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 116,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 117,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 118,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 119,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 120,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 121,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 122,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 123,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 124,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 125,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 126,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 127,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 128,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 129,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 130,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 131,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 132,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 133,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 134,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 135,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 136,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 137,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 138,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 139,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 140,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 141,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 142,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 143,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 144,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 145,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 146,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 147,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 148,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 149,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 150,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 151,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 152,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 153,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 154,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 155,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 156,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 157,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 158,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 159,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 160,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 161,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 162,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 163,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 164,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 165,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 166,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 167,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 168,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 169,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 170,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 171,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 172,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 173,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 174,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 175,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 176,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 177,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 178,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 179,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 180,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 181,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 182,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 183,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 184,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 185,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 186,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 187,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 188,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 189,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 190,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 191,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 192,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 193,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 194,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 195,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 196,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 197,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 198,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 199,
+   "name": "User Kit",
+   "sub_name": ""
+  },
+  {
+   "number": 200,
+   "name": "User Kit",
+   "sub_name": ""
+  }
+ ]
+}

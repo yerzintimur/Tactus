@@ -70,3 +70,4 @@ dist/
 !.vscode/extensions.json
 *.swp
 *~
+__pycache__/

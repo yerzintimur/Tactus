@@ -1,0 +1,3 @@
+# Dev-time PDF parsers (tools/parse_*.py). See tools/README.md.
+pypdf>=6
+pdfplumber>=0.11
