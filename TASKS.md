@@ -178,8 +178,9 @@ and verified; keep this file honest about real state.
 - [ ] **`P1` Android scaffold** — Gradle/Compose/Kotlin project + cargo-ndk build
   of `libtactus.so` (arm64-v8a, x86_64) + JNA bindings.
 - [ ] **`P1` Android MIDI transport** (`android.media.midi`, USB-C) ↔ core.
-- [ ] **`P2` Android TTS** (TextToSpeech) + earcons + haptics; screen-reader-aware
-  routing.
+- [ ] **`P2` Android announcements** (`announceForAccessibility` / live regions,
+  routed by the core's category + source per ADR-0014) + earcons + haptics. No
+  app TTS.
 - [ ] **`P2` Android accessible UI** (Compose): connect, kit nav, rename — parity
   with the Apple MVP.
 - [ ] **`P2` Android a11y gate** — ATF in Compose tests + manual TalkBack pass.
