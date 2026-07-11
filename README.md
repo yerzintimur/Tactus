@@ -74,6 +74,19 @@ See [SPEC §6](docs/SPEC.md#6-system-architecture).
 
 ---
 
+## Connecting the module
+
+The V31 is class-compliant USB MIDI; the port on the module is **USB-C**.
+
+- **iPhone / iPad with USB-C** — a regular USB-C ↔ USB-C data cable.
+- **iPhone / iPad with Lightning** — Apple's
+  [Lightning to USB 3 Camera Adapter](https://www.apple.com/shop/product/mx5j3am/a/lightning-to-usb-3-camera-adapter)
+  **plus a USB-A → USB-C cable**: the adapter's port is USB-A, the module end is
+  USB-C. Verified working with a real V31.
+- **Mac** — a direct USB-C cable, no adapter.
+
+---
+
 ## Roland documentation (not in this repo)
 
 This project is built against two Roland documents — the **V31 MIDI
@@ -108,10 +121,12 @@ yours in full, exactly as it is for everyone else.
 
 ## Status
 
-Early development, **iOS-first**, targeting the **Roland V31**. The Rust core is
-scaffolded and the device-agnostic **SysEx codec is implemented and tested**
-against the spec's golden vectors. Next up: value encodings + address arithmetic,
-then the device profile and the session engine. See [ROADMAP.md](ROADMAP.md).
+Early development, **iOS-first**, targeting the **Roland V31**. The shared Rust
+core (SysEx codec, device profiles, sans-I/O session engine, i18n) is implemented
+and tested — including a **simulated module** for hardware-free end-to-end runs —
+and the **Apple-first MVP** (connect, kit navigation, tempo editing, all through
+the screen reader) has been **validated against a real V31**, on the Mac and on an
+iPhone. See [ROADMAP.md](ROADMAP.md).
 
 ## License
 
