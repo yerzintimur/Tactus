@@ -59,8 +59,11 @@ and verified; keep this file honest about real state.
 
 ## M2 — Engineering hygiene
 
-- [ ] **`P1` CI (GitHub Actions).** Core `fmt`/`clippy`/`test` in Docker + iOS
-  build & tests (incl. the a11y audit) on a macOS runner. Add Android later.
+- [x] **`P1` CI (GitHub Actions).** Two jobs on every push/PR: the core gate
+  (`just test-core` + `just test-e2e` in the same pinned Docker image as local
+  dev) and the Apple leg (`just build-ios` → `just ios-gen` → simulator tests
+  incl. the a11y audit) on a pinned `macos-26` runner. Same `just` recipes as
+  local dev; README badge; docs/CI.md walkthrough. Add Android later (M5).
 - [ ] **`P3` Make engine timings tunable** (poll 300 ms, identity-retry 900 ms,
   edit-timeout) — currently hardcoded in `engine/src/session.rs`.
 - [x] **`P1` Device-mock e2e foundation (Phases 1–2).** A profile-driven
