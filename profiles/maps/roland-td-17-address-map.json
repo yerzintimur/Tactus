@@ -1,0 +1,10572 @@
+{
+ "schema_version": 1,
+ "source": "Derived from Roland 'TD-17 (TD-17-L) MIDI Implementation' (eng04, Version 2.00, Sep. 1. 2022), (c) Roland Corporation \u2014 facts (addresses/sizes/ranges) extracted by tools/parse_midi_impl.py. See docs/devices/roland-td-17.md.",
+ "top_level": [
+  {
+   "name": "Current",
+   "block": "Current",
+   "address": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "Setup",
+   "block": "Setup",
+   "address": [
+    1,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "Trigger",
+   "block": "Trigger",
+   "address": [
+    2,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "Kit",
+   "block": "Kit",
+   "address": [
+    3,
+    0,
+    0,
+    0
+   ],
+   "count": 100,
+   "stride": [
+    0,
+    2,
+    0,
+    0
+   ]
+  }
+ ],
+ "blocks": {
+  "Kit": {
+   "kind": "container",
+   "children": [
+    {
+     "name": "Kit Common",
+     "block": "KitCommon",
+     "address": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "Kit MIDI",
+     "block": "KitMidi",
+     "address": [
+      0,
+      1,
+      0
+     ]
+    },
+    {
+     "name": "Kit Ambience",
+     "block": "KitAmbience",
+     "address": [
+      0,
+      3,
+      0
+     ]
+    },
+    {
+     "name": "Kit Reverb",
+     "block": "KitReverb",
+     "address": [
+      0,
+      4,
+      0
+     ]
+    },
+    {
+     "name": "Kit Master Comp",
+     "block": "KitMasterComp",
+     "address": [
+      0,
+      5,
+      0
+     ]
+    },
+    {
+     "name": "Kit Multi FX",
+     "block": "KitMfx",
+     "address": [
+      0,
+      16,
+      0
+     ]
+    },
+    {
+     "name": "Kit Unit Common",
+     "block": "KitUnitCommon",
+     "address": [
+      0,
+      32,
+      0
+     ],
+     "count": 20,
+     "stride": [
+      0,
+      1,
+      0
+     ]
+    },
+    {
+     "name": "Kit Unit Main",
+     "block": "KitUnitInst",
+     "address": [
+      0,
+      64,
+      0
+     ],
+     "count": 20,
+     "stride": [
+      0,
+      1,
+      0
+     ]
+    },
+    {
+     "name": "Kit Unit Sub",
+     "block": "KitUnitInst",
+     "address": [
+      0,
+      96,
+      0
+     ],
+     "count": 20,
+     "stride": [
+      0,
+      1,
+      0
+     ]
+    },
+    {
+     "name": "Kit Unit VEdit Main",
+     "block": "KitUnitVEdit",
+     "address": [
+      1,
+      0,
+      0
+     ],
+     "count": 20,
+     "stride": [
+      0,
+      1,
+      0
+     ]
+    },
+    {
+     "name": "Kit Unit VEdit Sub",
+     "block": "KitUnitVEdit",
+     "address": [
+      1,
+      32,
+      0
+     ],
+     "count": 20,
+     "stride": [
+      0,
+      1,
+      0
+     ]
+    }
+   ]
+  },
+  "Setup": {
+   "kind": "container",
+   "children": [
+    {
+     "name": "Click",
+     "block": "Click",
+     "address": [
+      0,
+      2,
+      0
+     ]
+    },
+    {
+     "name": "Misc",
+     "block": "SetupMisc",
+     "address": [
+      0,
+      3,
+      0
+     ]
+    }
+   ]
+  },
+  "Trigger": {
+   "kind": "container",
+   "children": [
+    {
+     "name": "Trigger Misc",
+     "block": "TrigMisc",
+     "address": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "Trigger",
+     "block": "Trig",
+     "address": [
+      0,
+      1,
+      0
+     ],
+     "count": 10,
+     "stride": [
+      0,
+      1,
+      0
+     ]
+    }
+   ]
+  },
+  "Current": {
+   "kind": "leaf",
+   "params": [
+    {
+     "name": "Drum Kit Number",
+     "offset": [
+      0,
+      0
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 7,
+     "range": [
+      0,
+      99
+     ],
+     "display": [
+      "1 - 100"
+     ]
+    }
+   ],
+   "total_size": [
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "KitCommon": {
+   "kind": "leaf",
+   "params": [
+    {
+     "name": "Kit Name",
+     "offset": [
+      0,
+      0
+     ],
+     "len": 12,
+     "encoding": "ascii",
+     "range": [
+      1,
+      126
+     ]
+    },
+    {
+     "name": "Kit Sub Name",
+     "offset": [
+      0,
+      12
+     ],
+     "len": 16,
+     "encoding": "ascii",
+     "range": [
+      1,
+      126
+     ]
+    },
+    {
+     "name": "Kit Volume",
+     "offset": [
+      0,
+      28
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      -601,
+      60
+     ],
+     "display": [
+      "-INF, -60.0 - +6.0 [dB]"
+     ]
+    },
+    {
+     "name": "Pedal HH Volume",
+     "offset": [
+      0,
+      32
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      -601,
+      60
+     ],
+     "display": [
+      "-INF, -60.0 - +6.0 [dB]"
+     ]
+    },
+    {
+     "name": "Xstick Volume",
+     "offset": [
+      0,
+      36
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      -601,
+      60
+     ],
+     "display": [
+      "-INF, -60.0 - +6.0 [dB]"
+     ]
+    },
+    {
+     "name": "Xstick Switch",
+     "offset": [
+      0,
+      40
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 1,
+     "range": [
+      0,
+      1
+     ],
+     "display": [
+      "OFF, ON"
+     ]
+    },
+    {
+     "name": "HH Open/Close Balance",
+     "offset": [
+      0,
+      41
+     ],
+     "len": 2,
+     "encoding": "nibble",
+     "range": [
+      -5,
+      5
+     ],
+     "display": [
+      "-5 - +5"
+     ]
+    }
+   ],
+   "total_size": [
+    0,
+    0,
+    0,
+    43
+   ]
+  },
+  "KitMidi": {
+   "kind": "leaf",
+   "params": [
+    {
+     "name": "Note KICK",
+     "offset": [
+      0,
+      0
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      0,
+      128
+     ],
+     "display": [
+      "0 - 127, OFF"
+     ]
+    },
+    {
+     "name": "Note SNARE (HEAD)",
+     "offset": [
+      0,
+      4
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      0,
+      128
+     ],
+     "display": [
+      "0 - 127, OFF"
+     ]
+    },
+    {
+     "name": "Note SNARE (RIM)",
+     "offset": [
+      0,
+      8
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      0,
+      128
+     ],
+     "display": [
+      "0 - 127, OFF"
+     ]
+    },
+    {
+     "name": "Note SNARE (XSTICK)",
+     "offset": [
+      0,
+      12
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      0,
+      128
+     ],
+     "display": [
+      "0 - 127, OFF"
+     ]
+    },
+    {
+     "name": "Note TOM1 (HEAD)",
+     "offset": [
+      0,
+      16
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      0,
+      128
+     ],
+     "display": [
+      "0 - 127, OFF"
+     ]
+    },
+    {
+     "name": "Note TOM1 (RIM)",
+     "offset": [
+      0,
+      20
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      0,
+      128
+     ],
+     "display": [
+      "0 - 127, OFF"
+     ]
+    },
+    {
+     "name": "Note TOM2 (HEAD)",
+     "offset": [
+      0,
+      24
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      0,
+      128
+     ],
+     "display": [
+      "0 - 127, OFF"
+     ]
+    },
+    {
+     "name": "Note TOM2 (RIM)",
+     "offset": [
+      0,
+      28
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      0,
+      128
+     ],
+     "display": [
+      "0 - 127, OFF"
+     ]
+    },
+    {
+     "name": "Note TOM3 (HEAD)",
+     "offset": [
+      0,
+      32
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      0,
+      128
+     ],
+     "display": [
+      "0 - 127, OFF"
+     ]
+    },
+    {
+     "name": "Note TOM3 (RIM)",
+     "offset": [
+      0,
+      36
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      0,
+      128
+     ],
+     "display": [
+      "0 - 127, OFF"
+     ]
+    },
+    {
+     "name": "Note HI-HAT OPEN (BOW)",
+     "offset": [
+      0,
+      40
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      0,
+      128
+     ],
+     "display": [
+      "0 - 127, OFF"
+     ]
+    },
+    {
+     "name": "Note HI-HAT OPEN (EDGE)",
+     "offset": [
+      0,
+      44
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      0,
+      128
+     ],
+     "display": [
+      "0 - 127, OFF"
+     ]
+    },
+    {
+     "name": "Note HI-HAT CLOSE (BOW)",
+     "offset": [
+      0,
+      48
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      0,
+      128
+     ],
+     "display": [
+      "0 - 127, OFF"
+     ]
+    },
+    {
+     "name": "Note HI-HAT CLOSE (EDGE)",
+     "offset": [
+      0,
+      52
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      0,
+      128
+     ],
+     "display": [
+      "0 - 127, OFF"
+     ]
+    },
+    {
+     "name": "Note HI-HAT PEDAL",
+     "offset": [
+      0,
+      56
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      0,
+      128
+     ],
+     "display": [
+      "0 - 127, OFF"
+     ]
+    },
+    {
+     "name": "Note CRASH1 (BOW)",
+     "offset": [
+      0,
+      60
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      0,
+      128
+     ],
+     "display": [
+      "0 - 127, OFF"
+     ]
+    },
+    {
+     "name": "Note CRASH1 (EDGE)",
+     "offset": [
+      0,
+      64
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      0,
+      128
+     ],
+     "display": [
+      "0 - 127, OFF"
+     ]
+    },
+    {
+     "name": "Note CRASH2 (BOW)",
+     "offset": [
+      0,
+      68
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      0,
+      128
+     ],
+     "display": [
+      "0 - 127, OFF"
+     ]
+    },
+    {
+     "name": "Note CRASH2 (EDGE)",
+     "offset": [
+      0,
+      72
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      0,
+      128
+     ],
+     "display": [
+      "0 - 127, OFF"
+     ]
+    },
+    {
+     "name": "Note RIDE (BOW)",
+     "offset": [
+      0,
+      76
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      0,
+      128
+     ],
+     "display": [
+      "0 - 127, OFF"
+     ]
+    },
+    {
+     "name": "Note RIDE (EDGE)",
+     "offset": [
+      0,
+      80
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      0,
+      128
+     ],
+     "display": [
+      "0 - 127, OFF"
+     ]
+    },
+    {
+     "name": "Note RIDE (BELL)",
+     "offset": [
+      0,
+      84
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      0,
+      128
+     ],
+     "display": [
+      "0 - 127, OFF"
+     ]
+    },
+    {
+     "name": "Note AUX (HEAD)",
+     "offset": [
+      0,
+      88
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      0,
+      128
+     ],
+     "display": [
+      "0 - 127, OFF"
+     ]
+    },
+    {
+     "name": "Note AUX (RIM)",
+     "offset": [
+      0,
+      92
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      0,
+      128
+     ],
+     "display": [
+      "0 - 127, OFF"
+     ]
+    }
+   ],
+   "total_size": [
+    0,
+    0,
+    0,
+    96
+   ]
+  },
+  "KitAmbience": {
+   "kind": "leaf",
+   "params": [
+    {
+     "name": "Switch",
+     "offset": [
+      0,
+      0
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 1,
+     "range": [
+      0,
+      1
+     ],
+     "display": [
+      "OFF, ON"
+     ]
+    },
+    {
+     "name": "Room Type",
+     "offset": [
+      0,
+      1
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 5,
+     "range": [
+      0,
+      24
+     ],
+     "display": [
+      "BEACH, LIVING ROOM, BATH ROOM, STUDIO,",
+      "GARAGE, LOCKER ROOM, THEATER, CAVE,",
+      "GYMNASIUM, DOME STADIUM, BOOTH A, BOOTH B,",
+      "STUDIO A, STUDIO B, BASEMENT, JAZZ CLUB,",
+      "ROCK CLUB, BALLROOM, GATE, CONCERT HALL,",
+      "SPORTS ARENA, EXPO HALL, BOTTLE, CITY, SPIRAL"
+     ]
+    },
+    {
+     "name": "Room Size",
+     "offset": [
+      0,
+      2
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 3,
+     "range": [
+      0,
+      4
+     ],
+     "display": [
+      "TINY, SMALL, MEDIUM, LARGE, HUGE"
+     ]
+    },
+    {
+     "name": "Room Shape",
+     "offset": [
+      0,
+      3
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 7,
+     "range": [
+      0,
+      100
+     ],
+     "display": [
+      "0 - 100"
+     ]
+    },
+    {
+     "name": "Wall Type",
+     "offset": [
+      0,
+      4
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 3,
+     "range": [
+      0,
+      5
+     ],
+     "display": [
+      "CURTAIN, CLOTH, WOOD,",
+      "PLASTER, CONCRETE, GLASS"
+     ]
+    },
+    {
+     "name": "Mic Position",
+     "offset": [
+      0,
+      5
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 4,
+     "range": [
+      0,
+      8
+     ],
+     "display": [
+      "NEXT DOOR, LOW FLOOR, LOW, MID LOW, MID,",
+      "MID HIGH, HIGH, CEILING A, CEILING B"
+     ]
+    },
+    {
+     "name": "Level",
+     "offset": [
+      0,
+      6
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      -601,
+      60
+     ],
+     "display": [
+      "-INF, -60.0 - +6.0 [dB]"
+     ]
+    }
+   ],
+   "total_size": [
+    0,
+    0,
+    0,
+    10
+   ]
+  },
+  "KitReverb": {
+   "kind": "leaf",
+   "params": [
+    {
+     "name": "Switch",
+     "offset": [
+      0,
+      0
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 1,
+     "range": [
+      0,
+      1
+     ],
+     "display": [
+      "OFF, ON"
+     ]
+    },
+    {
+     "name": "Type",
+     "offset": [
+      0,
+      1
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 3,
+     "range": [
+      0,
+      4
+     ],
+     "display": [
+      "ROOM1, ROOM2, HALL1, HALL2, PLATE"
+     ]
+    },
+    {
+     "name": "Pre Delay",
+     "offset": [
+      0,
+      2
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 7,
+     "range": [
+      0,
+      100
+     ],
+     "display": [
+      "0 - 100 [msec]"
+     ]
+    },
+    {
+     "name": "Time",
+     "offset": [
+      0,
+      3
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 7,
+     "range": [
+      1,
+      100
+     ],
+     "display": [
+      "0.1 - 10 [sec]"
+     ]
+    },
+    {
+     "name": "Density",
+     "offset": [
+      0,
+      4
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 7,
+     "range": [
+      0,
+      127
+     ],
+     "display": [
+      "0 - 127"
+     ]
+    },
+    {
+     "name": "Diffusion",
+     "offset": [
+      0,
+      5
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 7,
+     "range": [
+      0,
+      127
+     ],
+     "display": [
+      "0 - 127"
+     ]
+    },
+    {
+     "name": "LF Damp",
+     "offset": [
+      0,
+      6
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 7,
+     "range": [
+      0,
+      100
+     ],
+     "display": [
+      "0 - 100"
+     ]
+    },
+    {
+     "name": "HF Damp",
+     "offset": [
+      0,
+      7
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 7,
+     "range": [
+      0,
+      100
+     ],
+     "display": [
+      "0 - 100"
+     ]
+    },
+    {
+     "name": "Spread",
+     "offset": [
+      0,
+      8
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 7,
+     "range": [
+      0,
+      127
+     ],
+     "display": [
+      "0 - 127"
+     ]
+    },
+    {
+     "name": "Tone",
+     "offset": [
+      0,
+      9
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 7,
+     "range": [
+      0,
+      127
+     ],
+     "display": [
+      "0 - 127"
+     ]
+    },
+    {
+     "name": "Level",
+     "offset": [
+      0,
+      10
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      -601,
+      60
+     ]
+    }
+   ],
+   "total_size": [
+    0,
+    0,
+    0,
+    14
+   ]
+  },
+  "KitMasterComp": {
+   "kind": "leaf",
+   "params": [
+    {
+     "name": "Switch",
+     "offset": [
+      0,
+      0
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 1,
+     "range": [
+      0,
+      1
+     ]
+    },
+    {
+     "name": "Type",
+     "offset": [
+      0,
+      1
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 3,
+     "range": [
+      0,
+      7
+     ],
+     "display": [
+      "SINGLE SOFT COMP, SINGLE HARD COMP,",
+      "2 BAND SOFT COMP, 2 BAND HARD COMP,"
+     ]
+    },
+    {
+     "name": "Split Freq",
+     "offset": [
+      0,
+      2
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      0,
+      1600
+     ],
+     "display": [
+      "SINGLE, 10"
+     ]
+    },
+    {
+     "name": "Lo Gain",
+     "offset": [
+      0,
+      6
+     ],
+     "len": 2,
+     "encoding": "nibble",
+     "range": [
+      -120,
+      48
+     ],
+     "display": [
+      "-60 - +24"
+     ]
+    },
+    {
+     "name": "Hi Gain",
+     "offset": [
+      0,
+      8
+     ],
+     "len": 2,
+     "encoding": "nibble",
+     "range": [
+      -120,
+      48
+     ],
+     "display": [
+      "|"
+     ]
+    },
+    {
+     "name": "Lo Threshold",
+     "offset": [
+      0,
+      10
+     ],
+     "len": 2,
+     "encoding": "nibble",
+     "range": [
+      -60,
+      0
+     ],
+     "display": [
+      "-60 - 0"
+     ]
+    },
+    {
+     "name": "Hi Threshold",
+     "offset": [
+      0,
+      12
+     ],
+     "len": 2,
+     "encoding": "nibble",
+     "range": [
+      -60,
+      0
+     ],
+     "display": [
+      "-60 - 0"
+     ]
+    },
+    {
+     "name": "Lo Ratio",
+     "offset": [
+      0,
+      14
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 3,
+     "range": [
+      0,
+      7
+     ]
+    },
+    {
+     "name": "Hi Ratio",
+     "offset": [
+      0,
+      15
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 3,
+     "range": [
+      0,
+      7
+     ]
+    },
+    {
+     "name": "Lo Knee",
+     "offset": [
+      0,
+      16
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 2,
+     "range": [
+      0,
+      3
+     ]
+    },
+    {
+     "name": "Hi Knee",
+     "offset": [
+      0,
+      17
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 2,
+     "range": [
+      0,
+      3
+     ]
+    },
+    {
+     "name": "Lo Attack",
+     "offset": [
+      0,
+      18
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 7,
+     "range": [
+      0,
+      100
+     ],
+     "display": [
+      "0 - 100"
+     ]
+    },
+    {
+     "name": "Hi Attack",
+     "offset": [
+      0,
+      19
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 7,
+     "range": [
+      0,
+      100
+     ],
+     "display": [
+      "0 - 100"
+     ]
+    },
+    {
+     "name": "Lo Release",
+     "offset": [
+      0,
+      20
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 7,
+     "range": [
+      0,
+      99
+     ],
+     "display": [
+      "0 - 99"
+     ]
+    },
+    {
+     "name": "Hi Release",
+     "offset": [
+      0,
+      21
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 7,
+     "range": [
+      0,
+      99
+     ],
+     "display": [
+      "0 - 99"
+     ]
+    },
+    {
+     "name": "Balance",
+     "offset": [
+      0,
+      22
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 7,
+     "range": [
+      1,
+      100
+     ],
+     "display": [
+      "D99:1W - D0:100W"
+     ]
+    }
+   ],
+   "total_size": [
+    0,
+    0,
+    0,
+    23
+   ]
+  },
+  "KitUnitInst": {
+   "kind": "leaf",
+   "params": [
+    {
+     "name": "Instrument",
+     "offset": [
+      0,
+      0
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      0,
+      null
+     ]
+    },
+    {
+     "name": "Volume",
+     "offset": [
+      0,
+      4
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      -601,
+      60
+     ],
+     "display": [
+      "-INF, -60.0 - +6.0 [dB]"
+     ]
+    },
+    {
+     "name": "InstBank",
+     "offset": [
+      0,
+      8
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 1,
+     "range": [
+      0,
+      1
+     ],
+     "display": [
+      "PRESET, USER"
+     ]
+    }
+   ],
+   "total_size": [
+    0,
+    0,
+    0,
+    9
+   ]
+  },
+  "KitUnitCommon": {
+   "kind": "leaf",
+   "params": [
+    {
+     "name": "Pan",
+     "offset": [
+      0,
+      0
+     ],
+     "len": 2,
+     "encoding": "nibble",
+     "range": [
+      -30,
+      30
+     ],
+     "display": [
+      "L30 - 1, CENTER, R1 - 30"
+     ]
+    },
+    {
+     "name": "Sub Inst Switch",
+     "offset": [
+      0,
+      2
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 1,
+     "range": [
+      0,
+      1
+     ],
+     "display": [
+      "OFF, ON"
+     ]
+    },
+    {
+     "name": "Layer Type",
+     "offset": [
+      0,
+      3
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 2,
+     "range": [
+      0,
+      3
+     ],
+     "display": [
+      "MIX, FADE1, FADE2, SWITCH"
+     ]
+    },
+    {
+     "name": "Fade Point",
+     "offset": [
+      0,
+      4
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 7,
+     "range": [
+      1,
+      127
+     ],
+     "display": [
+      "1 - 127"
+     ]
+    },
+    {
+     "name": "Eq Switch",
+     "offset": [
+      0,
+      5
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 1,
+     "range": [
+      0,
+      1
+     ],
+     "display": [
+      "OFF, ON"
+     ]
+    },
+    {
+     "name": "Eq Low Freq",
+     "offset": [
+      0,
+      6
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 5,
+     "range": [
+      0,
+      17
+     ],
+     "display": [
+      "20Hz, 25Hz, 31.5Hz, 40Hz, 50Hz, 63Hz,",
+      "80Hz, 100Hz, 125Hz, 160Hz, 200Hz, 250Hz,",
+      "315Hz, 400Hz, 500Hz, 630Hz, 800Hz, 1KHz"
+     ]
+    },
+    {
+     "name": "Eq Low Gain",
+     "offset": [
+      0,
+      7
+     ],
+     "len": 2,
+     "encoding": "nibble",
+     "range": [
+      -15,
+      15
+     ],
+     "display": [
+      "-15.0 - +15.0[dB]"
+     ]
+    },
+    {
+     "name": "Eq Mid Freq",
+     "offset": [
+      0,
+      9
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 5,
+     "range": [
+      0,
+      29
+     ],
+     "display": [
+      "20Hz, 25Hz, 31.5Hz, 40Hz, 50Hz, 63Hz,",
+      "80Hz, 100Hz, 125Hz, 160Hz, 200Hz, 250Hz,",
+      "315Hz, 400Hz, 500Hz, 630Hz, 800Hz, 1kHz,",
+      "1.25kHz, 1.6kHz, 2kHz, 2.5kHz, 3.15kHz, 4kHz,",
+      "5kHz, 6.3kHz, 8kHz, 10kHz, 12.5kHz, 16kHz"
+     ]
+    },
+    {
+     "name": "Eq Mid Q",
+     "offset": [
+      0,
+      10
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 3,
+     "range": [
+      0,
+      4
+     ],
+     "display": [
+      "0.5, 1.0, 2.0, 4.0, 8.0"
+     ]
+    },
+    {
+     "name": "Eq Mid Gain",
+     "offset": [
+      0,
+      11
+     ],
+     "len": 2,
+     "encoding": "nibble",
+     "range": [
+      -15,
+      15
+     ],
+     "display": [
+      "-15.0 - +15.0[dB]"
+     ]
+    },
+    {
+     "name": "Eq High Freq",
+     "offset": [
+      0,
+      13
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 4,
+     "range": [
+      0,
+      12
+     ],
+     "display": [
+      "1kHz, 1.25kHz, 1.6kHz, 2kHz, 2.5kHz,",
+      "3.15kHz, 4kHz, 5kHz, 6.3kHz, 8kHz,",
+      "10kHz, 12.5kHz, 16kHz"
+     ]
+    },
+    {
+     "name": "Eq High Gain",
+     "offset": [
+      0,
+      14
+     ],
+     "len": 2,
+     "encoding": "nibble",
+     "range": [
+      -15,
+      15
+     ],
+     "display": [
+      "-15.0 - +15.0[dB]"
+     ]
+    },
+    {
+     "name": "Ambience Send Level",
+     "offset": [
+      0,
+      16
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      -601,
+      60
+     ],
+     "display": [
+      "-INF, -60.0 - +6.0[dB]"
+     ]
+    },
+    {
+     "name": "Multi FX Send Level",
+     "offset": [
+      0,
+      20
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      -601,
+      60
+     ],
+     "display": [
+      "-INF, -60.0 - +6.0[dB]"
+     ]
+    },
+    {
+     "name": "RevSendLevel",
+     "offset": [
+      0,
+      24
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      -601,
+      60
+     ],
+     "display": [
+      "-INF, -60.0 - +6.0[dB]"
+     ]
+    }
+   ],
+   "total_size": [
+    0,
+    0,
+    0,
+    28
+   ]
+  },
+  "Click": {
+   "kind": "leaf",
+   "params": [
+    {
+     "name": "Sound",
+     "offset": [
+      0,
+      0
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 4,
+     "range": [
+      0,
+      14
+     ],
+     "display": [
+      "METRONOME, CLICK, VOICE,",
+      "BEEP 1, BEEP 2, TEK CLICK,",
+      "STICKS, CLAVES, WOOD BLOCK,",
+      "COWBELL, AGOGO, TRIANGLE,",
+      "TAMBOURINE, MARACAS, CABASA"
+     ]
+    },
+    {
+     "name": "Pan",
+     "offset": [
+      0,
+      1
+     ],
+     "len": 2,
+     "encoding": "nibble",
+     "range": [
+      -30,
+      30
+     ],
+     "display": [
+      "L30 - 1, CENTER, R1 - 30"
+     ]
+    },
+    {
+     "name": "Level",
+     "offset": [
+      0,
+      3
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      -601,
+      60
+     ],
+     "display": [
+      "-INF, -60.0 - +6.0[dB]"
+     ]
+    }
+   ],
+   "total_size": [
+    0,
+    0,
+    0,
+    7
+   ]
+  },
+  "TrigMisc": {
+   "kind": "leaf",
+   "params": [
+    {
+     "name": "Pedal HH Sens",
+     "offset": [
+      0,
+      32
+     ],
+     "len": 2,
+     "encoding": "nibble",
+     "range": [
+      -10,
+      10
+     ],
+     "display": [
+      "-10 - 10"
+     ]
+    },
+    {
+     "name": "XStick Adj",
+     "offset": [
+      0,
+      34
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 7,
+     "range": [
+      0,
+      127
+     ],
+     "display": [
+      "0 - 127"
+     ]
+    },
+    {
+     "name": "XTalk Cancel Rate 1(KICK)",
+     "offset": [
+      0,
+      35
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 7,
+     "range": [
+      0,
+      80
+     ],
+     "display": [
+      "0 - 80"
+     ]
+    },
+    {
+     "name": "XTalk Cancel Rate 2(SNARE)",
+     "offset": [
+      0,
+      36
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 7,
+     "range": [
+      0,
+      80
+     ],
+     "display": [
+      "0 - 80"
+     ]
+    },
+    {
+     "name": "XTalk Cancel Rate 3(TOM1)",
+     "offset": [
+      0,
+      37
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 7,
+     "range": [
+      0,
+      80
+     ],
+     "display": [
+      "0 - 80"
+     ]
+    },
+    {
+     "name": "XTalk Cancel Rate 4(TOM2)",
+     "offset": [
+      0,
+      38
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 7,
+     "range": [
+      0,
+      80
+     ],
+     "display": [
+      "0 - 80"
+     ]
+    },
+    {
+     "name": "XTalk Cancel Rate 5(TOM3)",
+     "offset": [
+      0,
+      39
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 7,
+     "range": [
+      0,
+      80
+     ],
+     "display": [
+      "0 - 80"
+     ]
+    },
+    {
+     "name": "XTalk Cancel Rate 6(HI-HAT)",
+     "offset": [
+      0,
+      40
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 7,
+     "range": [
+      0,
+      80
+     ],
+     "display": [
+      "0 - 80"
+     ]
+    },
+    {
+     "name": "XTalk Cancel Rate 7(CRASH1)",
+     "offset": [
+      0,
+      41
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 7,
+     "range": [
+      0,
+      80
+     ],
+     "display": [
+      "0 - 80"
+     ]
+    },
+    {
+     "name": "XTalk Cancel Rate 8(CRASH2)",
+     "offset": [
+      0,
+      42
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 7,
+     "range": [
+      0,
+      80
+     ],
+     "display": [
+      "0 - 80"
+     ]
+    },
+    {
+     "name": "XTalk Cancel Rate 9(RIDE)",
+     "offset": [
+      0,
+      43
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 7,
+     "range": [
+      0,
+      80
+     ],
+     "display": [
+      "0 - 80"
+     ]
+    },
+    {
+     "name": "XTalk Cancel Rate 10(AUX)",
+     "offset": [
+      0,
+      44
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 7,
+     "range": [
+      0,
+      80
+     ],
+     "display": [
+      "0 - 80"
+     ]
+    }
+   ],
+   "total_size": [
+    0,
+    0,
+    0,
+    45
+   ]
+  },
+  "Trig": {
+   "kind": "leaf",
+   "params": [
+    {
+     "name": "Pad Type",
+     "offset": [
+      0,
+      0
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 6,
+     "range": [
+      0,
+      46
+     ],
+     "display": [
+      "KDA22, KD180L, KD140, KD120, KD85, KD10, KD9,",
+      "KD8, KD7, KT10, KT9, PDA120L, PDA100L, PD128,",
+      "PD125X, PD125, PD108, PD105X, PD105, PD85,",
+      "PDX100, PDX12, PDX8, PDX6, PD8, VH11, VH10,",
+      "CY16RT, CY15R, CY14CT, CY14RT, CY14C, CY13R",
+      "CY12CT, CY12C, CY12R/C, CY8, CY5, BT1, BT1 SENS,",
+      "RT30HR,  RT30H SN, RT30H TM, RT10K, RT10S,"
+     ]
+    },
+    {
+     "name": "Sensitivity",
+     "offset": [
+      0,
+      1
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 5,
+     "range": [
+      0,
+      31
+     ],
+     "display": [
+      "1 - 32"
+     ]
+    },
+    {
+     "name": "RimGain",
+     "offset": [
+      0,
+      2
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 6,
+     "range": [
+      0,
+      32
+     ],
+     "display": [
+      "0 - 3.2"
+     ]
+    },
+    {
+     "name": "Threshold",
+     "offset": [
+      0,
+      3
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 5,
+     "range": [
+      0,
+      31
+     ],
+     "display": [
+      "0 - 31"
+     ]
+    },
+    {
+     "name": "Curve",
+     "offset": [
+      0,
+      4
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 3,
+     "range": [
+      0,
+      7
+     ],
+     "display": [
+      "LINEAR, EXP1, EXP2, LOG1,",
+      "LOG2, SPLINE, LOUD1, LOUD2"
+     ]
+    },
+    {
+     "name": "ExtNoiseCancel",
+     "offset": [
+      0,
+      5
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 3,
+     "range": [
+      0,
+      5
+     ],
+     "display": [
+      "OFF, 1 - 5"
+     ]
+    },
+    {
+     "name": "Head/Rim Adj",
+     "offset": [
+      0,
+      6
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 7,
+     "range": [
+      0,
+      80
+     ],
+     "display": [
+      "0 - 80"
+     ]
+    },
+    {
+     "name": "Scan Time",
+     "offset": [
+      0,
+      7
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 6,
+     "range": [
+      0,
+      40
+     ],
+     "display": [
+      "0 - 4.0"
+     ]
+    },
+    {
+     "name": "Mask Time",
+     "offset": [
+      0,
+      8
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 7,
+     "range": [
+      0,
+      64
+     ],
+     "display": [
+      "0 - 64"
+     ]
+    },
+    {
+     "name": "Retrig Cancel",
+     "offset": [
+      0,
+      9
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 4,
+     "range": [
+      0,
+      15
+     ],
+     "display": [
+      "1 - 16"
+     ]
+    }
+   ],
+   "total_size": [
+    0,
+    0,
+    0,
+    10
+   ],
+   "firmware_variants": {
+    "Ver.1.01 or earlier": [
+     {
+      "name": "Pad Type",
+      "offset": [
+       0,
+       0
+      ],
+      "len": 1,
+      "encoding": "plain7",
+      "bits": 6,
+      "range": [
+       0,
+       39
+      ],
+      "display": [
+       "KDA22, KD140, KD120, KD85, KD10, KD9, KD8, KD7,",
+       "KT10, KT9, PD128, PD125X, PD125, PD108, PD105X,",
+       "PD105, PD85, PDX100, PDX12, PDX8, PDX6, PD8,",
+       "VH11, VH10, CY15R, CY14C, CY13R, CY12C, CY12R/C,",
+       "CY8, CY5, BT1, BT1 SENS, RT30K, RT30HR, RT30H SN,",
+       "RT30H TM, RT10K, RT10S, RT10T"
+      ]
+     }
+    ]
+   }
+  },
+  "SetupMisc": {
+   "kind": "leaf",
+   "params": [
+    {
+     "name": "USB Input Gain",
+     "offset": [
+      0,
+      0
+     ],
+     "len": 2,
+     "encoding": "nibble",
+     "range": [
+      -36,
+      12
+     ],
+     "display": [
+      "-36 - +12[dB]"
+     ]
+    },
+    {
+     "name": "USB Output Gain",
+     "offset": [
+      0,
+      2
+     ],
+     "len": 2,
+     "encoding": "nibble",
+     "range": [
+      -24,
+      24
+     ],
+     "display": [
+      "-24 - +24[dB]"
+     ]
+    }
+   ],
+   "total_size": [
+    0,
+    0,
+    0,
+    4
+   ]
+  },
+  "KitMfx": {
+   "kind": "leaf",
+   "params": [
+    {
+     "name": "Type",
+     "offset": [
+      0,
+      0
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 5,
+     "range": [
+      0,
+      40
+     ],
+     "display": [
+      "DELAY, TAPE ECHO, REVERSE DELAY,",
+      "3TAP PAN DELAY, OD->DELAY, DS->DELAY,",
+      "CHORUS, SPACE-D, OD->CHORUS, DS->CHORUS,",
+      "PHASER A, PHASER B, STEP PHASER, FLANGER,",
+      "REVERB, LONG REVERB, SUPER FILTER,",
+      "FILTER+DRIVE, AUTO WAH, OD/DS->TWAH,",
+      "LOFI COMPRESS, DISTORTION, OVERDRIVE,",
+      "SATURATOR, T-SCREAM, BIT CRUSHER,",
+      "ISOLATOR, RING MODULATOR, PITCH SHIFTER,",
+      "AUTO PAN, EQUALIZER, SPECTRUM, LOW BOOST",
+      "ENHANCER, HUMANIZER, SLICER, STEP FLANGER,",
+      "HEXA-CHORUS, 4 TAP PAN DELAY, EH->FLANGER,",
+      "SPEAKER SIM"
+     ]
+    },
+    {
+     "name": "Switch",
+     "offset": [
+      0,
+      1
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 1,
+     "range": [
+      0,
+      1
+     ],
+     "display": [
+      "OFF, ON"
+     ]
+    },
+    {
+     "name": "Level",
+     "offset": [
+      0,
+      2
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "range": [
+      -601,
+      60
+     ],
+     "display": [
+      "-INF, -60.0 - +6.0[dB]"
+     ]
+    },
+    {
+     "name": "MFX Parameter 1",
+     "offset": [
+      0,
+      6
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 2",
+     "offset": [
+      0,
+      10
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 3",
+     "offset": [
+      0,
+      14
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 4",
+     "offset": [
+      0,
+      18
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 5",
+     "offset": [
+      0,
+      22
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 6",
+     "offset": [
+      0,
+      26
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 7",
+     "offset": [
+      0,
+      30
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 8",
+     "offset": [
+      0,
+      34
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 9",
+     "offset": [
+      0,
+      38
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 10",
+     "offset": [
+      0,
+      42
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 11",
+     "offset": [
+      0,
+      46
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 12",
+     "offset": [
+      0,
+      50
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 13",
+     "offset": [
+      0,
+      54
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 14",
+     "offset": [
+      0,
+      58
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 15",
+     "offset": [
+      0,
+      62
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 16",
+     "offset": [
+      0,
+      66
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 17",
+     "offset": [
+      0,
+      70
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 18",
+     "offset": [
+      0,
+      74
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 19",
+     "offset": [
+      0,
+      78
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 20",
+     "offset": [
+      0,
+      82
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 21",
+     "offset": [
+      0,
+      86
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 22",
+     "offset": [
+      0,
+      90
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 23",
+     "offset": [
+      0,
+      94
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 24",
+     "offset": [
+      0,
+      98
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 25",
+     "offset": [
+      0,
+      102
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 26",
+     "offset": [
+      0,
+      106
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 27",
+     "offset": [
+      0,
+      110
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 28",
+     "offset": [
+      0,
+      114
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 29",
+     "offset": [
+      0,
+      118
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 30",
+     "offset": [
+      0,
+      122
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 31",
+     "offset": [
+      0,
+      126
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    },
+    {
+     "name": "MFX Parameter 32",
+     "offset": [
+      1,
+      2
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*1"
+    }
+   ],
+   "total_size": [
+    0,
+    0,
+    1,
+    6
+   ],
+   "overlays": {
+    "DELAY": [
+     {
+      "name": "Tempo Sync L",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Delay L Time (msec)",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       1300
+      ],
+      "display": [
+       "1 - 1300 [msec]"
+      ]
+     },
+     {
+      "name": "Delay L Time (note)",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "Tempo Sync R",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Delay R Time (msec)",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       1300
+      ],
+      "display": [
+       "1 - 1300 [msec]"
+      ]
+     },
+     {
+      "name": "Delay R Time (note)",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "Phase Left",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "NORMAL, INVERSE"
+      ]
+     },
+     {
+      "name": "Phase Right",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "NORMAL, INVERSE"
+      ]
+     },
+     {
+      "name": "Feedback Mode",
+      "offset": [
+       0,
+       38
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "NORMAL, CROSS"
+      ]
+     },
+     {
+      "name": "Feedback",
+      "offset": [
+       0,
+       42
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       98
+      ],
+      "display": [
+       "-98 - +98 [%]"
+      ]
+     },
+     {
+      "name": "HF Damp",
+      "offset": [
+       0,
+       46
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       17
+      ],
+      "display": [
+       "200, 250, 315, 400, 500, 630, 800,",
+       "1000, 1250, 1600, 2000, 2500, 3150,",
+       "4000, 5000, 6300, 8000, BYPASS [Hz]"
+      ]
+     },
+     {
+      "name": "Low Gain",
+      "offset": [
+       0,
+       50
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "High Gain",
+      "offset": [
+       0,
+       54
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "dummy (ignored)",
+      "offset": [
+       0,
+       58
+      ],
+      "len": 4,
+      "encoding": "nibble"
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       62
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "TAPE ECHO": [
+     {
+      "name": "Mode",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       6
+      ],
+      "display": [
+       "S, M, L, S+M, S+L, M+L, S+M+L"
+      ]
+     },
+     {
+      "name": "Repeat Rate",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Intensity",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Bass",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "Treble",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "Head S Pan",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "L64 - 63R"
+      ]
+     },
+     {
+      "name": "Head M Pan",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "L64 - 63R"
+      ]
+     },
+     {
+      "name": "Head L Pan",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "L64 - 63R"
+      ]
+     },
+     {
+      "name": "Tape Distortion",
+      "offset": [
+       0,
+       38
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       5
+      ],
+      "display": [
+       "0 - 5"
+      ]
+     },
+     {
+      "name": "W/F Rate",
+      "offset": [
+       0,
+       42
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "W/F Depth",
+      "offset": [
+       0,
+       46
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "dummy (ignored)",
+      "offset": [
+       0,
+       50
+      ],
+      "len": 4,
+      "encoding": "nibble"
+     },
+     {
+      "name": "dummy (ignored)",
+      "offset": [
+       0,
+       54
+      ],
+      "len": 4,
+      "encoding": "nibble"
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       58
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "REVERSE DELAY": [
+     {
+      "name": "Threshold",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Tempo Sync Rev",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "RevDelay Time (msec)",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       1300
+      ],
+      "display": [
+       "1 - 1300 [msec]"
+      ]
+     },
+     {
+      "name": "RevDelay Time (note)",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "RevDelay Feedback",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       98
+      ],
+      "display": [
+       "-98 - +98 [%]"
+      ]
+     },
+     {
+      "name": "RevDelay HF Damp",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       17
+      ],
+      "display": [
+       "200, 250, 315, 400, 500, 630, 800,",
+       "1000, 1250, 1600, 2000, 2500, 3150,",
+       "4000, 5000, 6300, 8000, BYPASS [Hz]"
+      ]
+     },
+     {
+      "name": "RevDelay Pan",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "L64 - 63R"
+      ]
+     },
+     {
+      "name": "RevDelay Level",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Tempo Sync Delay1",
+      "offset": [
+       0,
+       38
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Delay1 Time (msec)",
+      "offset": [
+       0,
+       42
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       1300
+      ],
+      "display": [
+       "1 - 1300 [msec]"
+      ]
+     },
+     {
+      "name": "Delay1 Time (note)",
+      "offset": [
+       0,
+       46
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "Tempo Sync Delay2",
+      "offset": [
+       0,
+       50
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Delay2 Time (msec)",
+      "offset": [
+       0,
+       54
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       1300
+      ],
+      "display": [
+       "1 - 1300 [msec]"
+      ]
+     },
+     {
+      "name": "Delay2 Time (note)",
+      "offset": [
+       0,
+       58
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "Tempo Sync Delay3",
+      "offset": [
+       0,
+       62
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Delay3 Time (msec)",
+      "offset": [
+       0,
+       66
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       1300
+      ],
+      "display": [
+       "1 - 1300 [msec]"
+      ]
+     },
+     {
+      "name": "Delay3 Time (note)",
+      "offset": [
+       0,
+       70
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "Delay 3 Feedback",
+      "offset": [
+       0,
+       74
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       98
+      ],
+      "display": [
+       "-98 - +98 [%]"
+      ]
+     },
+     {
+      "name": "Delay HF Damp",
+      "offset": [
+       0,
+       78
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       17
+      ],
+      "display": [
+       "200, 250, 315, 400, 500, 630, 800,",
+       "1000, 1250, 1600, 2000, 2500, 3150,",
+       "4000, 5000, 6300, 8000, BYPASS [Hz]"
+      ]
+     },
+     {
+      "name": "Delay 1 Pan",
+      "offset": [
+       0,
+       82
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "L64 - 63R"
+      ]
+     },
+     {
+      "name": "Delay 2 Pan",
+      "offset": [
+       0,
+       86
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "L64 - 63R"
+      ]
+     },
+     {
+      "name": "Delay 1 Level",
+      "offset": [
+       0,
+       90
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Delay 2 Level",
+      "offset": [
+       0,
+       94
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Low Gain",
+      "offset": [
+       0,
+       98
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "High Gain",
+      "offset": [
+       0,
+       102
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "dummy (ignored)",
+      "offset": [
+       0,
+       106
+      ],
+      "len": 4,
+      "encoding": "nibble"
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       110
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "3TAP PAN DELAY": [
+     {
+      "name": "Tempo Sync L",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Delay L Time (msec)",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       1300
+      ],
+      "display": [
+       "1 - 1300 [msec]"
+      ]
+     },
+     {
+      "name": "Delay L Time (note)",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "Tempo Sync R",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Delay R Time (msec)",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       1300
+      ],
+      "display": [
+       "1 - 1300 [msec]"
+      ]
+     },
+     {
+      "name": "Delay R Time (note)",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "Tempo Sync Center",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Delay Ctr Time (msec)",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "Delay Ctr Time (note)",
+      "offset": [
+       0,
+       38
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "Center Feedback",
+      "offset": [
+       0,
+       42
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       98
+      ],
+      "display": [
+       "-98 - +98 [%]"
+      ]
+     },
+     {
+      "name": "HF Damp",
+      "offset": [
+       0,
+       46
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       17
+      ],
+      "display": [
+       "200, 250, 315, 400, 500, 630, 800,",
+       "1000, 1250, 1600, 2000, 2500, 3150,",
+       "4000, 5000, 6300, 8000, BYPASS [Hz]"
+      ]
+     },
+     {
+      "name": "Left Level",
+      "offset": [
+       0,
+       50
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Right Level",
+      "offset": [
+       0,
+       54
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Center Level",
+      "offset": [
+       0,
+       58
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Low Gain",
+      "offset": [
+       0,
+       62
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "High Gain",
+      "offset": [
+       0,
+       66
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "dummy (ignored)",
+      "offset": [
+       0,
+       70
+      ],
+      "len": 4,
+      "encoding": "nibble"
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       74
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "OD -> DELAY": [
+     {
+      "name": "Overdrive Drive",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Overdrive Pan",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "L64 - 63R"
+      ]
+     },
+     {
+      "name": "Tempo Sync",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Delay Time (msec)",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       2600
+      ],
+      "display": [
+       "1 - 2600 [msec]"
+      ]
+     },
+     {
+      "name": "Delay Time (note)",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "Delay Feedback",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       98
+      ],
+      "display": [
+       "-98 - +98 [%]"
+      ]
+     },
+     {
+      "name": "Delay HF Damp",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       17
+      ],
+      "display": [
+       "200, 250, 315, 400, 500, 630, 800,",
+       "1000, 1250, 1600, 2000, 2500, 3150,",
+       "4000, 5000, 6300, 8000, BYPASS [Hz]"
+      ]
+     },
+     {
+      "name": "Delay Balance",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       100
+      ],
+      "display": [
+       "D100:0W - D0:100W"
+      ]
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       38
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "DS -> DELAY": [
+     {
+      "name": "Distortion Drive",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Distortion Pan",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "L64 - 63R"
+      ]
+     },
+     {
+      "name": "Tempo Sync",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Delay Time (msec)",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       2600
+      ],
+      "display": [
+       "1 - 2600 [msec]"
+      ]
+     },
+     {
+      "name": "Delay Time (note)",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "Delay Feedback",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       98
+      ],
+      "display": [
+       "-98 - +98 [%]"
+      ]
+     },
+     {
+      "name": "Delay HF Damp",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       17
+      ],
+      "display": [
+       "200, 250, 315, 400, 500, 630, 800,",
+       "1000, 1250, 1600, 2000, 2500, 3150,",
+       "4000, 5000, 6300, 8000, BYPASS [Hz]"
+      ]
+     },
+     {
+      "name": "Delay Balance",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       100
+      ],
+      "display": [
+       "D100:0W - D0:100W"
+      ]
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       38
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "CHORUS": [
+     {
+      "name": "Filter Type",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       2
+      ],
+      "display": [
+       "OFF, LPF, HPF"
+      ]
+     },
+     {
+      "name": "Cutoff Freq",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       16
+      ],
+      "display": [
+       "200, 250, 315, 400, 500, 630, 800,",
+       "1000, 1250, 1600, 2000, 2500, 3150,",
+       "4000, 5000, 6300, 8000 [Hz]"
+      ]
+     },
+     {
+      "name": "Pre Delay",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       125
+      ],
+      "display": [
+       "0.0 - 100 [msec]"
+      ]
+     },
+     {
+      "name": "Tempo Sync",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Rate (Hz)",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       200
+      ],
+      "display": [
+       "0.05 - 10.00 [Hz]"
+      ]
+     },
+     {
+      "name": "Rate (note)",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "Depth",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Phase",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       90
+      ],
+      "display": [
+       "0 - 180 [deg]"
+      ]
+     },
+     {
+      "name": "Low Gain",
+      "offset": [
+       0,
+       38
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "High Gain",
+      "offset": [
+       0,
+       42
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "dummy (ignored)",
+      "offset": [
+       0,
+       46
+      ],
+      "len": 4,
+      "encoding": "nibble"
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       50
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "SPACE-D": [
+     {
+      "name": "Pre Delay",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       125
+      ],
+      "display": [
+       "0.0 - 100 [msec]"
+      ]
+     },
+     {
+      "name": "Tempo Sync",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Rate (Hz)",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       200
+      ],
+      "display": [
+       "0.05 - 10.00 [Hz]"
+      ]
+     },
+     {
+      "name": "Rate (note)",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "Depth",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Phase",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       90
+      ],
+      "display": [
+       "0 - 180 [deg]"
+      ]
+     },
+     {
+      "name": "Low Gain",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "High Gain",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "dummy (ignored)",
+      "offset": [
+       0,
+       38
+      ],
+      "len": 4,
+      "encoding": "nibble"
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       42
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "OD -> CHORUS": [
+     {
+      "name": "Overdrive Drive",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Overdrive Pan",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "L64 - 63R"
+      ]
+     },
+     {
+      "name": "Pre Delay",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       125
+      ],
+      "display": [
+       "0.0 - 100 [msec]"
+      ]
+     },
+     {
+      "name": "Tempo Sync",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Rate (Hz)",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       200
+      ],
+      "display": [
+       "0.05 - 10.00 [Hz]"
+      ]
+     },
+     {
+      "name": "Rate (note)",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "Chorus Depth",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Chorus Balance",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       100
+      ],
+      "display": [
+       "D100:0W - D0:100W"
+      ]
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       38
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "DS -> CHORUS": [
+     {
+      "name": "Distortion Drive",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Distortion Pan",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "L64 - 63R"
+      ]
+     },
+     {
+      "name": "Pre Delay",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       125
+      ],
+      "display": [
+       "0.0 - 100 [msec]"
+      ]
+     },
+     {
+      "name": "Tempo Sync",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Rate (Hz)",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       200
+      ],
+      "display": [
+       "0.05 - 10.00 [Hz]"
+      ]
+     },
+     {
+      "name": "Rate (note)",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "Chorus Depth",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Chorus Balance",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       100
+      ],
+      "display": [
+       "D100:0W - D0:100W"
+      ]
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       38
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "PHASER A": [
+     {
+      "name": "Mode",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       2
+      ],
+      "display": [
+       "4-STAGE, 8-STAGE, 12-STAGE"
+      ]
+     },
+     {
+      "name": "Manual",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Tempo Sync",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Rate (Hz)",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       200
+      ],
+      "display": [
+       "0.05 - 10.00 [Hz]"
+      ]
+     },
+     {
+      "name": "Rate (note)",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "Depth",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Polarity",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "INVERSE, SYNCHRO"
+      ]
+     },
+     {
+      "name": "Resonance",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Cross Feedback",
+      "offset": [
+       0,
+       38
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       98
+      ],
+      "display": [
+       "-98 - +98 [%]"
+      ]
+     },
+     {
+      "name": "dummy (ignored)",
+      "offset": [
+       0,
+       42
+      ],
+      "len": 4,
+      "encoding": "nibble"
+     },
+     {
+      "name": "Low Gain",
+      "offset": [
+       0,
+       46
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "High Gain",
+      "offset": [
+       0,
+       50
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       54
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "PHASER B": [
+     {
+      "name": "Speed",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       100
+      ],
+      "display": [
+       "0 - 100"
+      ]
+     },
+     {
+      "name": "Depth",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Low Gain",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "High Gain",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "STEP PHASER": [
+     {
+      "name": "Mode",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       2
+      ],
+      "display": [
+       "4-STAGE, 8-STAGE, 12-STAGE"
+      ]
+     },
+     {
+      "name": "Manual",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Tempo Sync (Rate)",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Rate (Hz)",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       200
+      ],
+      "display": [
+       "0.05 - 10.00 [Hz]"
+      ]
+     },
+     {
+      "name": "Rate (note)",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "Depth",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Polarity",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "INVERSE, SYNCHRO"
+      ]
+     },
+     {
+      "name": "Resonance",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Cross Feedback",
+      "offset": [
+       0,
+       38
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       98
+      ],
+      "display": [
+       "-98 - +98 [%]"
+      ]
+     },
+     {
+      "name": "Tempo Sync (Step Rate)",
+      "offset": [
+       0,
+       42
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Step Rate (Hz)",
+      "offset": [
+       0,
+       46
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       200
+      ],
+      "display": [
+       "0.05 - 10.00 [Hz]"
+      ]
+     },
+     {
+      "name": "Step Rate (note)",
+      "offset": [
+       0,
+       50
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "dummy (ignored)",
+      "offset": [
+       0,
+       54
+      ],
+      "len": 4,
+      "encoding": "nibble"
+     },
+     {
+      "name": "Low Gain",
+      "offset": [
+       0,
+       58
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "High Gain",
+      "offset": [
+       0,
+       62
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       66
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "FLANGER": [
+     {
+      "name": "Filter Type",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       2
+      ],
+      "display": [
+       "OFF, LPF, HPF"
+      ]
+     },
+     {
+      "name": "Cutoff Freq",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       16
+      ],
+      "display": [
+       "200, 250, 315, 400, 500, 630, 800,",
+       "1000, 1250, 1600, 2000, 2500, 3150,",
+       "4000, 5000, 6300, 8000 [Hz]"
+      ]
+     },
+     {
+      "name": "Pre Delay",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       125
+      ],
+      "display": [
+       "0.0 - 100 [msec]"
+      ]
+     },
+     {
+      "name": "Tempo Sync",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Rate (Hz)",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       200
+      ],
+      "display": [
+       "0.05 - 10.00 [Hz]"
+      ]
+     },
+     {
+      "name": "Rate (note)",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "Depth",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Phase",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       90
+      ],
+      "display": [
+       "0 - 180 [deg]"
+      ]
+     },
+     {
+      "name": "Feedback",
+      "offset": [
+       0,
+       38
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       98
+      ],
+      "display": [
+       "-98 - +98 [%]"
+      ]
+     },
+     {
+      "name": "Low Gain",
+      "offset": [
+       0,
+       42
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "High Gain",
+      "offset": [
+       0,
+       46
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "dummy (ignored)",
+      "offset": [
+       0,
+       50
+      ],
+      "len": 4,
+      "encoding": "nibble"
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       54
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "REVERB": [
+     {
+      "name": "Type",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       5
+      ],
+      "display": [
+       "ROOM1, ROOM2, STAGE1, STAGE2, HALL1, HALL2"
+      ]
+     },
+     {
+      "name": "Pre Delay",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       125
+      ],
+      "display": [
+       "0.0 - 100 [msec]"
+      ]
+     },
+     {
+      "name": "Time",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "HF Damp",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       17
+      ],
+      "display": [
+       "200, 250, 315, 400, 500, 630, 800,",
+       "1000, 1250, 1600, 2000, 2500, 3150,",
+       "4000, 5000, 6300, 8000, BYPASS [Hz]"
+      ]
+     },
+     {
+      "name": "Low Gain",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "High Gain",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "dummy (ignored)",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble"
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "LONG REVERB": [
+     {
+      "name": "Depth",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Time",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Pre LPF",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       32
+      ],
+      "display": [
+       "16, 20, 25, 32, 40, 50, 63, 80, 100,",
+       "125, 160, 200, 250, 315, 400, 500,",
+       "630, 800, 1000, 1250, 1600, 2000,",
+       "2500, 3150, 4000, 5000, 6300, 8000,",
+       "10000, 12500, 15000, BYPASS [Hz]"
+      ]
+     },
+     {
+      "name": "Pre HPF",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       31
+      ],
+      "display": [
+       "BYPASS, 16, 20, 25, 32, 40, 50, 63, 80,",
+       "100, 125, 160, 200, 250, 315, 400, 500,",
+       "630, 800, 1000, 1250, 1600, 2000, 2500,",
+       "3150, 4000, 5000, 6300, 8000, 10000,",
+       "12500, 15000 [Hz]"
+      ]
+     },
+     {
+      "name": "Peaking Freq",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       16
+      ],
+      "display": [
+       "200, 250, 315, 400, 500, 630, 800,",
+       "1000, 1250, 1600, 2000, 2500, 3150,",
+       "4000, 5000, 6300, 8000 [Hz]"
+      ]
+     },
+     {
+      "name": "Peaking Gain",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "Peaking Q",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       4
+      ],
+      "display": [
+       "0.5, 1.0, 2.0, 4.0, 8.0"
+      ]
+     },
+     {
+      "name": "HF Damp",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       32
+      ],
+      "display": [
+       "16, 20, 25, 32, 40, 50, 63, 80, 100,",
+       "125, 160, 200, 250, 315, 400, 500,",
+       "630, 800, 1000, 1250, 1600, 2000,",
+       "2500, 3150, 4000, 5000, 6300, 8000,",
+       "10000, 12500, 15000, BYPASS [Hz]"
+      ]
+     },
+     {
+      "name": "LF Damp",
+      "offset": [
+       0,
+       38
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       31
+      ],
+      "display": [
+       "BYPASS, 16, 20, 25, 32, 40, 50, 63, 80,",
+       "100, 125, 160, 200, 250, 315, 400, 500,",
+       "630, 800, 1000, 1250, 1600, 2000, 2500,",
+       "3150, 4000, 5000, 6300, 8000, 10000,",
+       "12500, 15000 [Hz]"
+      ]
+     },
+     {
+      "name": "Character",
+      "offset": [
+       0,
+       42
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       5
+      ],
+      "display": [
+       "1 - 6"
+      ]
+     },
+     {
+      "name": "EQ Low Freq",
+      "offset": [
+       0,
+       46
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "200, 400 [Hz]"
+      ]
+     },
+     {
+      "name": "EQ Low Gain",
+      "offset": [
+       0,
+       50
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "EQ High Freq",
+      "offset": [
+       0,
+       54
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       2
+      ],
+      "display": [
+       "2000, 4000, 8000 [Hz]"
+      ]
+     },
+     {
+      "name": "EQ High Gain",
+      "offset": [
+       0,
+       58
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       62
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "SUPER FILTER": [
+     {
+      "name": "Filter Type",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       3
+      ],
+      "display": [
+       "OFF, LPF, HPF, NOTCH"
+      ]
+     },
+     {
+      "name": "Filter Slope",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       2
+      ],
+      "display": [
+       "-12, -24, -36 [dB]"
+      ]
+     },
+     {
+      "name": "Filter Cutoff",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Filter Resonance",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Filter Gain",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       12
+      ],
+      "display": [
+       "0 - +12[dB]"
+      ]
+     },
+     {
+      "name": "Modulation Sw",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Modulation Wave",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       4
+      ],
+      "display": [
+       "TRI, SQR, SIN, SAW1, SAW2"
+      ]
+     },
+     {
+      "name": "Tempo Sync",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Rate (Hz)",
+      "offset": [
+       0,
+       38
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       200
+      ],
+      "display": [
+       "0.05 - 10.00 [Hz]"
+      ]
+     },
+     {
+      "name": "Rate (note)",
+      "offset": [
+       0,
+       42
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "Depth",
+      "offset": [
+       0,
+       46
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Attack",
+      "offset": [
+       0,
+       50
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       54
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "FILTER+DRIVE": [
+     {
+      "name": "Cutoff",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Resonance",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Drive",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "AUTO WAH": [
+     {
+      "name": "Filter Type",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "LPF, HPF"
+      ]
+     },
+     {
+      "name": "Manual",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Peak",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Sens",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Polarity",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "UP, DOWN"
+      ]
+     },
+     {
+      "name": "Tempo Sync",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Rate (Hz)",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       200
+      ],
+      "display": [
+       "0.05 - 10.00 [Hz]"
+      ]
+     },
+     {
+      "name": "Rate (note)",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "Depth",
+      "offset": [
+       0,
+       38
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Phase",
+      "offset": [
+       0,
+       42
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       90
+      ],
+      "display": [
+       "0 - 180 [deg]"
+      ]
+     },
+     {
+      "name": "Low Gain",
+      "offset": [
+       0,
+       46
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "High Gain",
+      "offset": [
+       0,
+       50
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       54
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "OD/DS -> TWAH": [
+     {
+      "name": "Drive Switch",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Drive Type",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OVERDRIVE, DISTORTION"
+      ]
+     },
+     {
+      "name": "Drive",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Tone",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Amp Switch",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Amp Type",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       3
+      ],
+      "display": [
+       "SMALL, BUILT-IN, 2-STACK, 3-STACK"
+      ]
+     },
+     {
+      "name": "Touch Wah Switch",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Touch Wah Mode",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "LPF, BPF"
+      ]
+     },
+     {
+      "name": "Touch Wah Polarity",
+      "offset": [
+       0,
+       38
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "DOWN, UP"
+      ]
+     },
+     {
+      "name": "Touch Wah Sens",
+      "offset": [
+       0,
+       42
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Touch Wah Manual",
+      "offset": [
+       0,
+       46
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Touch Wah Peak",
+      "offset": [
+       0,
+       50
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Touch Wah Balance",
+      "offset": [
+       0,
+       54
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       100
+      ],
+      "display": [
+       "D100:0W - D0:100W"
+      ]
+     },
+     {
+      "name": "Low Gain",
+      "offset": [
+       0,
+       58
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "High Gain",
+      "offset": [
+       0,
+       62
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       66
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "LOFI COMPRESS": [
+     {
+      "name": "Pre Filter Type",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       5
+      ],
+      "display": [
+       "1, 2, 3, 4, 5, 6"
+      ]
+     },
+     {
+      "name": "LoFi Type",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       8
+      ],
+      "display": [
+       "1, 2, 3, 4, 5, 6, 7, 8, 9"
+      ]
+     },
+     {
+      "name": "PostFilter Type",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       2
+      ],
+      "display": [
+       "OFF, LPF, HPF"
+      ]
+     },
+     {
+      "name": "PostFilter Cutoff",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       16
+      ],
+      "display": [
+       "200, 250, 315, 400, 500, 630, 800,",
+       "1000, 1250, 1600, 2000, 2500, 3150,",
+       "4000, 5000, 6300, 8000 [Hz]"
+      ]
+     },
+     {
+      "name": "Low Gain",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "High Gain",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "dummy (ignored)",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble"
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "DISTORTION": [
+     {
+      "name": "Drive",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Tone",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Amp Sw",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Amp Type",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       3
+      ],
+      "display": [
+       "SMALL, BUILT-IN, 2-STACK, 3-STACK"
+      ]
+     },
+     {
+      "name": "Low Gain",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "High Gain",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "Pan",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "L64 - 63R"
+      ]
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "OVERDRIVE": [
+     {
+      "name": "Drive",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Tone",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Amp Sw",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Amp Type",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       3
+      ],
+      "display": [
+       "SMALL, BUILT-IN, 2-STACK, 3-STACK"
+      ]
+     },
+     {
+      "name": "Low Gain",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "High Gain",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "Pan",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "L64 - 63R"
+      ]
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "SATURATOR": [
+     {
+      "name": "Saturator Gain",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Saturator Drive",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Saturator Level",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Comp Depth",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Comp Level",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Hi Gain",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       3,
+       21
+      ],
+      "display": [
+       "-12 - +6 [dB]"
+      ]
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "T-SCREAM": [
+     {
+      "name": "Distortion",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Tone",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "BIT CRUSHER": [
+     {
+      "name": "Sample Rate",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Bit Down",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       18
+      ],
+      "display": [
+       "0 - 18"
+      ]
+     },
+     {
+      "name": "Filter",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Low Gain",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "High Gain",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "ISOLATOR": [
+     {
+      "name": "Boost/Cut Low",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       64
+      ],
+      "display": [
+       "-60 - +4 [dB]"
+      ]
+     },
+     {
+      "name": "Boost/Cut Mid",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       64
+      ],
+      "display": [
+       "-60 - +4 [dB]"
+      ]
+     },
+     {
+      "name": "Boost/Cut High",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       64
+      ],
+      "display": [
+       "-60 - +4 [dB]"
+      ]
+     },
+     {
+      "name": "Anti Phase Low Sw",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Anti Phase Low Level",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Anti Phase Mid Sw",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Anti Phase Mid Level",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Low Boost Sw",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Low Boost Level",
+      "offset": [
+       0,
+       38
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       42
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "RING MODULATOR": [
+     {
+      "name": "Frequency",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Sens",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Polarity",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "UP, DOWN"
+      ]
+     },
+     {
+      "name": "Low Gain",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "High Gain",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "dummy (ignored)",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble"
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "PITCH SHIFTER": [
+     {
+      "name": "Coarse",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       36
+      ],
+      "display": [
+       "-24 - +12 [semi]"
+      ]
+     },
+     {
+      "name": "Fine",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       100
+      ],
+      "display": [
+       "-100 - +100 [cent]"
+      ]
+     },
+     {
+      "name": "Tempo Sync",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Delay Time (msec)",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       1300
+      ],
+      "display": [
+       "1 - 1300 [msec]"
+      ]
+     },
+     {
+      "name": "Delay Time (note)",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "Feedback",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       98
+      ],
+      "display": [
+       "-98 - +98 [%]"
+      ]
+     },
+     {
+      "name": "Low Gain",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "High Gain",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "dummy (ignored)",
+      "offset": [
+       0,
+       38
+      ],
+      "len": 4,
+      "encoding": "nibble"
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       42
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "AUTO PAN": [
+     {
+      "name": "Mod Wave",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       5
+      ],
+      "display": [
+       "TRI, SQR, SIN, SAW1, SAW2, TRP"
+      ]
+     },
+     {
+      "name": "Tempo Sync",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Rate (Hz)",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       200
+      ],
+      "display": [
+       "0.05 - 10.00 [Hz]"
+      ]
+     },
+     {
+      "name": "Rate (note)",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "Depth",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Low Gain",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "High Gain",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "EQUALIZER": [
+     {
+      "name": "Low Freq",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       13
+      ],
+      "display": [
+       "20Hz, 25Hz, 31.5Hz, 40Hz, 50Hz,",
+       "63Hz, 80Hz, 100Hz, 125Hz, 160Hz,",
+       "200Hz, 250Hz, 315Hz, 400Hz"
+      ]
+     },
+     {
+      "name": "Low Gain",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 -"
+      ]
+     },
+     {
+      "name": "Mid 1 Freq",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       16
+      ],
+      "display": [
+       "200Hz, 250Hz,",
+       "800Hz, 1000Hz,",
+       "2500Hz, 3150Hz,"
+      ]
+     },
+     {
+      "name": "Mid1 Gain",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 -"
+      ]
+     },
+     {
+      "name": "Mid 1 Q",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       4
+      ],
+      "display": [
+       "0.5, 1.0, 2.0,"
+      ]
+     },
+     {
+      "name": "Mid 2 Freq",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       16
+      ],
+      "display": [
+       "200Hz, 250Hz,",
+       "800Hz, 1000Hz,",
+       "2500Hz, 3150Hz,"
+      ]
+     },
+     {
+      "name": "Mid 2 Gain",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "Mid 2 Q",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       4
+      ],
+      "display": [
+       "0.5, 1.0, 2.0,"
+      ]
+     },
+     {
+      "name": "High Freq",
+      "offset": [
+       0,
+       38
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       9
+      ],
+      "display": [
+       "2000Hz,",
+       "5000Hz,",
+       "12500Hz,"
+      ]
+     },
+     {
+      "name": "High Gain",
+      "offset": [
+       0,
+       42
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       46
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "SPECTRUM": [
+     {
+      "name": "250Hz",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "500Hz",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 -"
+      ]
+     },
+     {
+      "name": "1000Hz",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "1250Hz",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 -"
+      ]
+     },
+     {
+      "name": "2000Hz",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 -"
+      ]
+     },
+     {
+      "name": "3150Hz",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 -"
+      ]
+     },
+     {
+      "name": "4000Hz",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "8000Hz",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 -"
+      ]
+     },
+     {
+      "name": "Q",
+      "offset": [
+       0,
+       38
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       4
+      ],
+      "display": [
+       "0.5, 1.0,"
+      ]
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       42
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "LOW BOOST": [
+     {
+      "name": "Boost Frequency",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       8
+      ],
+      "display": [
+       "50Hz, 56Hz, 63Hz, 71Hz,  80Hz,",
+       "90Hz, 100Hz, 112Hz, 125 Hz"
+      ]
+     },
+     {
+      "name": "Boost Gain",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       12
+      ],
+      "display": [
+       "0 -"
+      ]
+     },
+     {
+      "name": "Boost Width",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       2
+      ],
+      "display": [
+       "WIDE, MID, NARROW"
+      ]
+     },
+     {
+      "name": "Low Gain",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 -"
+      ]
+     },
+     {
+      "name": "High Gain",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 -"
+      ]
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "ENHANCER": [
+     {
+      "name": "Sens",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Mix",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Low Gain",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 -"
+      ]
+     },
+     {
+      "name": "High Gain",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 -"
+      ]
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "HUMANIZER": [
+     {
+      "name": "Drive Sw",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Drive",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Vowel1",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       4
+      ],
+      "display": [
+       "a, e, i, o, u"
+      ]
+     },
+     {
+      "name": "Vowel2",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       4
+      ],
+      "display": [
+       "a, e, i, o, u"
+      ]
+     },
+     {
+      "name": "Tempo Sync                                    (0 -",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Rate(Hz)",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       200
+      ],
+      "display": [
+       "0.05 - 10.00 [Hz]"
+      ]
+     },
+     {
+      "name": "Rate(note)",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "|"
+      ]
+     },
+     {
+      "name": "Depth",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Input Sync",
+      "offset": [
+       0,
+       38
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Input Sync Threshold",
+      "offset": [
+       0,
+       42
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Manual",
+      "offset": [
+       0,
+       46
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       100
+      ],
+      "display": [
+       "0 - 100"
+      ]
+     },
+     {
+      "name": "Low Gain",
+      "offset": [
+       0,
+       50
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "High Gain",
+      "offset": [
+       0,
+       54
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "Pan                        (0 - 127 )",
+      "offset": [
+       0,
+       58
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       62
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "SLICER": [
+     {
+      "name": "Step 01",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Step 02",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Step 03",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Step 04",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Step 05",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Step 06",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Step 07",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Step 08",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Step 09",
+      "offset": [
+       0,
+       38
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Step 10",
+      "offset": [
+       0,
+       42
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Step 11",
+      "offset": [
+       0,
+       46
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Step 12",
+      "offset": [
+       0,
+       50
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Step 13",
+      "offset": [
+       0,
+       54
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Step 14",
+      "offset": [
+       0,
+       58
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Step 15",
+      "offset": [
+       0,
+       62
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Step 16",
+      "offset": [
+       0,
+       66
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Tempo Sync",
+      "offset": [
+       0,
+       70
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Rate(Hz)",
+      "offset": [
+       0,
+       74
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       200
+      ],
+      "display": [
+       "0.05 -"
+      ]
+     },
+     {
+      "name": "Rate(note)",
+      "offset": [
+       0,
+       78
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "|"
+      ]
+     },
+     {
+      "name": "Attack",
+      "offset": [
+       0,
+       82
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Input Sync",
+      "offset": [
+       0,
+       86
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Input Sync Threshold",
+      "offset": [
+       0,
+       90
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Mode",
+      "offset": [
+       0,
+       94
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "LEGATO,"
+      ]
+     },
+     {
+      "name": "Shuffle",
+      "offset": [
+       0,
+       98
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       102
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "STEP FLANGER": [
+     {
+      "name": "Filter Type",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       2
+      ],
+      "display": [
+       "OFF, LPF,"
+      ]
+     },
+     {
+      "name": "Cutoff Freq",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       16
+      ],
+      "display": [
+       "200Hz,",
+       "500Hz,",
+       "1600Hz,",
+       "4000Hz,"
+      ]
+     },
+     {
+      "name": "Pre Delay",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       125
+      ],
+      "display": [
+       "0.0 - 100"
+      ]
+     },
+     {
+      "name": "Tempo Sync (Rate)",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Rate(Hz)",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       200
+      ],
+      "display": [
+       "0.05 -"
+      ]
+     },
+     {
+      "name": "Rate(note)",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "|"
+      ]
+     },
+     {
+      "name": "Depth",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Phase",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       90
+      ],
+      "display": [
+       "0 - 180"
+      ]
+     },
+     {
+      "name": "Feedback",
+      "offset": [
+       0,
+       38
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       98
+      ],
+      "display": [
+       "-98 - +98"
+      ]
+     },
+     {
+      "name": "Tempo Sync (Step Rate)",
+      "offset": [
+       0,
+       42
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Step Rate(Hz)",
+      "offset": [
+       0,
+       46
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       200
+      ],
+      "display": [
+       "0.10 -"
+      ]
+     },
+     {
+      "name": "Step Rate(note)",
+      "offset": [
+       0,
+       50
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "Low Gain",
+      "offset": [
+       0,
+       54
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "High Gain",
+      "offset": [
+       0,
+       58
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "dummy (ignored)",
+      "offset": [
+       0,
+       62
+      ],
+      "len": 4,
+      "encoding": "nibble"
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       66
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "HEXA-CHORUS": [
+     {
+      "name": "Pre Delay                                   (0 -",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "display": [
+       "0.0 - 100"
+      ]
+     },
+     {
+      "name": "Tempo Sync",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Rate(Hz)",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       200
+      ],
+      "display": [
+       "0.05 -"
+      ]
+     },
+     {
+      "name": "Rate(note)",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "Depth",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Pre Delay Deviation",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       20
+      ],
+      "display": [
+       "0 - 20"
+      ]
+     },
+     {
+      "name": "Depth Deviation",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       40
+      ],
+      "display": [
+       "-20 - +20"
+      ]
+     },
+     {
+      "name": "Pan Deviation",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       20
+      ],
+      "display": [
+       "0 - 20"
+      ]
+     },
+     {
+      "name": "dummy (ignored)",
+      "offset": [
+       0,
+       38
+      ],
+      "len": 4,
+      "encoding": "nibble"
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       42
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "4 TAP PAN DELAY": [
+     {
+      "name": "Delay 1 Sync",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Delay 1 Time(msec)",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       2600
+      ],
+      "display": [
+       "1 - 2600"
+      ]
+     },
+     {
+      "name": "Delay 1 Time(note)",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "Delay 2 Sync",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Delay 2 Time(msec)",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       2600
+      ],
+      "display": [
+       "1 - 2600"
+      ]
+     },
+     {
+      "name": "Delay 2 Time(note)",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "Delay 3 Sync",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Delay 3 Time(msec)",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       2600
+      ],
+      "display": [
+       "1 - 2600"
+      ]
+     },
+     {
+      "name": "Delay 3 Time(note)",
+      "offset": [
+       0,
+       38
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "Delay 4 Sync",
+      "offset": [
+       0,
+       42
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "OFF, ON"
+      ]
+     },
+     {
+      "name": "Delay 3 Time(msec)",
+      "offset": [
+       0,
+       46
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       2600
+      ],
+      "display": [
+       "1 - 2600"
+      ]
+     },
+     {
+      "name": "Delay 3 Time(note)",
+      "offset": [
+       0,
+       50
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "Delay 1 Feedback",
+      "offset": [
+       0,
+       54
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       98
+      ],
+      "display": [
+       "-98 - +98"
+      ]
+     },
+     {
+      "name": "HF Damp",
+      "offset": [
+       0,
+       58
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       17
+      ],
+      "display": [
+       "200Hz,",
+       "630Hz,",
+       "2000Hz,",
+       "5000Hz,"
+      ]
+     },
+     {
+      "name": "Delay 1 Level",
+      "offset": [
+       0,
+       62
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Delay 2 Level",
+      "offset": [
+       0,
+       66
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Delay 3 Level",
+      "offset": [
+       0,
+       70
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Delay 4 Level",
+      "offset": [
+       0,
+       74
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Low Gain",
+      "offset": [
+       0,
+       78
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "High Gain",
+      "offset": [
+       0,
+       82
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       30
+      ],
+      "display": [
+       "-15 - +15 [dB]"
+      ]
+     },
+     {
+      "name": "dummy (ignored)",
+      "offset": [
+       0,
+       86
+      ],
+      "len": 4,
+      "encoding": "nibble"
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       90
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "EH->FLANGER": [
+     {
+      "name": "Enhancer Sens",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Enhancer Mix",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "FLANG Pre Delay",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       125
+      ],
+      "display": [
+       "0.0 - 100"
+      ]
+     },
+     {
+      "name": "FLANG Tempo Sync",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       1
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "FLANG Rate(Hz)",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       200
+      ],
+      "display": [
+       "0.05 -"
+      ]
+     },
+     {
+      "name": "FLANG Rate(note)",
+      "offset": [
+       0,
+       26
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       21
+      ],
+      "display": [
+       "MUSICAL-NOTES"
+      ]
+     },
+     {
+      "name": "FLANG Depth",
+      "offset": [
+       0,
+       30
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "FLANG Feedback",
+      "offset": [
+       0,
+       34
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       98
+      ],
+      "display": [
+       "-98 - +98"
+      ]
+     },
+     {
+      "name": "FLANG Balance",
+      "offset": [
+       0,
+       38
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       100
+      ],
+      "display": [
+       "D100:0W - D0:100W"
+      ]
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       42
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ],
+    "SPEAKER SIM": [
+     {
+      "name": "Speaker Type",
+      "offset": [
+       0,
+       6
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       15
+      ],
+      "display": [
+       "SMALL 1,",
+       "BUILT-IN",
+       "BUILT-IN",
+       "MS STACK"
+      ]
+     },
+     {
+      "name": "Mic Setting",
+      "offset": [
+       0,
+       10
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       2
+      ],
+      "display": [
+       "1 - 3"
+      ]
+     },
+     {
+      "name": "Mic Level",
+      "offset": [
+       0,
+       14
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Direct Level",
+      "offset": [
+       0,
+       18
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     },
+     {
+      "name": "Level",
+      "offset": [
+       0,
+       22
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       127
+      ],
+      "display": [
+       "0 - 127"
+      ]
+     }
+    ]
+   }
+  },
+  "KitUnitVEdit": {
+   "kind": "leaf",
+   "params": [
+    {
+     "name": "(reserve)",
+     "offset": [
+      0,
+      0
+     ],
+     "len": 1,
+     "encoding": "plain7",
+     "bits": 0
+    },
+    {
+     "name": "V-Edit Parameter 1",
+     "offset": [
+      0,
+      1
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*2"
+    },
+    {
+     "name": "V-Edit Parameter 2",
+     "offset": [
+      0,
+      5
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*2"
+    },
+    {
+     "name": "V-Edit Parameter 3",
+     "offset": [
+      0,
+      9
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*2"
+    },
+    {
+     "name": "V-Edit Parameter 4",
+     "offset": [
+      0,
+      13
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*2"
+    },
+    {
+     "name": "V-Edit Parameter 5",
+     "offset": [
+      0,
+      17
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*2"
+    },
+    {
+     "name": "V-Edit Parameter 6",
+     "offset": [
+      0,
+      21
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*2"
+    },
+    {
+     "name": "V-Edit Parameter 7",
+     "offset": [
+      0,
+      25
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*2"
+    },
+    {
+     "name": "V-Edit Parameter 8",
+     "offset": [
+      0,
+      29
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*2"
+    },
+    {
+     "name": "V-Edit Parameter 9",
+     "offset": [
+      0,
+      33
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*2"
+    },
+    {
+     "name": "V-Edit Parameter 10",
+     "offset": [
+      0,
+      37
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*2"
+    },
+    {
+     "name": "V-Edit Parameter 11",
+     "offset": [
+      0,
+      41
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*2"
+    },
+    {
+     "name": "V-Edit Parameter 12",
+     "offset": [
+      0,
+      45
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*2"
+    },
+    {
+     "name": "V-Edit Parameter 13",
+     "offset": [
+      0,
+      49
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*2"
+    },
+    {
+     "name": "V-Edit Parameter 14",
+     "offset": [
+      0,
+      53
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*2"
+    },
+    {
+     "name": "V-Edit Parameter 15",
+     "offset": [
+      0,
+      57
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*2"
+    },
+    {
+     "name": "V-Edit Parameter 16",
+     "offset": [
+      0,
+      61
+     ],
+     "len": 4,
+     "encoding": "nibble",
+     "footnote": "*2"
+    }
+   ],
+   "total_size": [
+    0,
+    0,
+    0,
+    65
+   ],
+   "overlays": {
+    "KICK": [
+     {
+      "name": "(reserve)",
+      "offset": [
+       0,
+       0
+      ],
+      "len": 1,
+      "encoding": "plain7",
+      "bits": 0
+     },
+     {
+      "name": "Tuning",
+      "offset": [
+       0,
+       1
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       -100,
+       100
+      ],
+      "display": [
+       "-100 - +100"
+      ]
+     },
+     {
+      "name": "Muffling",
+      "offset": [
+       0,
+       5
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       9
+      ],
+      "display": [
+       "OFF, TAPE1 - 4, BLANKET1 - 3, WEIGHT1 - 2"
+      ]
+     },
+     {
+      "name": "Snare Buzz",
+      "offset": [
+       0,
+       9
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       8
+      ],
+      "display": [
+       "OFF, 1 - 8"
+      ]
+     }
+    ],
+    "SNARE": [
+     {
+      "name": "(reserve)",
+      "offset": [
+       0,
+       0
+      ],
+      "len": 1,
+      "encoding": "plain7",
+      "bits": 0
+     },
+     {
+      "name": "Tuning",
+      "offset": [
+       0,
+       1
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       -100,
+       100
+      ],
+      "display": [
+       "-100 - +100"
+      ]
+     },
+     {
+      "name": "Muffling",
+      "offset": [
+       0,
+       5
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       9
+      ],
+      "display": [
+       "OFF, TAPE1 - 7, DONUT1 - 2"
+      ]
+     },
+     {
+      "name": "Strainer Adj",
+      "offset": [
+       0,
+       9
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       8
+      ],
+      "display": [
+       "LOOSE1 - 3, MEDIUM1 - 3, TIGHT1 - 3"
+      ]
+     }
+    ],
+    "CROSS STICK": [
+     {
+      "name": "(reserve)",
+      "offset": [
+       0,
+       0
+      ],
+      "len": 1,
+      "encoding": "plain7",
+      "bits": 0
+     },
+     {
+      "name": "Tuning",
+      "offset": [
+       0,
+       1
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       -100,
+       100
+      ],
+      "display": [
+       "-100 - +100"
+      ]
+     },
+     {
+      "name": "Muffling",
+      "offset": [
+       0,
+       5
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       9
+      ],
+      "display": [
+       "OFF, TAPE1 - 7, DONUT1 - 2"
+      ]
+     }
+    ],
+    "TOM": [
+     {
+      "name": "(reserve)",
+      "offset": [
+       0,
+       0
+      ],
+      "len": 1,
+      "encoding": "plain7",
+      "bits": 0
+     },
+     {
+      "name": "Tuning",
+      "offset": [
+       0,
+       1
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       -100,
+       100
+      ],
+      "display": [
+       "-100 - +100"
+      ]
+     },
+     {
+      "name": "Muffling",
+      "offset": [
+       0,
+       5
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       9
+      ],
+      "display": [
+       "OFF, TAPE1 - 5, FELT1 - 4"
+      ]
+     },
+     {
+      "name": "Snare Buzz",
+      "offset": [
+       0,
+       9
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       8
+      ],
+      "display": [
+       "OFF, 1 - 8"
+      ]
+     }
+    ],
+    "HI-HAT": [
+     {
+      "name": "(reserve)",
+      "offset": [
+       0,
+       0
+      ],
+      "len": 1,
+      "encoding": "plain7",
+      "bits": 0
+     },
+     {
+      "name": "Size",
+      "offset": [
+       0,
+       1
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       78
+      ],
+      "display": [
+       "1.0 - 40.0"
+      ]
+     },
+     {
+      "name": "Fixed",
+      "offset": [
+       0,
+       5
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       4
+      ],
+      "display": [
+       "NORMAL, FIXED1 - 4"
+      ]
+     }
+    ],
+    "RIDE, CRASH, SPLASH/CHINA": [
+     {
+      "name": "(reserve)",
+      "offset": [
+       0,
+       0
+      ],
+      "len": 1,
+      "encoding": "plain7",
+      "bits": 0
+     },
+     {
+      "name": "Size",
+      "offset": [
+       0,
+       1
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       78
+      ],
+      "display": [
+       "1.0 - 40.0"
+      ]
+     },
+     {
+      "name": "Muffling",
+      "offset": [
+       0,
+       5
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       0,
+       19
+      ],
+      "display": [
+       "OFF, TAPE1 - 19"
+      ]
+     }
+    ],
+    "Other than the above": [
+     {
+      "name": "(reserve)",
+      "offset": [
+       0,
+       0
+      ],
+      "len": 1,
+      "encoding": "plain7",
+      "bits": 0
+     },
+     {
+      "name": "Pitch",
+      "offset": [
+       0,
+       1
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       -4800,
+       4800
+      ],
+      "display": [
+       "-4800 - +4800"
+      ]
+     },
+     {
+      "name": "Decay",
+      "offset": [
+       0,
+       5
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "range": [
+       1,
+       100
+      ],
+      "display": [
+       "1 - 100"
+      ]
+     }
+    ]
+   }
+  }
+ },
+ "assignments": {
+  "KitUnitCommon": {
+   "1": "KICK HEAD",
+   "2": "SNARE HEAD",
+   "3": "SNARE RIM",
+   "4": "TOM1 HEAD",
+   "5": "TOM1 RIM",
+   "6": "TOM2 HEAD",
+   "7": "TOM2 RIM",
+   "8": "TOM3 HEAD",
+   "9": "TOM3 RIM",
+   "10": "HI-HAT HEAD",
+   "11": "HI-HAT RIM",
+   "12": "CRASH1 HEAD",
+   "13": "CRASH1 RIM",
+   "14": "CRASH2 HEAD",
+   "15": "CRASH2 RIM",
+   "16": "RIDE HEAD",
+   "17": "RIDE RIM",
+   "18": "RIDE BELL",
+   "19": "AUX HEAD",
+   "20": "AUX RIM"
+  },
+  "KitUnitInst": {
+   "1": "KICK HEAD",
+   "2": "SNARE HEAD",
+   "3": "SNARE RIM",
+   "4": "TOM1 HEAD",
+   "5": "TOM1 RIM",
+   "6": "TOM2 HEAD",
+   "7": "TOM2 RIM",
+   "8": "TOM3 HEAD",
+   "9": "TOM3 RIM",
+   "10": "HI-HAT HEAD",
+   "11": "HI-HAT RIM",
+   "12": "CRASH1 HEAD",
+   "13": "CRASH1 RIM",
+   "14": "CRASH2 HEAD",
+   "15": "CRASH2 RIM",
+   "16": "RIDE HEAD",
+   "17": "RIDE RIM",
+   "18": "RIDE BELL",
+   "19": "AUX HEAD",
+   "20": "AUX RIM"
+  },
+  "KitUnitVEdit": {
+   "1": "KICK HEAD",
+   "2": "SNARE HEAD",
+   "3": "SNARE RIM",
+   "4": "TOM1 HEAD",
+   "5": "TOM1 RIM",
+   "6": "TOM2 HEAD",
+   "7": "TOM2 RIM",
+   "8": "TOM3 HEAD",
+   "9": "TOM3 RIM",
+   "10": "HI-HAT HEAD",
+   "11": "HI-HAT RIM",
+   "12": "CRASH1 HEAD",
+   "13": "CRASH1 RIM",
+   "14": "CRASH2 HEAD",
+   "15": "CRASH2 RIM",
+   "16": "RIDE HEAD",
+   "17": "RIDE RIM",
+   "18": "RIDE BELL",
+   "19": "AUX HEAD",
+   "20": "AUX RIM"
+  }
+ }
+}

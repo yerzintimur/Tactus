@@ -217,9 +217,22 @@ and verified; keep this file honest about real state.
   multiple concurrent sessions ([ADR-0010](docs/adr/0010-device-instances-and-source-of-truth.md)).
 - [ ] **`P3` Per-segment mixed-language speech** — `LocalizedText` spans
   ([ADR-0011](docs/adr/0011-mixed-language-speech.md)).
-- [ ] **`P3` Second device profile** (V51/V71, when HW/docs available) — prove the
-  extension is data-only, no code changes.
-- [ ] **`P3` BLE-MIDI transport** (secondary).
+- [x] **Second module studied — Roland TD-17** ([notes](docs/devices/roland-td-17.md)).
+  A blind drum teacher we can reach uses a TD-17KVX2, which makes it the first
+  real second target. Same Roland SysEx mechanics (Model ID `00 00 00 4B`,
+  4 bytes vs the V31's 3 — the codec already takes a slice); its address map is
+  derived and committed (`profiles/maps/roland-td-17-address-map.json`, 4 areas /
+  17 blocks / 163 params + 482 in variant tables) by the *same* parser, which
+  needed five generic robustness fixes and no module-specific code.
+- [ ] **`P3` TD-17 device profile** — `profiles/roland-td-17.json` + a cross-check
+  test; data only, except one `version_format` variant: the TD-17's Identity Reply
+  carries a *coded* software revision (`00 00 00 02` = v2.00), not raw digits.
+- [ ] **`P3` TD-17 catalogs** — kit/instrument lists from its Data List; needs real
+  work in `parse_datalist.py`, which is tuned to the V31's page geometry.
+- [ ] **`P2` BLE-MIDI transport** — promoted: the TD-17 has **no MIDI IN jack**, so
+  a phone reaches it only over USB (adapter) or Bluetooth LE MIDI. For a blind
+  user, pairing beats hunting for an adapter. Verify SysEx survives BLE
+  fragmentation on real hardware first.
 
 ## M8 — Vision (deferred)
 

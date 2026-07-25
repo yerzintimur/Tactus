@@ -1,8 +1,8 @@
 # Vendor documentation (Roland) — local only, not committed
 
 This folder is where you keep the official Roland reference documents for the
-**V31** drum module. **They are intentionally git-ignored** (see the repo
-`.gitignore`) and must **not** be committed or redistributed.
+drum modules we support or study. **They are intentionally git-ignored** (see the
+repo `.gitignore`) and must **not** be committed or redistributed.
 
 ## Why these files are not in the repo
 
@@ -26,23 +26,42 @@ copyright infringement. So:
 
 ## Where to get the official documents
 
-Download them yourself from Roland (free, no account needed):
+Download them yourself from Roland (free, no account needed). Each module has an
+owner's-manuals page at `roland.com/global/support/by_product/<model>/owners_manuals/`
+that lists its **Data List** and **MIDI Implementation** PDFs.
 
-1. Go to <https://www.roland.com/global/support/by_product/v31/owners_manuals/>
-   (or search "Roland V31 owner's manuals").
-2. Download:
-   - **V31 Data List** (instrument list, drum-kit list, FX/ambience types,
-     full parameter tables). This repo was built against `eng02`.
-   - **V31 MIDI Implementation** (SysEx format, parameter address map, checksum).
-     This repo was built against **v2.00, dated Nov. 11, 2025** (`eng01`).
-3. Drop the PDFs into this folder. The build/parse scripts and `Read` tooling
-   look for them here.
+For every module, two documents matter to us:
+
+- the **Data List** — instrument list, drum-kit list, FX/ambience types;
+- the **MIDI Implementation** — SysEx framing, parameter address map, checksum.
+
+### Roland V31 — the primary target
+
+<https://www.roland.com/global/support/by_product/v31/owners_manuals/>
+
+- **V31 Data List** — built against `eng02`.
+- **V31 MIDI Implementation** — built against **v2.00, dated Nov. 11, 2025**
+  (`eng01`).
+
+### Roland TD-17 — studied, not yet supported
+
+<https://www.roland.com/global/support/by_product/td-17/owners_manuals/> — see
+[docs/devices/roland-td-17.md](../devices/roland-td-17.md) for what we learned.
+
+- **TD-17 Data List** — `eng03` (© 2022), the revision matching firmware 2.00.
+- **TD-17 MIDI Implementation** — **Version 2.00, dated Sep. 1. 2022** (`eng04`).
+
+Take the newest revision Roland offers; the parsers pin golden facts, so a
+document revision that moves something will fail loudly rather than silently
+produce a wrong map.
 
 ## Expected files
 
 ```
 docs/vendor/
-├── README.md                          ← this file (committed)
-├── V31_DataList_eng02_W.pdf           ← git-ignored
-└── V31_MIDI_Implementation_eng01_W.pdf← git-ignored
+├── README.md                           ← this file (committed)
+├── V31_DataList_eng02_W.pdf            ← git-ignored
+├── V31_MIDI_Implementation_eng01_W.pdf ← git-ignored
+├── TD-17_DataList_eng03_W.pdf          ← git-ignored
+└── TD-17_MIDI_Imple_eng04_W.pdf        ← git-ignored
 ```

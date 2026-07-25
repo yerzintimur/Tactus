@@ -100,6 +100,12 @@ mechanics (code) from the per-device model (data).**
 Never hardcode V31 specifics in `core`, `apps/*`, or the FFI. If it varies by
 module, it belongs in a profile.
 
+**Studied modules.** Notes on modules other than the V31 live in
+[docs/devices/](docs/devices/) — start with
+[Roland TD-17](docs/devices/roland-td-17.md), the first module we checked the
+"new module = data, not code" claim against (it holds; its address map is
+already derived and committed).
+
 ---
 
 ## Monorepo layout
