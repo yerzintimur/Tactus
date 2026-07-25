@@ -34,8 +34,8 @@ generalizations — none of them module-specific.
 
 | | |
 |---|---|
-| Module | **TD-17** (the 2018 module; unchanged silicon in the 2022 "Gen 2" kits) |
-| Kits containing it | TD-17K-L (TD-17-**L** module), TD-17KV, TD-17KVX, and the Gen 2 TD-17K2 / TD-17KV2 / **TD-17KVX2** |
+| Module | **TD-17** — introduced 2018; the same module ships in the 2022 "Gen 2" kits, which differ in pads and cymbals |
+| Kits containing it | TD-17K-L (the TD-17-**L** module), TD-17KV, TD-17KVX, and the Gen 2 TD-17KV2 / **TD-17KVX2** |
 | Firmware | 1.00 (2018) → 1.01 → 1.02 → **2.00** (Sep 2022, free update; ships on Gen 2 kits) |
 | Kit slots | 100 (70 factory presets) |
 | Instruments | 310 |
@@ -182,10 +182,14 @@ just to the code.
 - **USB COMPUTER jack** (USB-B) carries MIDI and audio. From an iPhone or iPad
   this needs a camera/USB adapter, and the module is bus-powered separately
   (it runs from its own 9 V adaptor, so the phone only supplies data).
-- **Bluetooth LE MIDI** — Bluetooth 4.2, profile **GATT (MIDI over BLE)**, and
-  Roland states the MIDI link is **bidirectional** (the module both sends and
-  receives). Bluetooth **audio** (A2DP/SBC) is one-way *into* the module for
-  play-along; the module cannot output to Bluetooth headphones.
+- **Bluetooth LE MIDI** — Bluetooth 4.2, profile **GATT (MIDI over BLE)**. Roland's
+  specifications and support notes describe the MIDI link as working in both
+  directions (the owner's manual pairs the module with apps such as GarageBand),
+  and the MIDI implementation's **Thru** setting explicitly names Bluetooth as a
+  destination for received messages. We have not yet seen Roland state
+  *receive-over-BLE* in so many words, so treat it as strongly indicated and
+  confirm it on hardware. Bluetooth **audio** (A2DP/SBC) is one-way *into* the
+  module for play-along; the module cannot output to Bluetooth headphones.
 - Bluetooth is absent on the **TD-17-L** only.
 - Relevant module settings live under **[SETUP] – [MIDI]**: MIDI channel,
   Tx/Rx switch, Thru (USB / Bluetooth), Device ID, Transmit Edit Data.
