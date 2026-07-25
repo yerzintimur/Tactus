@@ -62,3 +62,55 @@ ui-value-unknown = —
 
 ui-section-language = Language
 ui-language-system = System
+
+# ── Kit parameters ──
+# An enum value is the module's own word (OFF, WARM HALL, SRV-2000): spoken
+# verbatim and tagged as English, matching what the module and Roland's manual
+# say. Only the *labels* below are ours to translate.
+param-enum-value = { $value }
+
+param-kit-volume = { $value } dB
+param-kit-volume-label = Kit volume
+
+param-unit-volume = { $value } dB
+param-unit-volume-label = Pad volume
+param-unit-overhead-send = { $value } dB
+param-unit-overhead-send-label = Overhead send
+param-unit-room-send = { $value } dB
+param-unit-room-send-label = Room send
+param-unit-reverb-send = { $value } dB
+param-unit-reverb-send-label = Reverb send
+
+param-layer-switch-label = Layer
+param-layer-instrument = { $value }
+param-layer-instrument-label = Instrument
+param-layer-inst-bank = { $value }
+param-layer-inst-bank-label = Instrument bank
+param-layer-volume = { $value } dB
+param-layer-volume-label = Layer volume
+param-layer-pitch = { $value } cents
+param-layer-pitch-label = Pitch
+param-layer-decay = { $value }
+param-layer-decay-label = Decay
+
+param-pad-pan = { $value }
+param-pad-pan-label = Pan
+
+param-fx-type = { $value }
+param-fx-type-label = Effect type
+param-fx-switch-label = Effect
+
+param-overhead-switch-label = Overhead mics
+param-overhead-mic-type-label = Overhead mic type
+param-overhead-level = { $value } dB
+param-overhead-level-label = Overhead level
+
+param-room-switch-label = Room
+param-room-type-label = Room type
+param-room-level = { $value } dB
+param-room-level-label = Room level
+
+param-reverb-switch-label = Reverb
+param-reverb-type-label = Reverb type
+param-reverb-level = { $value } dB
+param-reverb-level-label = Reverb level

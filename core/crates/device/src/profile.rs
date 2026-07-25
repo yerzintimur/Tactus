@@ -115,6 +115,19 @@ pub struct ParameterDef {
     pub doc: Option<String>,
 }
 
+impl ParameterDef {
+    /// The documented label for a raw enum value (`labels[raw - range.min]`), or
+    /// `None` if the parameter isn't an enum or the value is outside the list.
+    /// The words are Roland's own — the model speaks them verbatim rather than
+    /// translating the module's vocabulary (ADR-0011).
+    pub fn enum_label(&self, raw: i64) -> Option<&str> {
+        let labels = self.labels.as_ref()?;
+        let min = self.range.map_or(0, |r| r.min);
+        let index = usize::try_from(raw.checked_sub(min)?).ok()?;
+        labels.get(index).map(String::as_str)
+    }
+}
+
 /// One repeat dimension of a parameter: how many instances and how far apart.
 #[derive(Debug, Clone, Deserialize)]
 pub struct DimDef {

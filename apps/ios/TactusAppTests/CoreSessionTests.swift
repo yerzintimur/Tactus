@@ -106,6 +106,34 @@ final class CoreSessionTests: XCTestCase {
             .low)
     }
 
+    // MARK: - Language selection
+
+    func testLanguageOverrideSwitchesInterfaceTextAndPersists() {
+        CoreSession.clearLanguageOverride()
+        let session = CoreSession(locale: "en")
+        XCTAssertEqual(session.text(.buttonNextKit), "Next kit")
+
+        session.languageOverride = "ru"
+        XCTAssertEqual(session.text(.buttonNextKit), "Следующий кит")
+        XCTAssertEqual(session.text(.valueCurrentKit, "5 · Jazz"), "Текущий кит: 5 · Jazz")
+        XCTAssertEqual(session.locale, "ru", "the published locale drives the re-render")
+        // Persisted: the next launch starts where the user left off.
+        XCTAssertEqual(CoreSession.preferredLanguage(), "ru")
+
+        session.languageOverride = nil
+        XCTAssertEqual(session.text(.buttonNextKit), "Next kit", "back to the device language")
+        CoreSession.clearLanguageOverride()
+    }
+
+    func testEveryOfferedLanguageIsNamedInItself() {
+        // A user who cannot read the current interface language must still
+        // recognise their own in the picker.
+        let session = CoreSession(locale: "en")
+        let offered = session.availableLocales
+        XCTAssertTrue(offered.contains { $0.code == "en" && $0.endonym == "English" })
+        XCTAssertTrue(offered.contains { $0.code == "ru" && $0.endonym == "Русский" })
+    }
+
     // MARK: - Mixed-language speech (ADR-0011)
 
     func testMixedLanguageAnnouncementTagsEachRun() {

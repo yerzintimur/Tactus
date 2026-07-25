@@ -17,8 +17,17 @@ struct TactusApp: App {
         if ProcessInfo.processInfo.arguments.contains("--uitest") {
             CoreSession.clearLanguageOverride()
         }
+        // `--language ru` starts in a given language, so a UI test can assert the
+        // whole interface in it without driving the system picker widget.
+        let arguments = ProcessInfo.processInfo.arguments
+        let language = arguments.firstIndex(of: "--language").map { arguments[$0 + 1] }
         if ProcessInfo.processInfo.arguments.contains("--simulated-device") {
-            return CoreSession(transport: SimulatedTransport())
+            return CoreSession(
+                locale: language ?? CoreSession.preferredLanguage(),
+                transport: SimulatedTransport())
+        }
+        if let language {
+            return CoreSession(locale: language)
         }
         #endif
         return CoreSession()

@@ -9,6 +9,14 @@ use device::ParameterDef;
 /// Applies the profile's `scale` for display (e.g. tempo raw 1200, scale 10 ->
 /// "120.0"), and uses the parameter's `i18n_key` as the message id.
 pub fn format_parameter(param: &ParameterDef, raw: i64) -> Message {
+    // An enum value is the module's own word ("SRV-2000", "WARM HALL") — spoken
+    // verbatim and tagged as device content so a localized voice does not mangle
+    // it (ADR-0011). It is also what the module's own screen and Roland's manual
+    // say, which is what a user cross-checking either will expect.
+    if let Some(label) = param.enum_label(raw) {
+        return Message::new("param.enum_value").device_arg("value", label);
+    }
+
     let id = param
         .i18n_key
         .clone()
@@ -92,6 +100,66 @@ mod tests {
         let loc = Localizer::new();
         assert_eq!(loc.format(&format_kit(5, "Jazz"), "en"), "Kit 5: Jazz");
         assert_eq!(loc.format(&format_kit(5, "Jazz"), "ru"), "Кит 5: Jazz");
+    }
+
+    /// The guard that keeps a blind user from being read raw identifiers: every
+    /// parameter the built-in profile exposes must have a key, and that key must
+    /// resolve — label and value — in every language we offer.
+    #[test]
+    fn every_profile_parameter_speaks_in_every_locale() {
+        let registry = device::ProfileRegistry::with_builtin();
+        let profile = registry.match_model(&[1, 6, 1]).expect("built-in V31");
+        let loc = Localizer::new();
+
+        for param in &profile.parameters {
+            let key = param
+                .i18n_key
+                .as_deref()
+                .unwrap_or_else(|| panic!("{} has no i18n_key", param.id));
+            let unresolved = key.replace(['.', '_'], "-");
+
+            for locale in crate::i18n::AVAILABLE_LOCALES.iter().map(|l| l.code) {
+                let label = loc.format(&format_parameter_label(param), locale);
+                assert_ne!(
+                    label,
+                    format!("{unresolved}-label"),
+                    "{} has no {locale} label",
+                    param.id
+                );
+                assert!(!label.is_empty());
+
+                // Enums render through the shared message, text through the raw
+                // device string — only plain numerics need their own phrasing.
+                if param.labels.is_none()
+                    && let Some(range) = param.range
+                {
+                    let value = loc.format(&format_parameter(param, range.min), locale);
+                    assert_ne!(
+                        value, unresolved,
+                        "{} has no {locale} value phrasing",
+                        param.id
+                    );
+                    assert!(!value.is_empty());
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn enum_values_speak_the_modules_own_word() {
+        let registry = device::ProfileRegistry::with_builtin();
+        let profile = registry.match_model(&[1, 6, 1]).expect("built-in V31");
+        let reverb = profile.parameter("kit.reverb.type").expect("reverb type");
+        let loc = Localizer::new();
+
+        // Roland's name, not a number and not a translation — in either language.
+        let msg = format_parameter(reverb, 2);
+        assert_eq!(loc.format(&msg, "en"), "WARM HALL");
+        assert_eq!(loc.format(&msg, "ru"), "WARM HALL");
+        // …and tagged as English so a Russian voice doesn't mangle it (ADR-0011).
+        let spans = loc.format_spans(&msg, "ru").spans;
+        assert_eq!(spans.len(), 1);
+        assert_eq!(spans[0].lang, "en");
     }
 
     #[test]

@@ -229,9 +229,18 @@ and verified; keep this file honest about real state.
 - [ ] **`P3` Tag static labels with their language too** — a control whose label
   is a kit name still reads in the interface language. SwiftUI has no per-element
   language attribute, so this needs a UIKit-backed representable (ADR-0011).
-- [ ] **`P3` i18n keys for the M3 parameters** — the 21 parameters added with the
-  expanded profile have no `i18n_key`, so they would speak as raw ids once a
-  screen surfaces them. Do it with the M4 editors.
+- [x] **i18n keys for every profile parameter** — all 28 now carry one, with
+  labels and value phrasing in both catalogs; enum values speak the module's own
+  word (tagged English) rather than a raw number. A test walks every parameter in
+  every locale, so an unlabelled parameter fails the build.
+- [ ] **`P2` Speak instrument and effect *names*, not numbers** —
+  `kit.unit.layer.instrument` and `kit.fx.type` are raw numbers today; the
+  catalogs to resolve them (`InstrumentCatalog`, `fx-types.json`) already exist
+  but are not wired into `format_parameter`. Needed before the M4 editors are
+  usable eyes-closed.
+- [ ] **`P2` The `-INF` sentinel reads as a level** — raw −601 on every dB
+  parameter means silence, not −60.1 dB. Say "−∞" (or "off"); needs the profile
+  to mark the sentinel, since it is device data.
 - [x] **Second module studied — Roland TD-17** ([notes](docs/devices/roland-td-17.md)).
   A blind drum teacher we can reach uses a TD-17KVX2, which makes it the first
   real second target. Same Roland SysEx mechanics (Model ID `00 00 00 4B`,

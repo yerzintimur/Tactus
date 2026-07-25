@@ -61,6 +61,7 @@
       "range": { "min": -601, "max": 60 },
       "scale": 10,
       "unit": "db",
+      "i18n_key": "param.kit_volume",
       "doc": "KitCommon/Volume"
     },
     {
@@ -97,6 +98,7 @@
       "range": { "min": -601, "max": 60 },
       "scale": 10,
       "unit": "db",
+      "i18n_key": "param.unit_volume",
       "doc": "KitUnitCommon/Volume"
     },
     {
@@ -109,6 +111,7 @@
       "range": { "min": -601, "max": 60 },
       "scale": 10,
       "unit": "db",
+      "i18n_key": "param.unit_overhead_send",
       "doc": "KitUnitCommon/Overhead Send Level"
     },
     {
@@ -121,6 +124,7 @@
       "range": { "min": -601, "max": 60 },
       "scale": 10,
       "unit": "db",
+      "i18n_key": "param.unit_room_send",
       "doc": "KitUnitCommon/Room Send Level"
     },
     {
@@ -133,6 +137,7 @@
       "range": { "min": -601, "max": 60 },
       "scale": 10,
       "unit": "db",
+      "i18n_key": "param.unit_reverb_send",
       "doc": "KitUnitCommon/Reverb Send Level"
     },
 
@@ -148,6 +153,7 @@
       ],
       "range": { "min": 0, "max": 1 },
       "labels": ["OFF", "ON"],
+      "i18n_key": "param.layer_switch",
       "doc": "KitUnitLayer/Inst Switch"
     },
     {
@@ -160,6 +166,7 @@
         { "name": "layer", "count": 3, "stride": [0, 64, 0] },
         { "name": "unit", "count": 28, "stride": [0, 2, 0] }
       ],
+      "i18n_key": "param.layer_instrument",
       "doc": "KitUnitLayer/Instrument"
     },
     {
@@ -172,6 +179,7 @@
         { "name": "layer", "count": 3, "stride": [0, 64, 0] },
         { "name": "unit", "count": 28, "stride": [0, 2, 0] }
       ],
+      "i18n_key": "param.layer_inst_bank",
       "doc": "KitUnitLayer/Inst Bank"
     },
     {
@@ -187,6 +195,7 @@
       "range": { "min": -601, "max": 60 },
       "scale": 10,
       "unit": "db",
+      "i18n_key": "param.layer_volume",
       "doc": "KitUnitLayer/Volume"
     },
     {
@@ -201,6 +210,7 @@
       ],
       "range": { "min": -4800, "max": 4800 },
       "unit": "cents",
+      "i18n_key": "param.layer_pitch",
       "doc": "KitUnitLayer/Inst Pitch"
     },
     {
@@ -214,6 +224,7 @@
         { "name": "unit", "count": 28, "stride": [0, 2, 0] }
       ],
       "range": { "min": 1, "max": 100 },
+      "i18n_key": "param.layer_decay",
       "doc": "KitUnitLayer/Inst Decay"
     },
 
@@ -225,6 +236,7 @@
       "encoding": "signed_nibble",
       "dims": [{ "name": "pad", "count": 14, "stride": [0, 1, 0] }],
       "range": { "min": -30, "max": 30 },
+      "i18n_key": "param.pad_pan",
       "doc": "KitPad/Pan"
     },
 
@@ -236,6 +248,7 @@
       "encoding": "plain7",
       "dims": [{ "name": "fx", "count": 8, "stride": [0, 2, 0] }],
       "range": { "min": 0, "max": 94 },
+      "i18n_key": "param.fx_type",
       "doc": "KitFx/Bus Fx Type"
     },
     {
@@ -247,6 +260,7 @@
       "dims": [{ "name": "fx", "count": 8, "stride": [0, 2, 0] }],
       "range": { "min": 0, "max": 1 },
       "labels": ["OFF", "ON"],
+      "i18n_key": "param.fx_switch",
       "doc": "KitFx/Bus Fx Switch"
     },
 
@@ -258,6 +272,7 @@
       "encoding": "plain7",
       "range": { "min": 0, "max": 1 },
       "labels": ["OFF", "ON"],
+      "i18n_key": "param.overhead_switch",
       "doc": "KitOverhead/Overhead Switch"
     },
     {
@@ -268,6 +283,7 @@
       "encoding": "plain7",
       "range": { "min": 0, "max": 7 },
       "labels": ["NATURAL", "SOLID", "CHIC", "WARM", "CLEAR", "DRY", "NARROW", "PUNCHY"],
+      "i18n_key": "param.overhead_mic_type",
       "doc": "KitOverhead/Mic Type"
     },
     {
@@ -279,6 +295,7 @@
       "range": { "min": -601, "max": 120 },
       "scale": 10,
       "unit": "db",
+      "i18n_key": "param.overhead_level",
       "doc": "KitOverhead/Level"
     },
     {
@@ -289,6 +306,7 @@
       "encoding": "plain7",
       "range": { "min": 0, "max": 1 },
       "labels": ["OFF", "ON"],
+      "i18n_key": "param.room_switch",
       "doc": "KitRoom/Room Switch"
     },
     {
@@ -299,6 +317,7 @@
       "encoding": "plain7",
       "range": { "min": 0, "max": 1 },
       "labels": ["REALISTIC", "SYNTHETIC"],
+      "i18n_key": "param.room_type",
       "doc": "KitRoom/Type"
     },
     {
@@ -310,6 +329,7 @@
       "range": { "min": -601, "max": 120 },
       "scale": 10,
       "unit": "db",
+      "i18n_key": "param.room_level",
       "doc": "KitRoom/Level"
     },
     {
@@ -320,6 +340,7 @@
       "encoding": "plain7",
       "range": { "min": 0, "max": 1 },
       "labels": ["OFF", "ON"],
+      "i18n_key": "param.reverb_switch",
       "doc": "KitReverb/Reverb Switch"
     },
     {
@@ -330,6 +351,7 @@
       "encoding": "plain7",
       "range": { "min": 0, "max": 6 },
       "labels": ["TD-50 REVERB", "TD-50 ROOM", "WARM HALL", "SRV-2000", "SRV-2000(NLR)", "SIMPLE REVERB", "LONG REVERB"],
+      "i18n_key": "param.reverb_type",
       "doc": "KitReverb/ReverbType"
     },
     {
@@ -341,6 +363,7 @@
       "range": { "min": -601, "max": 120 },
       "scale": 10,
       "unit": "db",
+      "i18n_key": "param.reverb_level",
       "doc": "KitReverb/Level"
     }
   ],
