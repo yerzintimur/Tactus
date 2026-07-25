@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
-"""Parse the Roland V31 MIDI Implementation PDF into a machine-readable address map.
+"""Parse a Roland MIDI Implementation PDF into a machine-readable address map.
 
 Reads section "3. Parameter Address Map" of the vendor PDF (git-ignored under
 docs/vendor/ — see ADR-0004) and emits our own derived JSON: the top-level
 address table, every block table (container children or leaf parameters), and
 the pad/bus assignment lists. The output is committed under profiles/maps/ and
-cross-checked against profiles/roland-v31.json by Rust tests.
+cross-checked against the device profile by Rust tests.
+
+The table grammar is Roland's, not one module's, so the same parser reads every
+module that documents section 3 this way; each module contributes only an entry
+in DEVICES below (paths, citation, golden facts) — never parsing code.
 
 Usage:
-    python3 tools/parse_midi_impl.py                      # default paths
-    python3 tools/parse_midi_impl.py --pdf <pdf> --out <json>
+    python3 tools/parse_midi_impl.py                       # every known device
+    python3 tools/parse_midi_impl.py --device td-17
+    python3 tools/parse_midi_impl.py --device v31 --pdf <pdf> --out <json>
 
 Requires: pypdf (pip install pypdf).
 """
@@ -24,8 +29,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-DEFAULT_PDF = REPO / "docs/vendor/V31_MIDI_Implementation_eng01_W.pdf"
-DEFAULT_OUT = REPO / "profiles/maps/roland-v31-address-map.json"
 
 SECTION_START = "3. Parameter Address Map"
 SECTION_END = "4. Supplementary Material"
@@ -64,7 +67,7 @@ LEAF_ROW = re.compile(
     rf"^\|(#?)\s*({HEX2}) ({HEX2})\s*\|\s*([01a-d]{{4}} [01a-d]{{4}})\s*\|(.*?)\|?\s*$"
 )
 # |             |           |                                      20.0 - 260.0  |
-DISPLAY_ROW = re.compile(r"^\|\s*\|\s*\|\s*(.+?)\s*\|?\s*$")
+DISPLAY_ROW = re.compile(r"^\|\s*\|\s*(?:\|\s*)?(.+?)\s*\|?\s*$")
 # | 00 00 00 04 |Total Size                                                      |
 TOTAL_ROW = re.compile(rf"^\|\s*({HEX2}) ({HEX2}) ({HEX2}) ({HEX2})\s*\|\s*Total Size")
 ELLIPSIS_ROW = re.compile(r"^\|\s*:\s*\|")
@@ -75,13 +78,24 @@ ASSIGN_TARGETS = re.compile(r"^\s*((?:\[\w+\](?:,\s*)?)+)\s*$")
 ASSIGN_ENTRY = re.compile(r"^\s*([A-Z][A-Z0-9/() *\-]*?)\s+(\d+)\s*$")
 # "Kit Unit LayerA 28" -> prefix "Kit Unit LayerA", index 28
 TRAILING_INT = re.compile(r"^(.*\S)\s+(\d+)$")
-# Per-pad-model variant tables inside [TrigDigital]: "Digital Pad: PD-14DSX"
-OVERLAY_HEADING = re.compile(r"^Digital Pad:\s*(\S+)\s*$")
+# Variant tables that restate a block's offsets per selected value: per pad model
+# inside [TrigDigital] ("Digital Pad: PD-14DSX"), per effect ("MFX Type: TAPE ECHO")
+# or per instrument group ("INSTRUMENT GROUP: KICK"). The labels are listed
+# explicitly rather than matched loosely — an unknown one should fail, not guess.
+OVERLAY_HEADING = re.compile(r"^(?:Digital Pad|MFX Type|INSTRUMENT GROUP):\s*(.+?)\s*$")
 NAME_RANGE = re.compile(r"^(.*?)\s*\((-?\d+)\s*-\s*(-?\d*)\)\s*$")
+# "MFX Parameter 1                               (*1)" — a footnote instead of a
+# range: the row's meaning depends on the selected MFX type / instrument group.
+FOOTNOTE_RANGE = re.compile(r"^(.*?)\s*\((\*\d+)\)\s*$")
 
 SKIP = re.compile(
-    r"^(\+[-+]+\+?|\|-+\+-+.*|\|\s*(Offset|Start)\s+\|.*|\|\s*Address\s*\|.*|\d+)$"
+    r"^(\+[-+]+\+?|\|-+\+-+.*|\|-+\|$|\|\s*(Offset|Start)\s+\|.*|\|\s*Address\s*\|.*|\d+)$"
 )
+# A table restated for older firmware, e.g. the TD-17's
+# "* If the TD-17 is Ver.1.01 or earlier, the Pad Type will be as follows."
+# Its rows repeat offsets already used by the block, so they are kept apart as
+# firmware variants rather than merged (ADR-0009: detect and report, never block).
+FIRMWARE_VARIANT = re.compile(r"^\* If the .+ is (Ver\.[^,]+), .*as follows\.\s*$")
 
 
 def addr_to_int(bytes_: list[int]) -> int:
@@ -111,6 +125,9 @@ class Param:
     bytes_per_char: int | None = None  # ascii only: 2 => nibble-packed characters
     range: list[int] | None = None
     display: list[str] = field(default_factory=list)
+    # "(*1)" — the row's meaning depends on a selection (MFX type, instrument
+    # group); the matching variant table is under the block's `overlays`.
+    footnote: str | None = None
 
 
 @dataclass
@@ -137,9 +154,13 @@ def parse(lines: list[str]) -> dict:
     assign_targets: list[str] = []
     current_overlay: str | None = None  # per-pad-model variant table in flight
     overlays: dict[str, list[Param]] = {}
+    current_variant: str | None = None  # older-firmware variant table in flight
+    variants: dict[str, list[Param]] = {}
     unparsed: list[str] = []
 
     def target() -> list[Param]:
+        if current_variant:
+            return variants[current_variant]
         return overlays[current_overlay] if current_overlay else params
 
     def close_run_singleton():
@@ -151,6 +172,7 @@ def parse(lines: list[str]) -> dict:
 
     def flush_block():
         nonlocal params, children_raw, total_size, current_block, current_overlay, overlays
+        nonlocal current_variant, variants
         close_run_singleton()
         if current_block is None:
             pass
@@ -170,6 +192,15 @@ def parse(lines: list[str]) -> dict:
                     if overlays
                     else {}
                 ),
+                **(
+                    {
+                        "firmware_variants": {
+                            k: [vars(p) for p in collapse_ascii(v)] for k, v in variants.items()
+                        }
+                    }
+                    if variants
+                    else {}
+                ),
             }
         else:
             blocks[current_block] = {
@@ -178,10 +209,13 @@ def parse(lines: list[str]) -> dict:
             }
         params, children_raw, total_size = [], [], None
         current_overlay, overlays = None, {}
+        current_variant, variants = None, {}
 
     for raw in lines:
-        line = raw.rstrip()
-        if not line.strip() or SKIP.match(line.strip()):
+        # Strip both ends: some PDFs (e.g. the TD-17's) indent table rows, and
+        # every row grammar below anchors on the leading "|".
+        line = raw.strip()
+        if not line or SKIP.match(line):
             continue
 
         m = BLOCK_HEADING.match(line)
@@ -198,12 +232,21 @@ def parse(lines: list[str]) -> dict:
             overlays[current_overlay] = []
             continue
 
+        m = FIRMWARE_VARIANT.match(line)
+        if m and current_block is not None:
+            close_run_singleton()
+            current_variant = m.group(1)
+            variants[current_variant] = []
+            continue
+
         if ELLIPSIS_ROW.match(line):
             continue  # grouping is recomputed from first/last rows
 
         m = TOTAL_ROW.match(line)
         if m:
-            total_size = [int(g, 16) for g in m.groups()]
+            # Variant tables carry their own Total Size; only the block's own counts.
+            if not (current_overlay or current_variant):
+                total_size = [int(g, 16) for g in m.groups()]
             continue
 
         m = LEAF_ROW.match(line)
@@ -276,6 +319,10 @@ def parse(lines: list[str]) -> dict:
 
 def make_param(rest: str, offset: list[int], length: int, bits: int | None) -> Param:
     encoding = "nibble" if length > 1 else "plain7"
+    footnote = None
+    m = FOOTNOTE_RANGE.match(rest)
+    if m:  # "MFX Parameter 1 (*1)" — meaning depends on the selected type
+        rest, footnote = m.group(1), m.group(2)
     m = NAME_RANGE.match(rest)
     if m and m.group(3) != "":
         name, lo, hi = m.group(1), int(m.group(2)), int(m.group(3))
@@ -285,6 +332,7 @@ def make_param(rest: str, offset: list[int], length: int, bits: int | None) -> P
     else:
         name, rng = rest, None
     p = Param(name=name, offset=offset, len=length, encoding=encoding, range=rng)
+    p.footnote = footnote
     if length == 1:
         p.bits = bits
     return p
@@ -378,7 +426,7 @@ def group_entries(rows: list[tuple[list[int], str, str]]) -> list[Entry]:
 
 # --------------------------------------------------------------- validation
 
-def validate(doc: dict) -> None:
+def validate(doc: dict, golden) -> None:
     referenced = {e["block"] for e in doc["top_level"]}
     for b in doc["blocks"].values():
         if b["kind"] == "container":
@@ -402,10 +450,16 @@ def validate(doc: dict) -> None:
         end = check_monotonic(name, b["params"])
         for pad, plist in b.get("overlays", {}).items():
             end = max(end, check_monotonic(f"{name}:{pad}", plist))
+        for ver, plist in b.get("firmware_variants", {}).items():
+            end = max(end, check_monotonic(f"{name}:{ver}", plist))
         if "total_size" in b and end > addr_to_int(b["total_size"]):
             sys.exit(f"error: params overrun total size in [{name}]")
 
-    # Golden facts, validated live on the real V31 (docs/PROTOCOL.md).
+    golden(doc)
+
+
+def golden_v31(doc: dict) -> None:
+    """Facts validated live on the real V31 (docs/PROTOCOL.md)."""
     kit_common = {p["name"]: p for p in doc["blocks"]["KitCommon"]["params"]}
     tempo = kit_common["Kit Tempo"]
     assert tempo["offset"] == [0, 0x6C] and tempo["len"] == 4, tempo
@@ -418,6 +472,49 @@ def validate(doc: dict) -> None:
     assert current["name"] == "KitNum" and current["range"] == [0, 199]
 
 
+def golden_td17(doc: dict) -> None:
+    """Facts read from the TD-17 document — not yet confirmed on hardware."""
+    kit_common = {p["name"]: p for p in doc["blocks"]["KitCommon"]["params"]}
+    assert kit_common["Kit Name"]["len"] == 12, kit_common["Kit Name"]
+    assert kit_common["Kit Sub Name"]["len"] == 16, kit_common["Kit Sub Name"]
+    kit = next(e for e in doc["top_level"] if e["block"] == "Kit")
+    assert kit["address"] == [3, 0, 0, 0] and kit["count"] == 100, kit
+    assert kit["stride"] == [0, 2, 0, 0], kit
+    current = doc["blocks"]["Current"]["params"][0]
+    assert current["name"] == "Drum Kit Number" and current["range"] == [0, 99], current
+    # One variant table per MFX type, and the Type enum agrees with it.
+    mfx = doc["blocks"]["KitMfx"]
+    assert len(mfx["overlays"]) == 41, len(mfx["overlays"])
+    assert mfx["params"][0]["range"] == [0, 40], mfx["params"][0]
+    # 20 trigger inputs, kick through aux.
+    assert len(doc["assignments"]["KitUnitInst"]) == 20
+
+
+DEVICES = {
+    "v31": {
+        "pdf": REPO / "docs/vendor/V31_MIDI_Implementation_eng01_W.pdf",
+        "out": REPO / "profiles/maps/roland-v31-address-map.json",
+        "source": (
+            "Derived from Roland 'V31 MIDI Implementation' (eng01), (c) Roland "
+            "Corporation — facts (addresses/sizes/ranges) extracted by "
+            "tools/parse_midi_impl.py. See docs/PROTOCOL.md."
+        ),
+        "golden": golden_v31,
+    },
+    "td-17": {
+        "pdf": REPO / "docs/vendor/TD-17_MIDI_Imple_eng04_W.pdf",
+        "out": REPO / "profiles/maps/roland-td-17-address-map.json",
+        "source": (
+            "Derived from Roland 'TD-17 (TD-17-L) MIDI Implementation' (eng04, "
+            "Version 2.00, Sep. 1. 2022), (c) Roland Corporation — facts "
+            "(addresses/sizes/ranges) extracted by tools/parse_midi_impl.py. "
+            "See docs/devices/roland-td-17.md."
+        ),
+        "golden": golden_td17,
+    },
+}
+
+
 def compact(v):
     """Drop None values and empty display lists so the committed JSON stays tidy."""
     if isinstance(v, dict):
@@ -427,39 +524,46 @@ def compact(v):
     return v
 
 
-def main() -> None:
-    ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--pdf", type=Path, default=DEFAULT_PDF)
-    ap.add_argument("--out", type=Path, default=DEFAULT_OUT)
-    args = ap.parse_args()
-
-    if not args.pdf.exists():
+def derive(device: str, pdf: Path, out: Path) -> None:
+    if not pdf.exists():
         sys.exit(
-            f"error: {args.pdf} not found — download the Roland PDF into docs/vendor/ "
+            f"error: {pdf} not found — download the Roland PDF into docs/vendor/ "
             "(see docs/vendor/README.md); it is deliberately not committed (ADR-0004)"
         )
 
     doc = {
         "schema_version": 1,
-        "source": (
-            "Derived from Roland 'V31 MIDI Implementation' (eng01), (c) Roland "
-            "Corporation — facts (addresses/sizes/ranges) extracted by "
-            "tools/parse_midi_impl.py. See docs/PROTOCOL.md."
-        ),
-        **parse(extract_section(args.pdf)),
+        "source": DEVICES[device]["source"],
+        **parse(extract_section(pdf)),
     }
-    validate(doc)
+    validate(doc, DEVICES[device]["golden"])
     doc = compact(doc)
 
-    args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(doc, indent=1) + "\n")
-    n_params = sum(
-        len(b["params"]) for b in doc["blocks"].values() if b["kind"] == "leaf"
-    )
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(doc, indent=1) + "\n")
+    leaves = [b for b in doc["blocks"].values() if b["kind"] == "leaf"]
+    n_params = sum(len(b["params"]) for b in leaves)
+    n_variant = sum(len(v) for b in leaves for v in b.get("overlays", {}).values())
     print(
-        f"wrote {args.out} — {len(doc['top_level'])} top-level areas, "
+        f"wrote {out} — {len(doc['top_level'])} top-level areas, "
         f"{len(doc['blocks'])} blocks, {n_params} parameters"
+        + (f" (+{n_variant} in variant tables)" if n_variant else "")
     )
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--device", choices=sorted(DEVICES), help="default: every device")
+    ap.add_argument("--pdf", type=Path, help="override the device's vendor PDF")
+    ap.add_argument("--out", type=Path, help="override the output JSON path")
+    args = ap.parse_args()
+
+    if (args.pdf or args.out) and not args.device:
+        sys.exit("error: --pdf/--out need an explicit --device (they override its paths)")
+
+    for device in [args.device] if args.device else sorted(DEVICES):
+        cfg = DEVICES[device]
+        derive(device, args.pdf or cfg["pdf"], args.out or cfg["out"])
 
 
 if __name__ == "__main__":

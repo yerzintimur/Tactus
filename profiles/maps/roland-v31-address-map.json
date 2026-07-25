@@ -2619,76 +2619,84 @@
      ]
     },
     {
-     "name": "Digital Pad Advanced Parameter 1              (*1)",
+     "name": "Digital Pad Advanced Parameter 1",
      "offset": [
       0,
       12
      ],
      "len": 2,
-     "encoding": "nibble"
+     "encoding": "nibble",
+     "footnote": "*1"
     },
     {
-     "name": "Digital Pad Advanced Parameter 2              (*1)",
+     "name": "Digital Pad Advanced Parameter 2",
      "offset": [
       0,
       14
      ],
      "len": 2,
-     "encoding": "nibble"
+     "encoding": "nibble",
+     "footnote": "*1"
     },
     {
-     "name": "Digital Pad Advanced Parameter 3              (*1)",
+     "name": "Digital Pad Advanced Parameter 3",
      "offset": [
       0,
       16
      ],
      "len": 2,
-     "encoding": "nibble"
+     "encoding": "nibble",
+     "footnote": "*1"
     },
     {
-     "name": "Digital Pad Advanced Parameter 4              (*1)",
+     "name": "Digital Pad Advanced Parameter 4",
      "offset": [
       0,
       18
      ],
      "len": 2,
-     "encoding": "nibble"
+     "encoding": "nibble",
+     "footnote": "*1"
     },
     {
-     "name": "Digital Pad Advanced Parameter 5              (*1)",
+     "name": "Digital Pad Advanced Parameter 5",
      "offset": [
       0,
       20
      ],
      "len": 2,
-     "encoding": "nibble"
+     "encoding": "nibble",
+     "footnote": "*1"
     },
     {
-     "name": "Digital Pad Advanced Parameter 6              (*1)",
+     "name": "Digital Pad Advanced Parameter 6",
      "offset": [
       0,
       22
      ],
      "len": 2,
-     "encoding": "nibble"
+     "encoding": "nibble",
+     "footnote": "*1"
     },
     {
-     "name": "Digital Pad Advanced Parameter 7              (*1)",
+     "name": "Digital Pad Advanced Parameter 7",
      "offset": [
       0,
       24
      ],
      "len": 2,
-     "encoding": "nibble"
+     "encoding": "nibble",
+     "footnote": "*1"
     },
     {
-     "name": "Digital Pad Advanced Parameter 8              (*1)",
+     "name": "Digital Pad Advanced Parameter 8",
      "offset": [
       0,
       26
      ],
      "len": 2,
-     "encoding": "nibble"
+     "encoding": "nibble",
+     "footnote": "*1"
     }
    ],
    "total_size": [
