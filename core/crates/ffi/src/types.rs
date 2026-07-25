@@ -68,6 +68,108 @@ pub enum SpeechSource {
     UserInitiated,
 }
 
+/// A piece of the app's own interface text, localized by the core (ADR-0008).
+/// Mirrors `engine::UiString`; the two conversions below are exhaustive, so a
+/// variant cannot be added on one side alone.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, uniffi::Enum)]
+pub enum UiString {
+    SectionConnection,
+    LabelStatus,
+    LabelDevice,
+    LabelFirmware,
+    StatusDisconnected,
+    StatusIdentifying,
+    StatusReady,
+    ConnectPrompt,
+    FirmwareNewer,
+    FirmwareOlder,
+    FirmwareUnknown,
+    SectionKit,
+    LabelCurrentKit,
+    ValueCurrentKit,
+    ButtonPreviousKit,
+    ButtonNextKit,
+    ButtonRenameKit,
+    HintRenameKit,
+    TitleRenameKit,
+    LabelKitName,
+    ButtonSave,
+    ButtonCancel,
+    SectionTempo,
+    LabelTempo,
+    ValueUpdating,
+    HintTempoAdjust,
+    ValueUnknown,
+}
+
+impl From<UiString> for engine::UiString {
+    fn from(s: UiString) -> Self {
+        match s {
+            UiString::SectionConnection => engine::UiString::SectionConnection,
+            UiString::LabelStatus => engine::UiString::LabelStatus,
+            UiString::LabelDevice => engine::UiString::LabelDevice,
+            UiString::LabelFirmware => engine::UiString::LabelFirmware,
+            UiString::StatusDisconnected => engine::UiString::StatusDisconnected,
+            UiString::StatusIdentifying => engine::UiString::StatusIdentifying,
+            UiString::StatusReady => engine::UiString::StatusReady,
+            UiString::ConnectPrompt => engine::UiString::ConnectPrompt,
+            UiString::FirmwareNewer => engine::UiString::FirmwareNewer,
+            UiString::FirmwareOlder => engine::UiString::FirmwareOlder,
+            UiString::FirmwareUnknown => engine::UiString::FirmwareUnknown,
+            UiString::SectionKit => engine::UiString::SectionKit,
+            UiString::LabelCurrentKit => engine::UiString::LabelCurrentKit,
+            UiString::ValueCurrentKit => engine::UiString::ValueCurrentKit,
+            UiString::ButtonPreviousKit => engine::UiString::ButtonPreviousKit,
+            UiString::ButtonNextKit => engine::UiString::ButtonNextKit,
+            UiString::ButtonRenameKit => engine::UiString::ButtonRenameKit,
+            UiString::HintRenameKit => engine::UiString::HintRenameKit,
+            UiString::TitleRenameKit => engine::UiString::TitleRenameKit,
+            UiString::LabelKitName => engine::UiString::LabelKitName,
+            UiString::ButtonSave => engine::UiString::ButtonSave,
+            UiString::ButtonCancel => engine::UiString::ButtonCancel,
+            UiString::SectionTempo => engine::UiString::SectionTempo,
+            UiString::LabelTempo => engine::UiString::LabelTempo,
+            UiString::ValueUpdating => engine::UiString::ValueUpdating,
+            UiString::HintTempoAdjust => engine::UiString::HintTempoAdjust,
+            UiString::ValueUnknown => engine::UiString::ValueUnknown,
+        }
+    }
+}
+
+impl From<engine::UiString> for UiString {
+    fn from(s: engine::UiString) -> Self {
+        match s {
+            engine::UiString::SectionConnection => Self::SectionConnection,
+            engine::UiString::LabelStatus => Self::LabelStatus,
+            engine::UiString::LabelDevice => Self::LabelDevice,
+            engine::UiString::LabelFirmware => Self::LabelFirmware,
+            engine::UiString::StatusDisconnected => Self::StatusDisconnected,
+            engine::UiString::StatusIdentifying => Self::StatusIdentifying,
+            engine::UiString::StatusReady => Self::StatusReady,
+            engine::UiString::ConnectPrompt => Self::ConnectPrompt,
+            engine::UiString::FirmwareNewer => Self::FirmwareNewer,
+            engine::UiString::FirmwareOlder => Self::FirmwareOlder,
+            engine::UiString::FirmwareUnknown => Self::FirmwareUnknown,
+            engine::UiString::SectionKit => Self::SectionKit,
+            engine::UiString::LabelCurrentKit => Self::LabelCurrentKit,
+            engine::UiString::ValueCurrentKit => Self::ValueCurrentKit,
+            engine::UiString::ButtonPreviousKit => Self::ButtonPreviousKit,
+            engine::UiString::ButtonNextKit => Self::ButtonNextKit,
+            engine::UiString::ButtonRenameKit => Self::ButtonRenameKit,
+            engine::UiString::HintRenameKit => Self::HintRenameKit,
+            engine::UiString::TitleRenameKit => Self::TitleRenameKit,
+            engine::UiString::LabelKitName => Self::LabelKitName,
+            engine::UiString::ButtonSave => Self::ButtonSave,
+            engine::UiString::ButtonCancel => Self::ButtonCancel,
+            engine::UiString::SectionTempo => Self::SectionTempo,
+            engine::UiString::LabelTempo => Self::LabelTempo,
+            engine::UiString::ValueUpdating => Self::ValueUpdating,
+            engine::UiString::HintTempoAdjust => Self::HintTempoAdjust,
+            engine::UiString::ValueUnknown => Self::ValueUnknown,
+        }
+    }
+}
+
 /// One run of a spoken message in a single language (ADR-0011).
 #[derive(Debug, Clone, PartialEq, Eq, uniffi::Record)]
 pub struct TextSpan {

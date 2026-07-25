@@ -10,7 +10,8 @@ use crate::event::{
 use crate::viewmodel::{self, KitRef, ParamKind, ParamValue, ParameterView, Snapshot};
 use device::{DeviceProfile, FirmwareSupport, FirmwareVersion, ProfileRegistry};
 use model::{
-    LocalizedText, Localizer, Message, format_kit, format_parameter, format_parameter_label,
+    LocalizedText, Localizer, Message, UiString, format_kit, format_parameter,
+    format_parameter_label,
 };
 use std::collections::HashMap;
 use sysex::SysexMessage;
@@ -134,6 +135,17 @@ impl Session {
 
     pub fn set_locale(&mut self, locale: impl Into<String>) {
         self.locale = locale.into();
+    }
+
+    /// The app's own interface text, localized here rather than in each platform's
+    /// resources (ADR-0008) — in a nonvisual app a control label is speech too.
+    /// `value` fills the `{ $value }` slot of the strings that take one.
+    pub fn ui_string(&self, string: UiString, value: Option<String>) -> String {
+        let mut message = Message::new(string.message_id());
+        if let Some(value) = value {
+            message = message.arg("value", value);
+        }
+        self.render(&message)
     }
 
     pub fn state(&self) -> ConnectionState {

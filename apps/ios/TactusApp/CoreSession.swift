@@ -33,6 +33,10 @@ final class CoreSession: ObservableObject {
     @Published private(set) var midiSources: [String] = []
     @Published private(set) var midiDestinations: [String] = []
 
+    /// The language the core is currently speaking and labelling in. Published
+    /// so a change re-renders every view that asks for interface text.
+    @Published private(set) var locale: String
+
     private let core: TactusSession
     private let transport: any MidiTransporting
     private let announcements = AnnouncementService()
@@ -49,6 +53,7 @@ final class CoreSession: ObservableObject {
         transport: (any MidiTransporting)? = nil
     ) {
         core = TactusSession(locale: locale)
+        self.locale = locale
         self.transport = transport ?? MidiTransport()
     }
 
@@ -120,8 +125,19 @@ final class CoreSession: ObservableObject {
         guard let number = currentKitNumber, number > 0 else { return }
         selectKit(number - 1)
     }
+    /// Switch the language of everything the core produces — announcements and
+    /// the interface text below. Publishing the change re-renders the views, so
+    /// the whole UI switches language at once.
     func setLocale(_ locale: String) {
         core.setLocale(locale: locale)
+        self.locale = locale
+    }
+
+    /// The app's own interface text, localized by the core rather than by
+    /// platform string files (ADR-0008): in a nonvisual app a control label is
+    /// read aloud, so it belongs in the same tested source as the announcements.
+    func text(_ string: UiString, _ value: String? = nil) -> String {
+        core.uiString(string: string, value: value)
     }
     func tick() { perform(core.tick(nowMs: Self.nowMs())) }
 

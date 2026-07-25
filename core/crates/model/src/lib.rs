@@ -9,11 +9,13 @@ mod catalog;
 mod format;
 mod i18n;
 mod intent;
+mod ui;
 
 pub use catalog::InstrumentCatalog;
 pub use format::{format_kit, format_parameter, format_parameter_label};
 pub use i18n::{Arg, DEVICE_CONTENT_LANG, LocalizedText, Localizer, Message, TextSpan};
 pub use intent::Intent;
+pub use ui::UiString;
 
 /// Crate version, exposed so higher layers can sanity-check linkage.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

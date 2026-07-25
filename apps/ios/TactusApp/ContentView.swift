@@ -51,17 +51,17 @@ struct ContentView: View {
     // MARK: - Connection
 
     @ViewBuilder private var connectionSection: some View {
-        Section("Connection") {
-            LabeledContent("Status", value: connectionText)
+        Section(session.text(.sectionConnection)) {
+            LabeledContent(session.text(.labelStatus), value: connectionText)
             if let device = session.device {
-                LabeledContent("Device", value: device.name)
-                LabeledContent("Firmware", value: device.firmware)
+                LabeledContent(session.text(.labelDevice), value: device.name)
+                LabeledContent(session.text(.labelFirmware), value: device.firmware)
                 if let warning = firmwareWarning(device.firmwareSupport) {
                     Label(warning, systemImage: "exclamationmark.triangle")
                         .accessibilityLabel(warning)
                 }
             } else if session.connection != .ready {
-                Text("Connect your Roland V31 with a USB-C cable.")
+                Text(session.text(.connectPrompt))
             }
         }
     }
@@ -69,9 +69,9 @@ struct ContentView: View {
     // MARK: - Kit
 
     @ViewBuilder private var kitSection: some View {
-        Section("Kit") {
-            LabeledContent("Current kit", value: kitText)
-                .accessibilityLabel("Current kit: \(kitText)")
+        Section(session.text(.sectionKit)) {
+            LabeledContent(session.text(.labelCurrentKit), value: kitText)
+                .accessibilityLabel(session.text(.valueCurrentKit, kitText))
 
             // Full-width prominent buttons: high contrast (white on accent),
             // large eyes-closed targets, and no label clipping.
@@ -80,7 +80,7 @@ struct ContentView: View {
             Button {
                 session.previousKit()
             } label: {
-                Text("Previous kit").frame(maxWidth: .infinity)
+                Text(session.text(.buttonPreviousKit)).frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
@@ -89,13 +89,13 @@ struct ContentView: View {
             Button {
                 session.nextKit()
             } label: {
-                Text("Next kit").frame(maxWidth: .infinity)
+                Text(session.text(.buttonNextKit)).frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
 
-            Button("Rename kit…") { showingRename = true }
-                .accessibilityHint("Edit the name of the current kit")
+            Button(session.text(.buttonRenameKit)) { showingRename = true }
+                .accessibilityHint(session.text(.hintRenameKit))
         }
     }
 
@@ -110,7 +110,7 @@ struct ContentView: View {
     /// device-verified value, never a stale or intended one. On mismatch the core
     /// announces the actual value as an error — the truth always wins audibly.
     @ViewBuilder private var tempoSection: some View {
-        Section("Tempo") {
+        Section(session.text(.sectionTempo)) {
             HStack(spacing: 12) {
                 Text(tempoValueText)
                     .font(.title3)
@@ -140,12 +140,12 @@ struct ContentView: View {
             }
             .accessibilityElement(children: .ignore)
             .accessibilityIdentifier("tempo-adjustable")
-            .accessibilityLabel(session.tempo?.label ?? "Tempo")
+            .accessibilityLabel(session.tempo?.label ?? session.text(.labelTempo))
             // While the edit is in flight the value must not read as settled —
             // the device hasn't confirmed yet (no blind writes). The confirmed
             // value replacing this is what the screen reader voices.
-            .accessibilityValue(session.tempoEditInFlight ? "Updating…" : tempoValueText)
-            .accessibilityHint("Swipe up or down to adjust the tempo")
+            .accessibilityValue(session.tempoEditInFlight ? session.text(.valueUpdating) : tempoValueText)
+            .accessibilityHint(session.text(.hintTempoAdjust))
             .accessibilityAdjustableAction { direction in
                 switch direction {
                 case .increment: session.adjustTempo(rawSteps: 1)
@@ -158,6 +158,9 @@ struct ContentView: View {
 
     // MARK: - Developer (DEBUG only)
 
+    // Deliberately untranslated: this is developer scaffolding, compiled out of
+    // release builds and hidden from the UI tests' accessibility audit. Only text
+    // a user can actually reach goes through the core's catalogs.
     #if DEBUG
     @ViewBuilder private var developerSection: some View {
         Section("Developer") {
@@ -193,14 +196,14 @@ struct ContentView: View {
 
     private var connectionText: String {
         switch session.connection {
-        case .disconnected: "Disconnected"
-        case .identifying: "Identifying…"
-        case .ready: "Ready"
+        case .disconnected: session.text(.statusDisconnected)
+        case .identifying: session.text(.statusIdentifying)
+        case .ready: session.text(.statusReady)
         }
     }
 
     private var kitText: String {
-        let name = session.currentKit ?? "—"
+        let name = session.currentKit ?? session.text(.valueUnknown)
         if let number = session.currentKitNumber {
             return "\(Int(number) + 1) · \(name)"
         }
@@ -210,7 +213,7 @@ struct ContentView: View {
     /// The current tempo as the core localized it (e.g. "120.0 BPM"), or a dash
     /// until the device has reported it.
     private var tempoValueText: String {
-        session.tempo?.display ?? "—"
+        session.tempo?.display ?? session.text(.valueUnknown)
     }
 
     private func firmwareWarning(_ support: FirmwareSupport) -> String? {
@@ -218,11 +221,11 @@ struct ContentView: View {
         case .tested:
             nil
         case .untestedNewer:
-            "This firmware is newer than we've tested. Everything should still work."
+            session.text(.firmwareNewer)
         case .untestedOlder:
-            "This firmware is older than we've tested. Everything should still work."
+            session.text(.firmwareOlder)
         case .unknown:
-            "This firmware hasn't been tested. Everything should still work."
+            session.text(.firmwareUnknown)
         }
     }
 }
@@ -244,21 +247,21 @@ struct RenameKitView: View {
     var body: some View {
         NavigationStack {
             Form {
-                TextField("Kit name", text: $name)
-                    .accessibilityLabel("Kit name")
+                TextField(session.text(.labelKitName), text: $name)
+                    .accessibilityLabel(session.text(.labelKitName))
                     .submitLabel(.done)
                     .onSubmit(save)
             }
-            .navigationTitle("Rename kit")
+            .navigationTitle(session.text(.titleRenameKit))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button(session.text(.buttonCancel)) { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save", action: save)
+                    Button(session.text(.buttonSave), action: save)
                 }
             }
         }

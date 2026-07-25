@@ -17,7 +17,7 @@ pub use sim::VirtualDeviceHandle;
 pub use types::{
     ConnectionState, CoreEvent, DeviceInfo, Earcon, Effect, FirmwareSupport, KitRef, NumericInfo,
     NumericRange, ParamKind, ParamValue, ParameterView, Snapshot, Speech, SpeechCategory,
-    SpeechPriority, SpeechSource, TextSpan,
+    SpeechPriority, SpeechSource, TextSpan, UiString,
 };
 
 use std::sync::{Arc, Mutex};
@@ -43,6 +43,13 @@ impl TactusSession {
     /// Change the UI/speech locale.
     pub fn set_locale(&self, locale: String) {
         self.locked().set_locale(locale);
+    }
+
+    /// The app's own interface text in the current locale (ADR-0008) — the UI
+    /// asks the core for its labels instead of carrying platform string files.
+    /// `value` fills the `{ $value }` slot of the strings that take one.
+    pub fn ui_string(&self, string: UiString, value: Option<String>) -> String {
+        self.locked().ui_string(string.into(), value)
     }
 
     /// The transport opened.
