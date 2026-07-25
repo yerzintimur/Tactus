@@ -19,7 +19,8 @@
 ## 1. Требования
 
 ### 1.1 Функциональные
-- Подключение к модулю по **USB-C MIDI** (primary) и **BLE-MIDI** (secondary).
+- Подключение к модулю **только по USB MIDI**; BLE-MIDI отложен
+  ([ADR-0015](adr/0015-usb-midi-only.md)).
 - **Авто-детект модели** по Identity Reply → выбор профиля устройства.
 - Озвучка состояния: текущий кит (номер+имя), темп; live при изменении.
 - Переключение кита из доступного списка.
@@ -574,9 +575,12 @@ engine: parse addr+value → resolve param via profile → update model
   (баланс охвата и API; можно поднять до 26 ради новейших API без `#available`).
 - **MIDI:** CoreMIDI, современный путь — `MIDIInputPortCreateWithProtocol` +
   **MIDIEventList/UMP**, `MIDISendEventList`; SysEx крупный — фрагментируется,
-  реассемблить (это делает `sysex` в core). USB-C class-compliant — без
-  entitlement. **BLE:** `CABTMIDICentralViewController` (нет в Simulator!),
-  **Info.plist `NSBluetoothAlwaysUsageDescription`** обязателен.
+  реассемблить (это делает `sysex` в core). USB class-compliant — без
+  entitlement и без запроса разрешений. **BLE не используем**: ни
+  `CABTMIDICentralViewController`, ни `NSBluetoothAlwaysUsageDescription` в
+  Info.plist ([ADR-0015](adr/0015-usb-midi-only.md)). Уже спаренное BLE-MIDI
+  устройство CoreMIDI отдаёт как обычный endpoint — мы его не отсекаем, но и не
+  поддерживаем.
 - **Анонсы:** канал скринридера — `UIAccessibility.post(.announcement)` c
   `accessibilitySpeechAnnouncementPriority` (macOS: `NSAccessibility.post`
   `announcementRequested`). Своего `AVSpeechSynthesizer`/`AVAudioSession` нет
@@ -590,11 +594,13 @@ engine: parse addr+value → resolve param via profile → update model
 - **Kotlin 2.4.0, AGP 9.2.0, Gradle 9.5.1, Compose BOM 2026.06.00**,
   compileSdk/targetSdk **36**, **minSdk 26**. (Play: с 31.08.2026 новые апдейты —
   target 36.)
-- **MIDI:** `android.media.midi` (`MidiManager.openDevice`/`openBluetoothDevice`,
-  `registerDeviceCallback`), USB host + BLE; MIDI 2.0/UMP с API 33. SysEx — сырой
-  поток байт через `MidiReceiver.send`, реассемблить. Манифест: `uses-feature
-  android.software.midi`, `usb.host`, `bluetooth_le` (required=false). BLE-права:
-  `BLUETOOTH_SCAN`(+`neverForLocation`)/`BLUETOOTH_CONNECT`.
+- **MIDI:** `android.media.midi` (`MidiManager.openDevice`,
+  `registerDeviceCallback`), **только USB host**; MIDI 2.0/UMP с API 33. SysEx —
+  сырой поток байт через `MidiReceiver.send`, реассемблить. Манифест:
+  `uses-feature android.software.midi`, `usb.host`. **Ни `bluetooth_le`, ни
+  `BLUETOOTH_SCAN`/`BLUETOOTH_CONNECT`** — BLE отложен
+  ([ADR-0015](adr/0015-usb-midi-only.md)), а незапрошенное разрешение нельзя
+  случайно отклонить.
 - **Анонсы:** канал скринридера — `announceForAccessibility` / liveRegion (через
   `AccessibilityManager`), с приоритетом/перебиванием для навигации. Своего
   `TextToSpeech` нет (ADR-0014).
@@ -712,7 +718,7 @@ just test-core        # cargo test + clippy
 | **i18n в core (Fluent)** vs только нативные ресурсы | единые тестируемые фразы озвучки | переводчикам нужен Fluent; чуть менее «стандартно» |
 | **Нативный UI** vs кросс-платформенный | лучшая поддержка VoiceOver/TalkBack | два UI-кодбейза (см. [ADR-0005](adr/0005-native-ui-per-platform.md)) |
 | **JNA** (UniFFI default) vs JNI | работает из коробки | не класть per-event вызовы в hot-path; R8 keep-rules |
-| **USB-C primary**, BLE secondary | надёжность/латентность/права | BLE-нестабильность вторична |
+| **Только USB** ([ADR-0015](adr/0015-usb-midi-only.md)) | надёжность, нет пэйринга и запроса разрешений; меньше объём работ | TD-17 (у него нет MIDI IN) требует переходника от телефона |
 | **min iOS 18 / minSdk 26** | современные API без gating | отсечение старых устройств (для нишевой аудитории ок) |
 
 ---

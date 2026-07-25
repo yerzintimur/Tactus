@@ -44,7 +44,8 @@
   Monitor*) or a Web MIDI page in Chrome, with the V31 over USB. Send `RQ1`, watch
   the `DT1` replies — no app build, no writes.
 - **On iPhone (the target):** the iOS transport (task #13) opens the V31 as a
-  CoreMIDI endpoint (class-compliant USB MIDI; BLE-MIDI later). Start read-only to
+  CoreMIDI endpoint (class-compliant USB MIDI — the only supported transport,
+  [ADR-0015](adr/0015-usb-midi-only.md)). Start read-only to
   validate the protocol on real hardware (task #14), then enable writes behind the
   **write → read-back → verify** pipeline.
 - Log raw SysEx as hex and compare against the golden vectors in

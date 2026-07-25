@@ -50,7 +50,9 @@ simulator testing uses the canned identity reply only.
 
 ## Connecting a module (hardware requirements)
 
-USB MIDI only for now (no Bluetooth MIDI yet). The Simulator has no MIDI
+USB MIDI only — Bluetooth MIDI is deliberately out of scope
+([ADR-0015](../../docs/adr/0015-usb-midi-only.md)), so the app ships no Bluetooth
+code and no `NSBluetoothAlwaysUsageDescription`. The Simulator has no MIDI
 endpoints, so a real module needs a physical device.
 
 **On the module:** set the USB MIDI driver to **GENERIC** (class-compliant) — not

@@ -177,34 +177,30 @@ This is where the TD-17 differs from the V31 in a way that matters to a user, no
 just to the code.
 
 - **There is no MIDI IN jack.** The module has **MIDI OUT only**. DIN MIDI can
-  therefore never carry our writes — everything (RQ1, DT1) must go over **USB or
-  Bluetooth**.
+  therefore never carry our writes — every RQ1 and DT1 has to travel over **USB**
+  (or Bluetooth, which we deliberately do not support; see below).
 - **USB COMPUTER jack** (USB-B) carries MIDI and audio. From an iPhone or iPad
   this needs a camera/USB adapter, and the module is bus-powered separately
   (it runs from its own 9 V adaptor, so the phone only supplies data).
-- **Bluetooth LE MIDI** — Bluetooth 4.2, profile **GATT (MIDI over BLE)**. Roland's
-  specifications and support notes describe the MIDI link as working in both
-  directions (the owner's manual pairs the module with apps such as GarageBand),
-  and the MIDI implementation's **Thru** setting explicitly names Bluetooth as a
-  destination for received messages. We have not yet seen Roland state
-  *receive-over-BLE* in so many words, so treat it as strongly indicated and
-  confirm it on hardware. Bluetooth **audio** (A2DP/SBC) is one-way *into* the
-  module for play-along; the module cannot output to Bluetooth headphones.
-- Bluetooth is absent on the **TD-17-L** only.
+- **Bluetooth LE MIDI exists but is out of scope.** The module offers Bluetooth
+  4.2 with the **GATT (MIDI over BLE)** profile, and it is tempting precisely
+  because it needs no adapter. Tactus nonetheless supports **USB only**
+  ([ADR-0015](../adr/0015-usb-midi-only.md)): BLE's failure modes — pairing
+  screens, permission dialogs, silent mid-session drops — are the hardest kind to
+  diagnose without sight, and supporting it means two platform implementations
+  plus hardware proof that SysEx survives BLE's fragmentation. Bluetooth
+  **audio** (A2DP/SBC) is one-way *into* the module for play-along and is
+  unrelated to us; the module cannot output to Bluetooth headphones. Bluetooth
+  is absent on the **TD-17-L** in any case.
 - Relevant module settings live under **[SETUP] – [MIDI]**: MIDI channel,
   Tx/Rx switch, Thru (USB / Bluetooth), Device ID, Transmit Edit Data.
 
-**Why this is good news for accessibility.** For a blind drummer, "connect your
-phone" over BLE MIDI means no adapter, no cable, no hunting for a port — pair
-once and the app is there. That is a materially better first-run experience than
-the camera-adapter path, and it is available on every TD-17 except the -L.
-
-**The open question is SysEx over BLE.** BLE MIDI fragments messages into small
-packets and reassembles them; our writes are short, but a full kit dump is not.
-Roland does not document any per-transport restriction on SysEx, so on paper it
-should work — but this is exactly the sort of thing to verify on hardware before
-promising it, along with latency (Roland warns BLE adds delay, which matters far
-less for parameter edits than for playing).
+**So the practical path is USB, and it costs the user an adapter.** With no MIDI
+IN jack and BLE deferred, a phone reaches the TD-17 exactly one way: the USB
+COMPUTER port through a camera/USB adapter. That is a genuine cost for a blind
+user — one more object that has to be found and plugged in correctly — and it is
+the single most likely reason to reopen ADR-0015. Worth asking the teacher about
+directly when we get to his kit.
 
 ---
 
@@ -213,8 +209,8 @@ less for parameter edits than for playing).
 To be answered with the module in hand (see
 [HARDWARE_TESTING.md](../HARDWARE_TESTING.md)):
 
-1. Does SysEx traverse **BLE MIDI** intact, and what is the round-trip latency
-   for an RQ1 → DT1 exchange? (Feeds a recorded `TimingProfile`.)
+1. What is the round-trip latency of an RQ1 → DT1 exchange over USB? (Feeds a
+   recorded `TimingProfile`.)
 2. Does the module actually push DT1 on front-panel edits with **Transmit Edit
    Data** on, and at what granularity?
 3. Which **firmware** is on the teacher's unit (2.00 expected on a Gen 2 kit) and

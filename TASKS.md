@@ -229,10 +229,11 @@ and verified; keep this file honest about real state.
   carries a *coded* software revision (`00 00 00 02` = v2.00), not raw digits.
 - [ ] **`P3` TD-17 catalogs** — kit/instrument lists from its Data List; needs real
   work in `parse_datalist.py`, which is tuned to the V31's page geometry.
-- [ ] **`P2` BLE-MIDI transport** — promoted: the TD-17 has **no MIDI IN jack**, so
-  a phone reaches it only over USB (adapter) or Bluetooth LE MIDI. For a blind
-  user, pairing beats hunting for an adapter. Verify SysEx survives BLE
-  fragmentation on real hardware first.
+- ~~BLE-MIDI transport~~ — **deferred, not planned**
+  ([ADR-0015](docs/adr/0015-usb-midi-only.md)). USB is the only supported
+  transport on both platforms and both modules. Consequence to keep in view: the
+  TD-17 has no MIDI IN jack, so its owners need a USB adapter from a phone —
+  the likeliest reason to reopen this.
 
 ## M8 — Vision (deferred)
 

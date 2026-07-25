@@ -217,8 +217,9 @@ widgets. See [ADR-0002](adr/0002-rust-core-uniffi.md).
 
 ### 6.2 Transport
 
-- **USB-C MIDI = primary** (reliable, low-latency, simple permissions).
-- **BLE-MIDI = secondary** (worse permissions/stability; nice-to-have).
+- **USB MIDI is the only supported transport** — class-compliant, no pairing, no
+  permission prompt. **BLE-MIDI is deferred**, not planned-but-unbuilt
+  ([ADR-0015](adr/0015-usb-midi-only.md)).
 - Device ID default `10h`; Model ID `01 06 01`. Identity handshake on connect.
 
 ### 6.3 UI layer — fully native per platform (decision)
@@ -447,7 +448,10 @@ Detailed rules and the screen-reader coexistence strategy live in
    *"changed (live)"* from *"saved to slot."*
 2. **Instrument catalog drift** — expansions change the number↔name mapping →
    need an updatable, versioned catalog.
-3. **BLE-MIDI** permissions/stability worse than USB-C → USB-C primary.
+3. **BLE-MIDI** permissions/stability worse than USB, and its failure modes
+   (pairing, silent drops) are the hardest to diagnose without sight → **USB
+   only** ([ADR-0015](adr/0015-usb-midi-only.md)). Cost: a TD-17, which has no
+   MIDI IN jack, then needs a USB adapter from a phone.
 4. **Rust↔mobile binding** — UniFFI (preferred) vs hand-rolled C ABI + cbindgen.
 5. **Screen-reader coexistence** — surfacing live events without stepping on
    VoiceOver/TalkBack: announcements through the screen reader's own channel,
