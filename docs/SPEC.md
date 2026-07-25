@@ -450,8 +450,9 @@ Detailed rules and the screen-reader coexistence strategy live in
    need an updatable, versioned catalog.
 3. **BLE-MIDI** permissions/stability worse than USB, and its failure modes
    (pairing, silent drops) are the hardest to diagnose without sight → **USB
-   only** ([ADR-0015](adr/0015-usb-midi-only.md)). Cost: a TD-17, which has no
-   MIDI IN jack, then needs a USB adapter from a phone.
+   only** ([ADR-0015](adr/0015-usb-midi-only.md)). On a TD-17, which has no MIDI
+   IN jack, USB is then the only path — a USB-C→USB-B cable on Android and USB-C
+   iPhones, an adapter only on Lightning.
 4. **Rust↔mobile binding** — UniFFI (preferred) vs hand-rolled C ABI + cbindgen.
 5. **Screen-reader coexistence** — surfacing live events without stepping on
    VoiceOver/TalkBack: announcements through the screen reader's own channel,

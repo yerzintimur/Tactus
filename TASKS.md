@@ -232,8 +232,8 @@ and verified; keep this file honest about real state.
 - ~~BLE-MIDI transport~~ — **deferred, not planned**
   ([ADR-0015](docs/adr/0015-usb-midi-only.md)). USB is the only supported
   transport on both platforms and both modules. Consequence to keep in view: the
-  TD-17 has no MIDI IN jack, so its owners need a USB adapter from a phone —
-  the likeliest reason to reopen this.
+  TD-17 has no MIDI IN jack, so USB is its only path — a USB-C→USB-B cable from
+  Android or a USB-C iPhone, an adapter only on Lightning.
 
 ## M8 — Vision (deferred)
 

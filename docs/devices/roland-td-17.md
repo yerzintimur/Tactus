@@ -179,9 +179,19 @@ just to the code.
 - **There is no MIDI IN jack.** The module has **MIDI OUT only**. DIN MIDI can
   therefore never carry our writes — every RQ1 and DT1 has to travel over **USB**
   (or Bluetooth, which we deliberately do not support; see below).
-- **USB COMPUTER jack** (USB-B) carries MIDI and audio. From an iPhone or iPad
-  this needs a camera/USB adapter, and the module is bus-powered separately
-  (it runs from its own 9 V adaptor, so the phone only supplies data).
+- **USB COMPUTER jack** (USB-B) carries MIDI and audio. In the common case a
+  phone connects with a **plain USB-C→USB-B cable**, not a dongle:
+  - **Android** — any phone with USB host support (standard for years); the OS
+    exposes it through `android.media.midi`.
+  - **iPhone 15+ / iPad with USB-C** — direct cable, no camera adapter. Apple's
+    4.5 W accessory limit is irrelevant here: the module runs from its own 9 V
+    adaptor and draws no power from the phone.
+  - **Lightning iPhone/iPad** — needs Apple's Lightning-to-USB camera adapter.
+- **Set USB Driver Mode to GENERIC** ([SETUP] – [USB]; takes effect after a power
+  cycle). GENERIC uses the operating system's class-compliant driver and is
+  limited to USB MIDI — which is all we need. VENDOR selects Roland's own desktop
+  driver (MIDI + USB audio) and is not what a phone wants. The V31 needs the same
+  GENERIC setting, so this is one habit, not two.
 - **Bluetooth LE MIDI exists but is out of scope.** The module offers Bluetooth
   4.2 with the **GATT (MIDI over BLE)** profile, and it is tempting precisely
   because it needs no adapter. Tactus nonetheless supports **USB only**
@@ -195,12 +205,14 @@ just to the code.
 - Relevant module settings live under **[SETUP] – [MIDI]**: MIDI channel,
   Tx/Rx switch, Thru (USB / Bluetooth), Device ID, Transmit Edit Data.
 
-**So the practical path is USB, and it costs the user an adapter.** With no MIDI
-IN jack and BLE deferred, a phone reaches the TD-17 exactly one way: the USB
-COMPUTER port through a camera/USB adapter. That is a genuine cost for a blind
-user — one more object that has to be found and plugged in correctly — and it is
-the single most likely reason to reopen ADR-0015. Worth asking the teacher about
-directly when we get to his kit.
+**So the practical path is USB, and on modern phones it is just a cable.** With no
+MIDI IN jack and BLE deferred, a phone reaches the TD-17 exactly one way: the USB
+COMPUTER port. On Android and on USB-C iPhones that is a single USB-C→USB-B
+cable; only Lightning devices add an adapter in the middle. The remaining cost
+for a blind user is the one-time module setting (USB Driver Mode → GENERIC),
+which someone has to do through the module's inaccessible screen — the same
+chicken-and-egg first-run problem the V31 already has, and a good thing to time
+when we sit down with the teacher's kit.
 
 ---
 

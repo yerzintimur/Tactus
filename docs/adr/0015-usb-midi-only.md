@@ -52,15 +52,16 @@ Concretely:
   a cable would be in the way.
 
 ## Consequences
-- **TD-17 owners need a USB adapter to use a phone.** The module has **no MIDI IN
-  jack** at all, so USB is not merely our preference — it is the only remaining
-  path once BLE is off the table. This is a real cost for the one user we know
-  of, and it is the thing most likely to reopen this decision.
+- **On the TD-17, USB is the only remaining path**, because the module has **no
+  MIDI IN jack** at all. In practice that is a cable, not a dongle: USB-C→USB-B
+  from an Android phone or a USB-C iPhone/iPad; only Lightning devices need
+  Apple's camera adapter. The module must be set to **USB Driver Mode = GENERIC**
+  so the OS class-compliant driver is used — the same setting the V31 needs.
 - The hardware-test list loses "does SysEx survive BLE fragmentation"; the
   remaining TD-17 questions are all about the module, not the link.
 - If we revisit: the transport seam is already the right shape — the core is
   sans-I/O and the native layer owns the endpoint
   ([ADR-0008](0008-sans-io-core-and-i18n.md)), so BLE would be a native-side
   addition, not a core change. Nothing in this decision paints us into a corner.
-- **Revisit when** a blind user tells us the adapter is the barrier — that
-  evidence outranks the reasoning above.
+- **Revisit when** a blind user tells us the cable is the barrier — that evidence
+  outranks the reasoning above.
