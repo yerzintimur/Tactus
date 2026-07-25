@@ -28,6 +28,10 @@ struct ContentView: View {
                         tempoSection
                     }
                 }
+                // Last on purpose: a setting you touch once should not sit in
+                // front of the controls you use every session — a screen-reader
+                // user swipes past everything above the kit otherwise.
+                languageSection
                 #if DEBUG
                 if !Self.isUITest {
                     developerSection
@@ -46,6 +50,34 @@ struct ContentView: View {
                 .environmentObject(session)
             }
         }
+    }
+
+    // MARK: - Language
+
+    /// Language follows the device by default and can be overridden here — a user
+    /// may well run their phone in one language and want drum terms in another.
+    /// Each language is listed under its own name, so it stays recognisable even
+    /// when the interface is currently in a language you cannot read.
+    ///
+    /// No announcement on change: the picker is the focused control, so the screen
+    /// reader voices the new value itself — announcing it too would double-speak
+    /// (ADR-0014).
+    @ViewBuilder private var languageSection: some View {
+        Section(session.text(.sectionLanguage)) {
+            Picker(session.text(.sectionLanguage), selection: languageBinding) {
+                Text(session.text(.languageSystem)).tag(String?.none)
+                ForEach(session.availableLocales, id: \.code) { locale in
+                    Text(locale.endonym).tag(String?.some(locale.code))
+                }
+            }
+            .accessibilityIdentifier("language-picker")
+        }
+    }
+
+    private var languageBinding: Binding<String?> {
+        Binding(
+            get: { session.languageOverride },
+            set: { session.languageOverride = $0 })
     }
 
     // MARK: - Connection

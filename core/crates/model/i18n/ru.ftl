@@ -58,3 +58,6 @@ ui-label-tempo = Темп
 ui-value-updating = Обновление…
 ui-hint-tempo-adjust = Проведите вверх или вниз, чтобы изменить темп
 ui-value-unknown = —
+
+ui-section-language = Язык
+ui-language-system = Системный

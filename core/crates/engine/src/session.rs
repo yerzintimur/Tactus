@@ -137,6 +137,11 @@ impl Session {
         self.locale = locale.into();
     }
 
+    /// The languages the core can render, for the platform's language picker.
+    pub fn available_locales(&self) -> &'static [model::LocaleInfo] {
+        model::AVAILABLE_LOCALES
+    }
+
     /// The app's own interface text, localized here rather than in each platform's
     /// resources (ADR-0008) — in a nonvisual app a control label is speech too.
     /// `value` fills the `{ $value }` slot of the strings that take one.

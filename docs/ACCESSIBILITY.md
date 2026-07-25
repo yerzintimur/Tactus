@@ -196,13 +196,22 @@ The sentence is in the user's language ("Кит 5: …") but device-sourced name
 both mispronounces the foreign part. Fix = **per-segment language tagging**
 (ADR-0011):
 
-- **Screen reader (the only path):** build an attributed accessibility label and
-  tag the foreign range with its language — iOS
-  `.accessibilitySpeechLanguage = "en-US"` on the kit-name range; Android
-  `LocaleSpan(Locale.ENGLISH)`. VoiceOver/TalkBack then voice "Кит 5:" in Russian
-  and "Jazz" in English. (Verify the Android `LocaleSpan` path on a device.)
-- The core supplies the segments: `LocalizedText.spans` marks each run's language;
-  device content defaults to `en`.
+- The core supplies the segments: `LocalizedText.spans` marks each run's language,
+  device content defaulting to `en`. Arguments are wrapped in private-use markers
+  before Fluent formats them, so a run is located wherever a translation puts it.
+  A single span means one language throughout and the platform can skip tagging.
+- **Announcements (built):** iOS posts an `NSAttributedString` carrying the
+  announcement priority *and* `.accessibilitySpeechLanguage` per range, so
+  VoiceOver voices "Кит 5:" in Russian and "Jazz" in English. Android's
+  equivalent is `LocaleSpan(Locale.ENGLISH)` — verify on a device when that
+  platform lands.
+- **Static labels (not yet):** SwiftUI has no per-element language attribute —
+  the Swift accessibility attribute scope covers priority, pitch and punctuation
+  but not language, which exists only as an `NSAttributedString.Key`. A control
+  whose label is a kit name is therefore still read in the interface language.
+  Reaching it needs a UIKit-backed representable; announcements were the path
+  that mattered first, since that is where a localized sentence and an English
+  name actually collide.
 
 ---
 

@@ -25,20 +25,29 @@ Verified platform facts:
   app locale, and substrings that are **device content** (kit/instrument names)
   are marked with a **device-content language** — default **"en"** (Roland names
   are English), configurable later.
-- Native layers apply per-segment language: build an attributed accessibility
-  label and tag the foreign range — iOS `.accessibilitySpeechLanguage = "en-US"`,
-  Android `LocaleSpan`. VoiceOver/TalkBack then pronounce each part correctly.
-- **MVP** gets correct pronunciation purely via screen-reader element tagging
-  (the kit-name label tagged "en") — **no core change required**. The core spans
-  are the V1 path, applied when the accessibility labels are built.
+- Native layers apply per-segment language: build an attributed announcement or
+  label and tag the foreign range — iOS `.accessibilitySpeechLanguage`, Android
+  `LocaleSpan`. VoiceOver/TalkBack then pronounce each part correctly.
+
+**How the spans are found.** A device-sourced argument is wrapped in private-use
+markers (`U+E000`/`U+E001`) *before* Fluent formats the message; the rendered
+string is then split on the markers, which are stripped. Searching the output for
+the argument's text afterwards would break as soon as a translation reorders or
+repeats it, and a name that happened to contain the marker cannot leak one.
 
 ## Consequences
-- FFI `LocalizedText` carries `spans: [{ text, lang }]` alongside the flat `text`
-  (concatenating spans == text); native uses spans to tag the accessibility
-  label's ranges, `text` for display.
-- The model's localizer gains a "device-content" arg marking + span output;
-  implemented alongside its consumer (the iOS announcement/label layer) so we
-  don't build speculative API ahead of need.
+- `Speech` carries `spans: [{ text, lang }]` alongside the flat `text`
+  (concatenating spans == text); native uses spans to tag ranges, `text` for
+  display. One span means one language and the platform tags nothing.
 - Device-content language defaults to "en"; a per-user/per-profile override can be
   added later (we can't truly detect the language of a user-typed kit name).
+- **Announcements are tagged; static labels are not.** SwiftUI exposes no
+  per-element language attribute — Swift's accessibility attribute scope has
+  priority, pitch and punctuation but no language, which lives only as an
+  `NSAttributedString.Key`. Announcements can therefore be posted as an
+  `NSAttributedString` carrying both priority and per-range language, while a
+  control whose label is a kit name still reads in the interface language.
+  Closing that gap needs a UIKit-backed representable; the announcement path was
+  built first because that is where a localized sentence and an English name
+  actually collide in one utterance.
 - Builds on [ADR-0008](0008-sans-io-core-and-i18n.md) (i18n in the core).

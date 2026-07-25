@@ -49,7 +49,7 @@ final class CoreSession: ObservableObject {
     /// `transport` defaults to the real CoreMIDI transport; tests and the
     /// `--simulated-device` launch path inject a `SimulatedTransport` instead.
     init(
-        locale: String = CoreSession.currentLanguage(),
+        locale: String = CoreSession.preferredLanguage(),
         transport: (any MidiTransporting)? = nil
     ) {
         core = TactusSession(locale: locale)
@@ -132,6 +132,26 @@ final class CoreSession: ObservableObject {
         core.setLocale(locale: locale)
         self.locale = locale
     }
+
+    /// The user's explicit language choice, or nil to follow the device.
+    /// Persisted, because a blind user should not have to re-pick it every launch.
+    var languageOverride: String? {
+        get { UserDefaults.standard.string(forKey: Self.languageOverrideKey) }
+        set {
+            let defaults = UserDefaults.standard
+            if let newValue {
+                defaults.set(newValue, forKey: Self.languageOverrideKey)
+            } else {
+                defaults.removeObject(forKey: Self.languageOverrideKey)
+            }
+            setLocale(newValue ?? Self.currentLanguage())
+        }
+    }
+
+    /// The languages the core can render, each under its own name.
+    var availableLocales: [LocaleOption] { core.availableLocales() }
+
+    private static let languageOverrideKey = "languageOverride"
 
     /// The app's own interface text, localized by the core rather than by
     /// platform string files (ADR-0008): in a nonvisual app a control label is
@@ -225,6 +245,17 @@ final class CoreSession: ObservableObject {
     /// Monotonic millisecond clock for the engine's timers.
     private static func nowMs() -> UInt64 {
         UInt64(DispatchTime.now().uptimeNanoseconds / 1_000_000)
+    }
+
+    /// The language to start in: the user's saved choice, otherwise the device's.
+    static func preferredLanguage() -> String {
+        UserDefaults.standard.string(forKey: languageOverrideKey) ?? currentLanguage()
+    }
+
+    /// Forget a saved language choice (UI tests, which must start from a known
+    /// state — the override survives app launches by design).
+    static func clearLanguageOverride() {
+        UserDefaults.standard.removeObject(forKey: languageOverrideKey)
     }
 
     /// Core localisation expects a bare language code ("en"/"ru"), not "en_US".

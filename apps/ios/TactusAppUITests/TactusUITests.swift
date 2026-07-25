@@ -123,6 +123,41 @@ final class TactusUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Rename kit…"].exists)
     }
 
+    /// Switching the language switches the whole interface, not just the speech:
+    /// the labels come from the same core catalogs as the announcements
+    /// (ADR-0008), so this exercises the full path — picker → `setLocale` →
+    /// re-render — through the accessibility tree a screen-reader user reads.
+    @MainActor
+    func testLanguageOverrideSwitchesTheInterface() {
+        let app = launchSimulated()
+        XCTAssertTrue(
+            app.buttons["Next kit"].waitForExistence(timeout: uiTimeout),
+            "the English interface should be up first")
+
+        // The language setting sits last (it is set once, not per session), so
+        // scroll it into view the way a touch user would.
+        let picker = app.descendants(matching: .any)["language-picker"].firstMatch
+        var scrolls = 0
+        while !picker.isHittable && scrolls < 5 {
+            app.swipeUp()
+            scrolls += 1
+        }
+        XCTAssertTrue(picker.waitForExistence(timeout: uiTimeout))
+        picker.tap()
+        // Each language is offered under its own name, whatever the current one.
+        app.buttons["Русский"].firstMatch.tap()
+
+        XCTAssertTrue(
+            app.buttons["Следующий кит"].waitForExistence(timeout: uiTimeout),
+            "the controls should be relabelled in Russian")
+        XCTAssertTrue(
+            element(in: app, containing: "Текущий кит").waitForExistence(timeout: uiTimeout),
+            "and so should the accessibility labels the screen reader reads")
+        // The kit's own name stays as the module wrote it — it is not ours to
+        // translate (ADR-0011 tags it as English instead).
+        XCTAssertTrue(element(in: app, containing: "Jazz").exists)
+    }
+
     /// Accessibility audit gate. Runs against the shipping UI in the full ready
     /// state (simulated module connected, kit + tempo sections visible);
     /// `--uitest` hides the DEBUG developer controls.

@@ -215,8 +215,23 @@ and verified; keep this file honest about real state.
 
 - [ ] **`P3` Multiple device instances** — endpoint `uniqueID` + user label,
   multiple concurrent sessions ([ADR-0010](docs/adr/0010-device-instances-and-source-of-truth.md)).
-- [ ] **`P3` Per-segment mixed-language speech** — `LocalizedText` spans
-  ([ADR-0011](docs/adr/0011-mixed-language-speech.md)).
+- [x] **Per-segment mixed-language speech** — the core marks module-sourced text
+  and reports `spans`; iOS posts announcements as an `NSAttributedString` with
+  priority plus a language per range, so a Russian sentence quoting "Jazz Funk"
+  is pronounced correctly ([ADR-0011](docs/adr/0011-mixed-language-speech.md)).
+- [x] **The app's own interface is localized** — labels come from the same Fluent
+  catalogs as the speech via a typed `UiString` enum over the FFI; a Rust test
+  walks every variant in every locale, so a missing translation fails the build
+  instead of being read aloud as an identifier.
+- [x] **Language override** — device language by default, overridable in-app and
+  persisted; the picker is built from the core's `available_locales`, each
+  language under its own name.
+- [ ] **`P3` Tag static labels with their language too** — a control whose label
+  is a kit name still reads in the interface language. SwiftUI has no per-element
+  language attribute, so this needs a UIKit-backed representable (ADR-0011).
+- [ ] **`P3` i18n keys for the M3 parameters** — the 21 parameters added with the
+  expanded profile have no `i18n_key`, so they would speak as raw ids once a
+  screen surfaces them. Do it with the M4 editors.
 - [x] **Second module studied — Roland TD-17** ([notes](docs/devices/roland-td-17.md)).
   A blind drum teacher we can reach uses a TD-17KVX2, which makes it the first
   real second target. Same Roland SysEx mechanics (Model ID `00 00 00 4B`,

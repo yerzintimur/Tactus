@@ -14,6 +14,9 @@
 /// A piece of the app's own interface text.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum UiString {
+    // Language
+    SectionLanguage,
+    LanguageSystem,
     // Connection
     SectionConnection,
     LabelStatus,
@@ -52,6 +55,8 @@ pub enum UiString {
 impl UiString {
     /// Every variant — the exhaustive list the catalog test walks.
     pub const ALL: &'static [UiString] = &[
+        UiString::SectionLanguage,
+        UiString::LanguageSystem,
         UiString::SectionConnection,
         UiString::LabelStatus,
         UiString::LabelDevice,
@@ -84,6 +89,8 @@ impl UiString {
     /// The Fluent message id backing this string.
     pub fn message_id(self) -> &'static str {
         match self {
+            UiString::SectionLanguage => "ui-section-language",
+            UiString::LanguageSystem => "ui-language-system",
             UiString::SectionConnection => "ui-section-connection",
             UiString::LabelStatus => "ui-label-status",
             UiString::LabelDevice => "ui-label-device",
@@ -123,17 +130,16 @@ impl UiString {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::i18n::{Localizer, Message};
-
-    const LOCALES: [&str; 2] = ["en", "ru"];
+    use crate::i18n::{AVAILABLE_LOCALES, Localizer, Message};
 
     #[test]
     fn every_ui_string_resolves_in_every_locale() {
         // A missing catalog entry renders as the raw id — which a screen reader
-        // would happily read out to a blind user. Fail here instead.
+        // would happily read out to a blind user. Fail here instead. Driven by
+        // AVAILABLE_LOCALES, so offering a new language also demands its strings.
         let loc = Localizer::new();
         for &s in UiString::ALL {
-            for locale in LOCALES {
+            for locale in AVAILABLE_LOCALES.iter().map(|l| l.code) {
                 let mut msg = Message::new(s.message_id());
                 if s.takes_value() {
                     msg = msg.arg("value", "X");

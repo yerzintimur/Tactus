@@ -13,7 +13,10 @@ mod ui;
 
 pub use catalog::InstrumentCatalog;
 pub use format::{format_kit, format_parameter, format_parameter_label};
-pub use i18n::{Arg, DEVICE_CONTENT_LANG, LocalizedText, Localizer, Message, TextSpan};
+pub use i18n::{
+    AVAILABLE_LOCALES, Arg, DEVICE_CONTENT_LANG, LocaleInfo, LocalizedText, Localizer, Message,
+    TextSpan,
+};
 pub use intent::Intent;
 pub use ui::UiString;
 

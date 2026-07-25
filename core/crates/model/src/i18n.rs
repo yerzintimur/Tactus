@@ -27,6 +27,29 @@ pub const DEVICE_CONTENT_LANG: &str = "en";
 const SPAN_START: char = '\u{E000}';
 const SPAN_END: char = '\u{E001}';
 
+/// A language the app can be shown in.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct LocaleInfo {
+    /// Language subtag, as passed to [`Localizer::format`] ("en", "ru").
+    pub code: &'static str,
+    /// The language's name **in that language** — the one word a user who can't
+    /// read the current interface language will still recognise.
+    pub endonym: &'static str,
+}
+
+/// Every locale the core carries a catalog for. The platforms build their
+/// language picker from this, so adding a catalog offers it on both at once.
+pub const AVAILABLE_LOCALES: &[LocaleInfo] = &[
+    LocaleInfo {
+        code: "en",
+        endonym: "English",
+    },
+    LocaleInfo {
+        code: "ru",
+        endonym: "Русский",
+    },
+];
+
 /// A localizable argument value.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Arg {
@@ -317,6 +340,22 @@ fn build_bundle(lang: &str, ftl: &str) -> FluentBundle<FluentResource> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn every_offered_locale_has_a_catalog() {
+        // The picker is built from this list; offering a language we cannot
+        // render would silently fall back to English mid-interface.
+        let loc = Localizer::new();
+        for info in AVAILABLE_LOCALES {
+            assert_eq!(
+                loc.language(info.code),
+                info.code,
+                "{} is offered but has no catalog",
+                info.code
+            );
+            assert!(!info.endonym.is_empty());
+        }
+    }
 
     #[test]
     fn renders_en_and_ru() {

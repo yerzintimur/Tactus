@@ -68,11 +68,32 @@ pub enum SpeechSource {
     UserInitiated,
 }
 
+/// A language the app can be shown in, for the platform's language picker.
+#[derive(Debug, Clone, PartialEq, Eq, uniffi::Record)]
+pub struct LocaleOption {
+    /// Language subtag to pass back to `set_locale` ("en", "ru").
+    pub code: String,
+    /// The language's name in that language — recognisable to a user who cannot
+    /// read the interface's current language.
+    pub endonym: String,
+}
+
+impl From<&engine::LocaleInfo> for LocaleOption {
+    fn from(info: &engine::LocaleInfo) -> Self {
+        Self {
+            code: info.code.to_string(),
+            endonym: info.endonym.to_string(),
+        }
+    }
+}
+
 /// A piece of the app's own interface text, localized by the core (ADR-0008).
 /// Mirrors `engine::UiString`; the two conversions below are exhaustive, so a
 /// variant cannot be added on one side alone.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, uniffi::Enum)]
 pub enum UiString {
+    SectionLanguage,
+    LanguageSystem,
     SectionConnection,
     LabelStatus,
     LabelDevice,
@@ -105,6 +126,8 @@ pub enum UiString {
 impl From<UiString> for engine::UiString {
     fn from(s: UiString) -> Self {
         match s {
+            UiString::SectionLanguage => engine::UiString::SectionLanguage,
+            UiString::LanguageSystem => engine::UiString::LanguageSystem,
             UiString::SectionConnection => engine::UiString::SectionConnection,
             UiString::LabelStatus => engine::UiString::LabelStatus,
             UiString::LabelDevice => engine::UiString::LabelDevice,
@@ -139,6 +162,8 @@ impl From<UiString> for engine::UiString {
 impl From<engine::UiString> for UiString {
     fn from(s: engine::UiString) -> Self {
         match s {
+            engine::UiString::SectionLanguage => Self::SectionLanguage,
+            engine::UiString::LanguageSystem => Self::LanguageSystem,
             engine::UiString::SectionConnection => Self::SectionConnection,
             engine::UiString::LabelStatus => Self::LabelStatus,
             engine::UiString::LabelDevice => Self::LabelDevice,

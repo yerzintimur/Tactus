@@ -59,3 +59,6 @@ ui-label-tempo = Tempo
 ui-value-updating = Updating…
 ui-hint-tempo-adjust = Swipe up or down to adjust the tempo
 ui-value-unknown = —
+
+ui-section-language = Language
+ui-language-system = System

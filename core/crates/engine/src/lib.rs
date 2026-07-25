@@ -13,7 +13,7 @@ pub use event::{
     ConnectionState, CoreEvent, DeviceInfo, Earcon, Effect, FirmwareSupport, Speech,
     SpeechCategory, SpeechPriority, SpeechSource, TextSpan,
 };
-pub use model::UiString;
+pub use model::{LocaleInfo, UiString};
 pub use session::Session;
 pub use viewmodel::{
     KitRef, NumericInfo, NumericRange, ParamKind, ParamValue, ParameterView, Snapshot,

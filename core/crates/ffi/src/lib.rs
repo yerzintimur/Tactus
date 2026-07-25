@@ -15,9 +15,9 @@ mod types;
 #[cfg(feature = "simffi")]
 pub use sim::VirtualDeviceHandle;
 pub use types::{
-    ConnectionState, CoreEvent, DeviceInfo, Earcon, Effect, FirmwareSupport, KitRef, NumericInfo,
-    NumericRange, ParamKind, ParamValue, ParameterView, Snapshot, Speech, SpeechCategory,
-    SpeechPriority, SpeechSource, TextSpan, UiString,
+    ConnectionState, CoreEvent, DeviceInfo, Earcon, Effect, FirmwareSupport, KitRef, LocaleOption,
+    NumericInfo, NumericRange, ParamKind, ParamValue, ParameterView, Snapshot, Speech,
+    SpeechCategory, SpeechPriority, SpeechSource, TextSpan, UiString,
 };
 
 use std::sync::{Arc, Mutex};
@@ -43,6 +43,16 @@ impl TactusSession {
     /// Change the UI/speech locale.
     pub fn set_locale(&self, locale: String) {
         self.locked().set_locale(locale);
+    }
+
+    /// The languages the app can be shown in — the picker is built from this, so
+    /// a language added to the core is offered on every platform at once.
+    pub fn available_locales(&self) -> Vec<LocaleOption> {
+        self.locked()
+            .available_locales()
+            .iter()
+            .map(Into::into)
+            .collect()
     }
 
     /// The app's own interface text in the current locale (ADR-0008) — the UI
@@ -192,6 +202,35 @@ mod tests {
                 }
             }
         )));
+    }
+
+    #[test]
+    fn interface_text_and_locales_cross_the_boundary() {
+        let session = TactusSession::new("en".to_string());
+        assert_eq!(session.ui_string(UiString::ButtonNextKit, None), "Next kit");
+
+        session.set_locale("ru".to_string());
+        assert_eq!(
+            session.ui_string(UiString::ButtonNextKit, None),
+            "Следующий кит"
+        );
+        assert_eq!(
+            session.ui_string(UiString::ValueCurrentKit, Some("5 · Jazz".to_string())),
+            "Текущий кит: 5 · Jazz"
+        );
+
+        // Each language is offered under its own name, whatever the current one.
+        let offered = session.available_locales();
+        assert!(
+            offered
+                .iter()
+                .any(|l| l.code == "ru" && l.endonym == "Русский")
+        );
+        assert!(
+            offered
+                .iter()
+                .any(|l| l.code == "en" && l.endonym == "English")
+        );
     }
 
     #[test]
