@@ -68,10 +68,23 @@ pub enum SpeechSource {
     UserInitiated,
 }
 
+/// One run of a spoken message in a single language (ADR-0011).
+#[derive(Debug, Clone, PartialEq, Eq, uniffi::Record)]
+pub struct TextSpan {
+    pub text: String,
+    /// BCP-47 language tag, e.g. "ru" for the sentence and "en" for a kit name.
+    pub lang: String,
+}
+
 /// A spoken message (already localized by the core).
 #[derive(Debug, Clone, PartialEq, Eq, uniffi::Record)]
 pub struct Speech {
     pub text: String,
+    /// The language of each run of `text`, concatenating back to it exactly. A
+    /// single span means one language throughout and the platform can announce
+    /// `text` as-is; more than one means the announcement must be tagged per
+    /// range so the screen reader pronounces each part correctly.
+    pub spans: Vec<TextSpan>,
     pub priority: SpeechPriority,
     pub category: SpeechCategory,
     pub source: SpeechSource,
@@ -248,10 +261,20 @@ impl From<engine::SpeechSource> for SpeechSource {
     }
 }
 
+impl From<engine::TextSpan> for TextSpan {
+    fn from(s: engine::TextSpan) -> Self {
+        Self {
+            text: s.text,
+            lang: s.lang,
+        }
+    }
+}
+
 impl From<engine::Speech> for Speech {
     fn from(s: engine::Speech) -> Self {
         Self {
             text: s.text,
+            spans: s.spans.into_iter().map(Into::into).collect(),
             priority: s.priority.into(),
             category: s.category.into(),
             source: s.source.into(),

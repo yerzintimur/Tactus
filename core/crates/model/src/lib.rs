@@ -12,7 +12,7 @@ mod intent;
 
 pub use catalog::InstrumentCatalog;
 pub use format::{format_kit, format_parameter, format_parameter_label};
-pub use i18n::{Arg, Localizer, Message};
+pub use i18n::{Arg, DEVICE_CONTENT_LANG, LocalizedText, Localizer, Message, TextSpan};
 pub use intent::Intent;
 
 /// Crate version, exposed so higher layers can sanity-check linkage.

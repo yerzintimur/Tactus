@@ -3,6 +3,7 @@
 //! host executes them (send MIDI, schedule a tick, forward events). See ADR-0008.
 
 pub use device::FirmwareSupport;
+pub use model::TextSpan;
 
 /// Connection lifecycle state.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -69,6 +70,10 @@ pub enum SpeechSource {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Speech {
     pub text: String,
+    /// The language of each run of `text` — the sentence is in the app locale,
+    /// module-sourced names are English (ADR-0011). Concatenates back to `text`;
+    /// one span means the whole message is in a single language.
+    pub spans: Vec<TextSpan>,
     pub priority: SpeechPriority,
     pub category: SpeechCategory,
     pub source: SpeechSource,

@@ -47,7 +47,8 @@ impl InstrumentCatalog {
     /// graceful "unknown" fallback that still tells the user the number.
     pub fn label(&self, number: u32) -> Message {
         match self.name(number) {
-            Some(name) => Message::new("instrument.name").arg("name", name),
+            // Instrument names are the module's own English text (ADR-0011).
+            Some(name) => Message::new("instrument.name").device_arg("name", name),
             None => Message::new("instrument.unknown").arg("number", number),
         }
     }

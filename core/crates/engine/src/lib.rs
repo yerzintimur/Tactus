@@ -11,7 +11,7 @@ mod viewmodel;
 
 pub use event::{
     ConnectionState, CoreEvent, DeviceInfo, Earcon, Effect, FirmwareSupport, Speech,
-    SpeechCategory, SpeechPriority, SpeechSource,
+    SpeechCategory, SpeechPriority, SpeechSource, TextSpan,
 };
 pub use session::Session;
 pub use viewmodel::{

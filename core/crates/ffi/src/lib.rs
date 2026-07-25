@@ -17,7 +17,7 @@ pub use sim::VirtualDeviceHandle;
 pub use types::{
     ConnectionState, CoreEvent, DeviceInfo, Earcon, Effect, FirmwareSupport, KitRef, NumericInfo,
     NumericRange, ParamKind, ParamValue, ParameterView, Snapshot, Speech, SpeechCategory,
-    SpeechPriority, SpeechSource,
+    SpeechPriority, SpeechSource, TextSpan,
 };
 
 use std::sync::{Arc, Mutex};

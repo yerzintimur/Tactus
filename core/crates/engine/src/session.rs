@@ -9,7 +9,9 @@ use crate::event::{
 };
 use crate::viewmodel::{self, KitRef, ParamKind, ParamValue, ParameterView, Snapshot};
 use device::{DeviceProfile, FirmwareSupport, FirmwareVersion, ProfileRegistry};
-use model::{Localizer, Message, format_kit, format_parameter, format_parameter_label};
+use model::{
+    LocalizedText, Localizer, Message, format_kit, format_parameter, format_parameter_label,
+};
 use std::collections::HashMap;
 use sysex::SysexMessage;
 use sysex::encoding::decode_ascii;
@@ -266,14 +268,14 @@ impl Session {
                 self.pending.clear();
                 self.kit_select = None;
 
-                let mut speech = self.render(
+                let mut speech = self.render_spoken(
                     &Message::new("device.connected")
-                        .arg("device", name.as_str())
+                        .device_arg("device", name.as_str())
                         .arg("firmware", fw.display()),
                 );
                 if !support.is_tested() {
-                    speech.push(' ');
-                    speech.push_str(&self.render(&Message::new("device.firmware_untested")));
+                    speech.push_str(" ");
+                    speech.push(&self.render_spoken(&Message::new("device.firmware_untested")));
                 }
 
                 let mut fx = vec![
@@ -311,7 +313,7 @@ impl Session {
                     recognized: false,
                 };
                 self.device_info = Some(info.clone());
-                let speech = self.render(&Message::new("device.unrecognized"));
+                let speech = self.render_spoken(&Message::new("device.unrecognized"));
                 vec![
                     Effect::Emit(CoreEvent::ConnectionChanged(ConnectionState::Ready)),
                     Effect::Emit(CoreEvent::DeviceIdentified(info)),
@@ -358,7 +360,7 @@ impl Session {
                     "kit.common.name".to_string(),
                     ParamValue::Text(name.clone()),
                 );
-                let speech = self.render(&format_kit(number + 1, &name));
+                let speech = self.render_spoken(&format_kit(number + 1, &name));
                 let (category, source) = origin.tags();
                 vec![
                     Effect::Emit(CoreEvent::CurrentKitChanged { number, name }),
@@ -411,7 +413,7 @@ impl Session {
                 "kit.common.name".to_string(),
                 ParamValue::Text(name.clone()),
             );
-            let speech = self.render(&format_kit(kit + 1, &name));
+            let speech = self.render_spoken(&format_kit(kit + 1, &name));
             vec![
                 Effect::Emit(CoreEvent::CurrentKitChanged { number: kit, name }),
                 self.speak(
@@ -553,7 +555,7 @@ impl Session {
         };
         self.values
             .insert("kit.common.tempo".to_string(), ParamValue::Int(raw));
-        vec![self.speak(self.render(&message), priority, category, source)]
+        vec![self.speak(self.render_spoken(&message), priority, category, source)]
     }
 
     // ── edits: write → read-back → verify (no blind writes) ──
@@ -697,7 +699,7 @@ impl Session {
                 display: display.clone(),
             }),
             self.speak(
-                display,
+                self.spoken(display),
                 SpeechPriority::Default,
                 SpeechCategory::ParamEdit,
                 SpeechSource::UserInitiated,
@@ -714,8 +716,9 @@ impl Session {
                 param_id: edit.param_id.clone(),
                 display: actual.clone(),
             }),
+            // A text parameter's value is the module's own text (a kit name).
             self.speak(
-                actual,
+                self.spoken_device_text(actual),
                 SpeechPriority::Default,
                 SpeechCategory::ParamEdit,
                 SpeechSource::UserInitiated,
@@ -726,20 +729,21 @@ impl Session {
 
     /// Edit didn't take — announce the **actual** value, never the intended one.
     fn fail_mismatch(&self, edit: &Edit, actual_display: String) -> Vec<Effect> {
-        let reason = self.render(&Message::new("edit.mismatch").arg("value", actual_display));
+        let reason =
+            self.render_spoken(&Message::new("edit.mismatch").arg("value", actual_display));
         self.emit_failure(&edit.param_id, reason)
     }
 
     fn fail_simple(&self, msg_id: &str, param_id: &str) -> Vec<Effect> {
-        let reason = self.render(&Message::new(msg_id));
+        let reason = self.render_spoken(&Message::new(msg_id));
         self.emit_failure(param_id, reason)
     }
 
-    fn emit_failure(&self, param_id: &str, reason: String) -> Vec<Effect> {
+    fn emit_failure(&self, param_id: &str, reason: LocalizedText) -> Vec<Effect> {
         vec![
             Effect::Emit(CoreEvent::EditFailed {
                 param_id: param_id.to_string(),
-                reason: reason.clone(),
+                reason: reason.text.clone(),
             }),
             self.speak(
                 reason,
@@ -850,15 +854,33 @@ impl Session {
         self.localizer.format(message, &self.locale)
     }
 
+    /// Like [`Self::render`], but keeps the per-language runs needed for speech
+    /// (ADR-0011). Display-only strings can stay flat.
+    fn render_spoken(&self, message: &Message) -> LocalizedText {
+        self.localizer.format_spans(message, &self.locale)
+    }
+
+    /// Wrap already-localized text as speech in the app's own language.
+    fn spoken(&self, text: String) -> LocalizedText {
+        LocalizedText::plain(text, self.localizer.language(&self.locale))
+    }
+
+    /// Wrap text that came from the module (a kit name) as speech in the
+    /// module's language, so it is not read as if it were the app's (ADR-0011).
+    fn spoken_device_text(&self, text: String) -> LocalizedText {
+        LocalizedText::plain(text, model::DEVICE_CONTENT_LANG)
+    }
+
     fn speak(
         &self,
-        text: String,
+        text: LocalizedText,
         priority: SpeechPriority,
         category: SpeechCategory,
         source: SpeechSource,
     ) -> Effect {
         Effect::Emit(CoreEvent::Speak(Speech {
-            text,
+            text: text.text,
+            spans: text.spans,
             priority,
             category,
             source,

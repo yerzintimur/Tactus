@@ -340,3 +340,63 @@ fn snapshot_clears_stale_values_on_kit_change() {
         .unwrap();
     assert_eq!(tempo.value, Some(ParamValue::Int(1400)));
 }
+
+/// ADR-0011: a Russian announcement that quotes the module's English kit name is
+/// reported as two runs, so the platform can tag each for the screen reader. The
+/// English build needs no tagging at all — everything is already one language.
+#[test]
+fn announcements_report_the_language_of_each_run() {
+    let mut h = Harness::v31("ru");
+    h.connect().run_to_idle();
+
+    let kit = h
+        .events()
+        .iter()
+        .find_map(|e| match e {
+            CoreEvent::Speak(s) if s.text == "Кит 5: Jazz" => Some(s.clone()),
+            _ => None,
+        })
+        .expect("the kit announcement");
+    let runs: Vec<(&str, &str)> = kit
+        .spans
+        .iter()
+        .map(|s| (s.text.as_str(), s.lang.as_str()))
+        .collect();
+    assert_eq!(runs, [("Кит 5: ", "ru"), ("Jazz", "en")]);
+
+    // The device name inside the connect line is English too.
+    let connect = h
+        .events()
+        .iter()
+        .find_map(|e| match e {
+            CoreEvent::Speak(s) if s.text.contains("Roland V31") => Some(s.clone()),
+            _ => None,
+        })
+        .expect("the connect announcement");
+    assert!(
+        connect
+            .spans
+            .iter()
+            .any(|s| s.text == "Roland V31" && s.lang == "en")
+    );
+    assert_eq!(
+        connect
+            .spans
+            .iter()
+            .map(|s| s.text.as_str())
+            .collect::<String>(),
+        connect.text
+    );
+
+    let mut en = Harness::v31("en");
+    en.connect().run_to_idle();
+    let kit_en = en
+        .events()
+        .iter()
+        .find_map(|e| match e {
+            CoreEvent::Speak(s) if s.text == "Kit 5: Jazz" => Some(s.clone()),
+            _ => None,
+        })
+        .expect("the kit announcement");
+    assert_eq!(kit_en.spans.len(), 1, "one language needs no tagging");
+}

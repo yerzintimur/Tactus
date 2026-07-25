@@ -41,7 +41,8 @@ pub fn format_parameter_label(param: &ParameterDef) -> Message {
 pub fn format_kit(display_number: u32, name: &str) -> Message {
     Message::new("kit.label")
         .arg("number", display_number)
-        .arg("name", name)
+        // The name comes from the module and is English (ADR-0011).
+        .device_arg("name", name)
 }
 
 #[cfg(test)]
