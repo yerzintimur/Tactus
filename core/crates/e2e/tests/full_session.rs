@@ -210,6 +210,93 @@ fn select_kit_confirmed_reads_the_new_kit() {
 }
 
 #[test]
+fn stepping_moves_one_kit_at_a_time() {
+    let mut h = Harness::v31("en");
+    h.device_mut().with_kit(5, "Funk", 1300);
+    h.connect().run_to_idle(); // Ready on kit index 4 ("Jazz")
+    h.take_events();
+
+    h.next_kit().run_to_idle();
+    assert!(has_speak(h.events(), "Kit 6: Funk"));
+
+    h.take_events();
+    h.previous_kit().run_to_idle();
+    assert!(has_speak(h.events(), "Kit 5: Jazz"));
+}
+
+/// The end of the kit list is a boundary, not a failure: nothing is written, and
+/// the user hears where they are. Writing past the end would make the module
+/// ignore the message and the app report a timeout — "no response, check the
+/// connection" — for a request that was simply out of bounds.
+#[test]
+fn stepping_past_the_last_kit_announces_the_edge_without_sending() {
+    let mut h = Harness::v31("en");
+    h.device_mut().with_kit(199, "Solo", 1200);
+    h.connect().run_to_idle();
+    h.select_kit(199).run_to_idle(); // the module's last slot
+    h.take_events();
+
+    let fx = h.act_capturing(engine::Session::next_kit);
+    assert!(
+        !fx.iter().any(|e| matches!(e, engine::Effect::SendMidi(_))),
+        "the module must not be asked for a kit it doesn't have"
+    );
+    assert!(has_speak(h.events(), "Last kit."));
+    // Announced as navigation (interrupting), not as an error the user must act on.
+    assert_eq!(
+        tags_of(h.events(), "Last kit."),
+        Some((SpeechCategory::KitNav, SpeechSource::UserInitiated))
+    );
+    assert!(
+        !h.events()
+            .iter()
+            .any(|e| matches!(e, CoreEvent::EditFailed { .. }))
+    );
+    assert_eq!(h.snapshot().current_kit.map(|k| k.number), Some(199));
+}
+
+#[test]
+fn stepping_before_the_first_kit_announces_the_edge_without_sending() {
+    let mut h = Harness::v31("en");
+    h.connect().run_to_idle();
+    h.select_kit(0).run_to_idle();
+    h.take_events();
+
+    let fx = h.act_capturing(engine::Session::previous_kit);
+    assert!(!fx.iter().any(|e| matches!(e, engine::Effect::SendMidi(_))));
+    assert!(has_speak(h.events(), "First kit."));
+    assert_eq!(h.snapshot().current_kit.map(|k| k.number), Some(0));
+}
+
+/// The bound is the profile's, so a direct selection is caught here too — a kit
+/// list jumping to a slot the module doesn't have gets the same immediate answer.
+#[test]
+fn selecting_a_kit_the_module_does_not_have_is_rejected_without_sending() {
+    let mut h = Harness::v31("en");
+    h.connect().run_to_idle(); // the V31 has 200 kits: 0..=199
+    h.take_events();
+
+    let fx = h.act_capturing(|s| s.select_kit(200));
+    assert!(!fx.iter().any(|e| matches!(e, engine::Effect::SendMidi(_))));
+    assert!(fx.iter().any(|e| matches!(e,
+        engine::Effect::Emit(CoreEvent::EditFailed { reason, .. }) if reason.contains("range"))));
+}
+
+/// Stepping needs a known position: before the module reports one, "next kit"
+/// must not guess — a blind write would move the drummer's kit out from under them.
+#[test]
+fn stepping_without_a_known_kit_writes_nothing() {
+    let mut h = Harness::v31("en");
+
+    let fx = h.act_capturing(engine::Session::next_kit);
+    assert!(!fx.iter().any(|e| matches!(e, engine::Effect::SendMidi(_))));
+    assert!(
+        fx.iter()
+            .any(|e| matches!(e, engine::Effect::Emit(CoreEvent::EditFailed { .. })))
+    );
+}
+
+#[test]
 fn rename_kit_confirmed_by_readback() {
     let mut h = Harness::v31("en");
     h.connect().run_to_idle();

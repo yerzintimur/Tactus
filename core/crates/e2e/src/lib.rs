@@ -181,6 +181,14 @@ impl Harness {
         self.act(move |s| s.select_kit(number))
     }
 
+    pub fn next_kit(&mut self) -> &mut Self {
+        self.act(Session::next_kit)
+    }
+
+    pub fn previous_kit(&mut self) -> &mut Self {
+        self.act(Session::previous_kit)
+    }
+
     pub fn set_parameter(&mut self, param_id: &str, indices: Vec<u32>, value: i64) -> &mut Self {
         let id = param_id.to_string();
         self.act(move |s| s.set_parameter(id, indices, value))

@@ -184,6 +184,20 @@ impl DeviceProfile {
         Some(sysex::address::add_offset(base, &param.offset))
     }
 
+    /// The highest kit number the module accepts (0-based), if the profile says.
+    ///
+    /// The wire truth is the `current.kit_num` range — that is what the module
+    /// actually stores at that address; `capabilities.kit_count` states the same
+    /// fact as a count and covers profiles that don't pin a range. `None` means
+    /// the profile declares neither: navigation then stays unclamped and the
+    /// module remains the only authority (ADR-0010), as in degraded mode.
+    pub fn max_kit_number(&self) -> Option<u32> {
+        self.parameter("current.kit_num")
+            .and_then(|p| p.range)
+            .and_then(|r| u32::try_from(r.max).ok())
+            .or_else(|| self.capabilities.kit_count.checked_sub(1))
+    }
+
     /// Classify the connected firmware against this profile's tested set (ADR-0009).
     pub fn firmware_support(&self, version: FirmwareVersion) -> FirmwareSupport {
         FirmwareSupport::classify(&self.firmware.tested, version)
@@ -257,6 +271,22 @@ mod tests {
             p.parameter("current.kit_num").unwrap().encoding,
             Encoding::Nibble
         );
+    }
+
+    #[test]
+    fn kit_bound_prefers_the_wire_range_and_falls_back_to_the_capability() {
+        let p = profile();
+        assert_eq!(p.max_kit_number(), Some(199));
+
+        // No range on the wire parameter → the declared count still bounds it.
+        let without_range = PROFILE.replace(r#", "range": { "min": 0, "max": 199 }"#, "");
+        let p = DeviceProfile::from_json(&without_range).expect("valid profile");
+        assert_eq!(p.max_kit_number(), Some(199));
+
+        // A profile that declares neither doesn't get to clamp anything.
+        let silent = without_range.replace(r#""kit_count": 200"#, r#""kit_count": 0"#);
+        let p = DeviceProfile::from_json(&silent).expect("valid profile");
+        assert_eq!(p.max_kit_number(), None);
     }
 
     #[test]

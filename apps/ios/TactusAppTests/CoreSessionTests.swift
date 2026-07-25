@@ -32,10 +32,13 @@ final class CoreSessionTests: XCTestCase {
         XCTAssertEqual(session.connection, .disconnected)
     }
 
-    func testPreviousKitClampsAtZero() {
+    func testSteppingWithoutAKnownKitMovesNothing() {
         let session = CoreSession(locale: "en")
-        // No current kit yet → previousKit is a no-op (no crash, stays nil).
+        // No current kit yet → the core refuses to guess a position rather than
+        // move the drummer's module blind. The bounds themselves are pinned in
+        // the Rust suite (they come from the device profile, not from Swift).
         session.previousKit()
+        session.nextKit()
         XCTAssertNil(session.currentKitNumber)
     }
 

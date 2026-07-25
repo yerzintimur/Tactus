@@ -87,6 +87,18 @@ impl TactusSession {
         self.run(|s| s.select_kit(number))
     }
 
+    /// Step to the next kit. At the module's last slot this announces the edge
+    /// and writes nothing — the bound comes from the device profile, so no
+    /// platform has to know how many kits a module has.
+    pub fn next_kit(&self) -> Vec<Effect> {
+        self.run(engine::Session::next_kit)
+    }
+
+    /// Step to the previous kit; kit 1 is a boundary (see [`Self::next_kit`]).
+    pub fn previous_kit(&self) -> Vec<Effect> {
+        self.run(engine::Session::previous_kit)
+    }
+
     /// Set a numeric parameter (raw value), verified by read-back.
     pub fn set_parameter(&self, param_id: String, indices: Vec<u32>, value: i64) -> Vec<Effect> {
         self.run(|s| s.set_parameter(param_id, indices, value))

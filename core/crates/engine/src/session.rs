@@ -586,7 +586,7 @@ impl Session {
     /// still write → read back → verify, never a blind write; if the module never
     /// lands on a new kit, [`Session::age_edits`] reports a timeout.
     pub fn select_kit(&mut self, number: u32) -> Vec<Effect> {
-        let (addr, len, encoding, model_id) = {
+        let (addr, len, encoding, model_id, max_kit) = {
             let Some(p) = self.profile.as_ref() else {
                 return self.fail_simple("edit.not_ready", "current.kit_num");
             };
@@ -596,8 +596,20 @@ impl Session {
             ) else {
                 return self.fail_simple("edit.not_ready", "current.kit_num");
             };
-            (addr, def.len, def.encoding, p.model_id.clone())
+            (
+                addr,
+                def.len,
+                def.encoding,
+                p.model_id.clone(),
+                p.max_kit_number(),
+            )
         };
+        // A slot the module doesn't have: the write would fit the field, so the
+        // module would simply ignore it and the user would wait out an edit
+        // timeout for an answer we already have. Say so now.
+        if max_kit.is_some_and(|max| number > max) {
+            return self.fail_simple("edit.out_of_range", "current.kit_num");
+        }
         let Some(data) = encoding.encode_int(i64::from(number), len) else {
             return self.fail_simple("edit.out_of_range", "current.kit_num");
         };
@@ -618,6 +630,59 @@ impl Session {
                 after_ms: POLL_INTERVAL_MS,
             },
         ]
+    }
+
+    /// Step to the next kit, stopping at the module's last slot.
+    ///
+    /// The edge is a **boundary, not an error**: nothing is written, and the app
+    /// says where the user is. Writing past the end instead would leave them with
+    /// a second of silence and then an edit timeout — reporting a broken
+    /// connection for a request the module was right to ignore.
+    pub fn next_kit(&mut self) -> Vec<Effect> {
+        self.step_kit(1)
+    }
+
+    /// Step to the previous kit; kit 1 is a boundary (see [`Session::next_kit`]).
+    pub fn previous_kit(&mut self) -> Vec<Effect> {
+        self.step_kit(-1)
+    }
+
+    fn step_kit(&mut self, delta: i64) -> Vec<Effect> {
+        // Relative navigation needs a known position. Without one there is nothing
+        // to step from, and assuming kit 1 would move the user's module blind.
+        let Some(current) = self.current_kit else {
+            return self.fail_simple("edit.not_ready", "current.kit_num");
+        };
+        let target = i64::from(current) + delta;
+        if target < 0 {
+            return self.announce_kit_edge("kit.at_first");
+        }
+        let max_kit = self
+            .profile
+            .as_ref()
+            .and_then(DeviceProfile::max_kit_number);
+        if max_kit.is_some_and(|max| target > i64::from(max)) {
+            return self.announce_kit_edge("kit.at_last");
+        }
+        match u32::try_from(target) {
+            Ok(number) => self.select_kit(number),
+            // Unreachable while a kit number fits u32; refuse rather than wrap.
+            Err(_) => self.fail_simple("edit.out_of_range", "current.kit_num"),
+        }
+    }
+
+    /// The user asked to step past the first/last kit. Nothing changed — on the
+    /// module or on screen — so the screen reader has nothing of its own to voice:
+    /// say where they are. Tagged `KitNav`, so it interrupts like any other kit
+    /// announcement instead of queueing behind a scroll (ADR-0014).
+    fn announce_kit_edge(&mut self, message_id: &str) -> Vec<Effect> {
+        let edge = self.render_spoken(&Message::new(message_id));
+        vec![self.speak(
+            edge,
+            SpeechPriority::High,
+            SpeechCategory::KitNav,
+            SpeechSource::UserInitiated,
+        )]
     }
 
     /// Set a numeric parameter to a raw value, verified by read-back.

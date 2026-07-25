@@ -109,6 +109,9 @@ struct ContentView: View {
             // large eyes-closed targets, and no label clipping.
             // Full-width prominent buttons: large eyes-closed targets with no
             // label clipping.
+            // Never disabled at the first kit: a dimmed button tells a screen-reader
+            // user only that it is unavailable, while the core answers the tap with
+            // "First kit." — where they are, which is what they asked.
             Button {
                 session.previousKit()
             } label: {
@@ -116,7 +119,6 @@ struct ContentView: View {
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
-            .disabled((session.currentKitNumber ?? 0) == 0)
 
             Button {
                 session.nextKit()

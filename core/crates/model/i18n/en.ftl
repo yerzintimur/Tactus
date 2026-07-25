@@ -3,6 +3,9 @@
 # normalised to '-' ("param-tempo") before lookup.
 
 kit-label = Kit { $number }: { $name }
+# The answer to "next/previous kit" at the end of the module's kit list.
+kit-at-first = First kit.
+kit-at-last = Last kit.
 
 param-tempo = { $value } BPM
 param-kit-name = { $name }

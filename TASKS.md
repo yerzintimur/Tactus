@@ -143,6 +143,17 @@ and verified; keep this file honest about real state.
   audible. Race + timeout + rejected-write scenarios pinned deterministically in
   [timed_scenarios.rs](core/crates/e2e/tests/timed_scenarios.rs). *(Verify on
   hardware at the next session.)*
+- [x] **`P1` Kit navigation knows where the list ends.** `capabilities.kit_count`
+  was inert data and `select_kit` never checked the parameter's range, so "next
+  kit" at the module's last slot wrote a kit that doesn't exist: the module
+  ignored it and the user got an edit **timeout** ("no response, check the
+  connection") a second later; the only guard was `.disabled` in SwiftUI, i.e. in
+  the wrong layer for Android to inherit. `Session::next_kit`/`previous_kit` now
+  bound stepping with `DeviceProfile::max_kit_number` (the `current.kit_num` range,
+  falling back to the declared count) and announce the edge — "Last kit." —
+  as `KitNav`, writing nothing; a direct out-of-range `select_kit` is rejected
+  locally instead of timing out. Pinned in
+  [full_session.rs](core/crates/e2e/tests/full_session.rs).
 - [ ] **`P1` Speech model → "the screen reader is the only voice"**
   ([ADR-0014](docs/adr/0014-screen-reader-is-the-only-voice.md)). Live testing
   reframed two bugs (speech flood on hardware kit-scroll; double-speech on a UI

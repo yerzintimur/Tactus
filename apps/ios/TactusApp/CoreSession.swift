@@ -118,13 +118,11 @@ final class CoreSession: ObservableObject {
         return raw >= range.rawMax
     }
 
-    /// Step to the adjacent kit. The core verifies the result and announces the
-    /// actual kit; an out-of-range request just fails (reported via EditFailed).
-    func nextKit() { selectKit((currentKitNumber ?? 0) + 1) }
-    func previousKit() {
-        guard let number = currentKitNumber, number > 0 else { return }
-        selectKit(number - 1)
-    }
+    /// Step to the adjacent kit. The core knows both the current kit and how many
+    /// the module has, so the bounds live there — at the first/last kit it writes
+    /// nothing and announces the edge, and every platform gets that for free.
+    func nextKit() { perform(core.nextKit()) }
+    func previousKit() { perform(core.previousKit()) }
     /// Switch the language of everything the core produces — announcements and
     /// the interface text below. Publishing the change re-renders the views, so
     /// the whole UI switches language at once.
