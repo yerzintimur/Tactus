@@ -33,7 +33,7 @@ import Tactus
 final class AnnouncementService {
     func announce(_ speech: Speech) {
         guard Self.shouldAnnounce(speech) else { return }
-        post(speech.text, priority: Self.effectivePriority(speech))
+        post(speech, priority: Self.effectivePriority(speech))
     }
 
     /// ADR-0014 §4 — no double speech: the screen reader already voices the
@@ -48,26 +48,57 @@ final class AnnouncementService {
         speech.category == .kitNav ? .high : speech.priority
     }
 
-    private func post(_ text: String, priority: SpeechPriority) {
+    private func post(_ speech: Speech, priority: SpeechPriority) {
         #if os(iOS)
-        var attributed = AttributedString(text)
-        attributed.accessibilitySpeechAnnouncementPriority = Self.iosPriority(priority)
-        UIAccessibility.post(notification: .announcement, argument: attributed)
+        UIAccessibility.post(
+            notification: .announcement,
+            argument: Self.announcement(speech, priority: priority))
         #elseif os(macOS)
+        // AppKit takes a plain localized string here — there is no attributed
+        // form of this notification, so the per-run language tagging below is
+        // iOS-only. The Mac build is our hardware-testing harness, not a
+        // shipping target (docs/HARDWARE_TESTING.md).
         NSAccessibility.post(
             element: NSApp.mainWindow ?? NSApplication.shared,
             notification: .announcementRequested,
             userInfo: [
-                .announcement: text,
+                .announcement: speech.text,
                 .priority: Self.macPriority(priority).rawValue,
             ])
         #endif
     }
 
     #if os(iOS)
-    private static func iosPriority(
-        _ priority: SpeechPriority
-    ) -> AttributeScopes.AccessibilityAttributes.AnnouncementPriorityAttribute.Value {
+    /// The announcement to hand VoiceOver: the text, its priority, and — when the
+    /// core reports more than one language run — the language of each range, so a
+    /// Russian sentence quoting an English kit name is pronounced correctly on
+    /// both sides (ADR-0011).
+    ///
+    /// `NSAttributedString` rather than Swift's `AttributedString`: the speech
+    /// *language* attribute only exists as an `NSAttributedString.Key`, while the
+    /// accessibility attribute scope covers priority alone.
+    static func announcement(_ speech: Speech, priority: SpeechPriority) -> NSAttributedString {
+        let text = NSMutableAttributedString(string: speech.text)
+        let whole = NSRange(location: 0, length: text.length)
+        text.addAttribute(
+            .accessibilitySpeechAnnouncementPriority, value: uiPriority(priority), range: whole)
+
+        // One language throughout needs no tagging — let VoiceOver use its own.
+        guard speech.spans.count > 1 else { return text }
+
+        var location = 0
+        for span in speech.spans {
+            let length = (span.text as NSString).length
+            guard length > 0, location + length <= text.length else { break }
+            text.addAttribute(
+                .accessibilitySpeechLanguage, value: span.lang,
+                range: NSRange(location: location, length: length))
+            location += length
+        }
+        return text
+    }
+
+    private static func uiPriority(_ priority: SpeechPriority) -> UIAccessibilityPriority {
         switch priority {
         case .high: .high
         case .default: .default

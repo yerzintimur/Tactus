@@ -62,9 +62,12 @@ final class CoreSessionTests: XCTestCase {
 
     private func speech(
         _ text: String, _ priority: SpeechPriority, _ category: SpeechCategory,
-        _ source: SpeechSource
+        _ source: SpeechSource, spans: [TextSpan]? = nil
     ) -> Speech {
-        Speech(text: text, priority: priority, category: category, source: source)
+        Speech(
+            text: text,
+            spans: spans ?? [TextSpan(text: text, lang: "en")],
+            priority: priority, category: category, source: source)
     }
 
     func testUserEditAnnouncementIsSuppressed() {
@@ -101,6 +104,52 @@ final class CoreSessionTests: XCTestCase {
             AnnouncementService.effectivePriority(
                 speech("120.0 BPM", .low, .info, .deviceInitiated)),
             .low)
+    }
+
+    // MARK: - Mixed-language speech (ADR-0011)
+
+    func testMixedLanguageAnnouncementTagsEachRun() {
+        // "Кит 5: Jazz" — the sentence is Russian, the kit name is the module's
+        // English text. Without the tag a Russian voice mangles the name.
+        let russian = "Кит 5: "
+        let announcement = AnnouncementService.announcement(
+            speech(
+                "\(russian)Jazz", .default, .kitNav, .deviceInitiated,
+                spans: [
+                    TextSpan(text: russian, lang: "ru"),
+                    TextSpan(text: "Jazz", lang: "en"),
+                ]),
+            priority: .high)
+
+        XCTAssertEqual(announcement.string, "Кит 5: Jazz")
+
+        var russianRange = NSRange()
+        let firstLanguage =
+            announcement.attribute(
+                .accessibilitySpeechLanguage, at: 0, effectiveRange: &russianRange) as? String
+        XCTAssertEqual(firstLanguage, "ru")
+        XCTAssertEqual(russianRange, NSRange(location: 0, length: (russian as NSString).length))
+
+        let nameStart = (russian as NSString).length
+        XCTAssertEqual(
+            announcement.attribute(.accessibilitySpeechLanguage, at: nameStart, effectiveRange: nil)
+                as? String,
+            "en")
+
+        // Priority still covers the whole announcement (ADR-0014).
+        XCTAssertEqual(
+            announcement.attribute(
+                .accessibilitySpeechAnnouncementPriority, at: nameStart, effectiveRange: nil)
+                as? String,
+            UIAccessibilityPriority.high.rawValue)
+    }
+
+    func testSingleLanguageAnnouncementIsLeftUntagged() {
+        // Nothing to disambiguate — leave VoiceOver on the user's own voice.
+        let announcement = AnnouncementService.announcement(
+            speech("Kit 5: Jazz", .default, .kitNav, .deviceInitiated), priority: .high)
+        XCTAssertNil(
+            announcement.attribute(.accessibilitySpeechLanguage, at: 0, effectiveRange: nil))
     }
 
     // MARK: - MIDI destination selection policy
