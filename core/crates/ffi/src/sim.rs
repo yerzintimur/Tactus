@@ -78,6 +78,14 @@ impl VirtualDeviceHandle {
             .with_kit(index, &name, tempo_raw);
     }
 
+    /// Seed a set list: its name and the kits it steps through (test/dev setup).
+    pub fn seed_setlist(&self, index: u32, name: String, kits: Vec<u32>) {
+        self.device
+            .lock()
+            .unwrap()
+            .with_setlist(index, &name, &kits);
+    }
+
     /// Make the given kit current without emitting a push (test/dev setup).
     pub fn set_current_kit(&self, index: u32) {
         self.device.lock().unwrap().set_current_kit(index);

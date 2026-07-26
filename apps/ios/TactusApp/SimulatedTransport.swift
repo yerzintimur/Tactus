@@ -27,6 +27,8 @@ final class SimulatedTransport: MidiTransporting {
         // named places to land during tests and eyes-closed dev runs.
         device.seedKit(index: 3, name: "Blues", tempoRaw: 900)
         device.seedKit(index: 5, name: "Funk", tempoRaw: 1300)
+        // A set list to open: the same kits, in a gig order someone chose.
+        device.seedSetlist(index: 0, name: "Concert", kits: [4, 5, 3])
     }
 
     func start() {

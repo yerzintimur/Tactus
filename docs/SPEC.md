@@ -522,6 +522,8 @@ nonvisual tests is **not** done (see [North Star](#-north-star--nonvisual-first)
 - **RQ1 / DT1** — Roland "Data Request 1" (read) / "Data Set 1" (write/reply).
 - **Kit** — a complete set of drum sounds + settings; the V31 holds 200.
 - **Current** — the module's pointer to the active kit number.
+- **Set list** — an ordering of kits for a gig or rehearsal; the V31 holds 32,
+  of up to 32 steps each, ending at an `END` marker.
 - **Transmit Edit Data** — module setting that pushes parameter changes over MIDI
   as you edit on the hardware.
 - **Screen reader** — VoiceOver (iOS) / TalkBack (Android); the OS service that

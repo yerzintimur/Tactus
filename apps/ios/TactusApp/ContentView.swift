@@ -27,6 +27,7 @@ struct ContentView: View {
                     if session.tempo != nil {
                         tempoSection
                     }
+                    setlistSection
                 }
                 // Last on purpose: a setting you touch once should not sit in
                 // front of the controls you use every session — a screen-reader
@@ -130,6 +131,21 @@ struct ContentView: View {
 
             Button(session.text(.buttonRenameKit)) { showingRename = true }
                 .accessibilityHint(session.text(.hintRenameKit))
+        }
+    }
+
+    // MARK: - Set lists
+
+    /// A door rather than a section: a set list is a screenful of its own, and it
+    /// shouldn't sit between the controls used every session.
+    @ViewBuilder private var setlistSection: some View {
+        Section(session.text(.sectionSetlist)) {
+            NavigationLink {
+                SetlistScreen().environmentObject(session)
+            } label: {
+                Text(session.text(.sectionSetlist))
+            }
+            .accessibilityHint(session.text(.hintSetlist))
         }
     }
 

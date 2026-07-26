@@ -62,6 +62,19 @@ ui-label-kit-name = Имя кита
 ui-button-save = Сохранить
 ui-button-cancel = Отмена
 
+ui-section-setlist = Сет-листы
+ui-value-setlist-number = Сет-лист { $value }
+ui-label-setlist-name = Имя сет-листа
+ui-value-setlist-step = Шаг { $value }
+ui-value-setlist-empty = В этом сет-листе пока нет китов
+ui-hint-setlist = Читать и переставлять киты сет-листа
+ui-button-add-current-kit = Добавить текущий кит
+ui-button-move-step-up = Вверх
+ui-button-move-step-down = Вниз
+ui-button-remove-step = Убрать
+ui-button-rename-setlist = Переименовать сет-лист…
+ui-title-rename-setlist = Переименование сет-листа
+
 ui-section-tempo = Темп
 ui-label-tempo = Темп
 ui-value-updating = Обновление…

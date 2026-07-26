@@ -123,6 +123,40 @@ a `format(value) → String` for what the screen reader reads and the UI shows.
   total size `00 00 00 04`. Stored value **0–199**, displayed **1–200**.
 - **This is the reliable "which kit is active" source — poll it.**
 
+### SetList (`03 00 00 00`, step `00 00 10 00`)
+One set list is **160 bytes** (`Total Size 00 00 01 20`): a name followed by 32
+steps. This is the module's own ordering of kits — what a drummer arranges for a
+gig — and the only part of it reachable over MIDI is the *content*, not which
+list is active (see the open question below).
+
+- **Set List Bank Name:** offsets `00 00`–`00 1F` — **16 characters in 32 bytes**,
+  each character split across a **nibble pair** (`0000 aaaa`, `0000 bbbb`), unlike
+  the kit name's one byte per character. Same "some characters are not displayed"
+  caveat as kit names.
+- **Step 1..32 Kit:** offsets `00 20`, `00 24`, … `01 1C` — 4-byte nibble fields,
+  documented range **−1 – 199**, displayed `END, 1 - 200`.
+- **`END` is the value −1** (MIDI Implementation §3, footnote *2: "The last step
+  of each set list (shown as END on the actual unit) has a value of −1"). The list
+  is everything before the first `END`; a list that fills all 32 slots has no
+  terminator. Editing therefore has to keep the terminator in place — appending
+  writes the kit *and* moves `END` one slot down.
+- **Reading:** one RQ1 for the whole 160-byte block, not 33 requests for its
+  parts — see §6 on message pacing. **Writing** a multi-step change (reorder,
+  removal) is sequential: one write at a time, each confirmed before the next.
+
+**Open questions — verify on hardware:**
+1. **`END` on the wire.** −1 in a 4-nibble field is *inferred* to be the same
+   two's-complement packing the negative-range fields use (`0F 0F 0F 0F`), by the
+   same reasoning as the `signed_nibble` values above. Read a set list whose last
+   step is `END` and confirm the bytes before trusting a write of it.
+2. **Does the module answer a 160-byte RQ1 with one DT1**, or split it? The engine
+   absorbs whatever a reply covers, keyed by address, so either works — but the
+   answer decides whether a reply can be assumed complete.
+3. **The active set list is not in the address map.** There is no "current set
+   list" pointer and no step pointer, so selecting one and stepping through it
+   looks panel-only. The app can still *build* lists, and the kit changes a set
+   list causes are visible through `Current` like any other.
+
 ### Kit → KitCommon (offset `00 00 00` within a kit)
 - **Kit Name:** offsets `00 00`–`00 0F`, **16 bytes ASCII** (some chars not shown
   on the module display).
@@ -161,6 +195,13 @@ parameter-map JSON, §13 of SPEC, cross-checked against the Data List.)
   → announce. This keeps the app in sync with physical knob-turning.
 - The module also pushes DT1 in response to RQ1 (normal read), and sends Identity
   Reply to an Identity Request.
+- **Pace consecutive messages.** Roland's implementation notes ask for a gap
+  (~20 ms) between messages; a burst is what a module drops. Nothing the app does
+  should need one: reads that cover many values ask for the **address range** in a
+  single RQ1 (a whole set list is one request, not 33), and a multi-write edit
+  sends the next write only once the module has confirmed the previous. Neither is
+  merely tidier — a dropped request is a value silently missing from a list a
+  blind user is reading, and a dropped write is a reorder left half-applied.
 - **Identity Reply** identifies the module *and* carries its firmware. **Captured
   live (2026-06-15):**
   `F0 7E 10 06 02 41 01 06 03 00 00 02 01 00 F7` —

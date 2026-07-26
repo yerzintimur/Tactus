@@ -181,4 +181,75 @@ final class TactusUITests: XCTestCase {
         try app.performAccessibilityAudit(
             for: XCUIAccessibilityAuditType.all.subtracting([.contrast, .dynamicType]))
     }
+
+    // MARK: - Set lists
+
+    /// Open the set list and read it back out of the module: the kits appear in
+    /// the order someone arranged them, each step named — not a bare number.
+    @MainActor
+    func testSetlistReadsItsKitsFromTheSimulatedModule() {
+        let app = launchSimulated()
+        openSetlist(in: app)
+
+        XCTAssertTrue(
+            element(in: app, containing: "Concert").waitForExistence(timeout: uiTimeout),
+            "the set list's own name comes from the module (nibble-packed ASCII)")
+        // Seeded order: kits 5 (Jazz), 6 (Funk), 4 (Blues) — names read per poll.
+        for (position, kit) in ["1: 5 · Jazz", "2: 6 · Funk", "3: 4 · Blues"].enumerated() {
+            XCTAssertTrue(
+                element(in: app, containing: "Step \(kit)").waitForExistence(timeout: uiTimeout),
+                "step \(position + 1) should read as its kit number and name")
+        }
+    }
+
+    /// Rearranging is verified by the module, not assumed: after moving a step the
+    /// list reads back in the new order.
+    @MainActor
+    func testMovingAStepReordersTheSetlist() {
+        let app = launchSimulated()
+        openSetlist(in: app)
+        let first = element(in: app, containing: "Step 1: 5 · Jazz")
+        XCTAssertTrue(first.waitForExistence(timeout: uiTimeout))
+
+        // "Move down" is a row action — the same one VoiceOver offers from the
+        // rotor; swiping the row is how a sighted user reaches it.
+        first.swipeRight()
+        app.buttons["Move down"].firstMatch.tap()
+
+        XCTAssertTrue(
+            element(in: app, containing: "Step 1: 6 · Funk").waitForExistence(timeout: uiTimeout),
+            "the device-confirmed order should land in the list")
+        XCTAssertTrue(element(in: app, containing: "Step 2: 5 · Jazz").exists)
+    }
+
+    /// The set-list screen is held to the same audit as the main one — it is a
+    /// screen a blind user has to work in, not a read-only view.
+    @MainActor
+    func testSetlistAccessibilityAudit() throws {
+        let app = launchSimulated()
+        openSetlist(in: app)
+        XCTAssertTrue(
+            element(in: app, containing: "Step 1: 5 · Jazz").waitForExistence(timeout: uiTimeout),
+            "the list should be fully read before auditing")
+
+        try app.performAccessibilityAudit(
+            for: XCUIAccessibilityAuditType.all.subtracting([.contrast, .dynamicType]))
+    }
+
+    /// Navigate to the set-list screen once the module is ready. The link is found
+    /// by its label — the same handle a screen-reader user has — after scrolling
+    /// it into view, since a SwiftUI List only materialises the rows on screen.
+    private func openSetlist(in app: XCUIApplication) {
+        XCTAssertTrue(
+            element(in: app, containing: "5 · Jazz").waitForExistence(timeout: uiTimeout),
+            "the module should be ready before opening a set list")
+        let link = app.buttons["Set lists"].firstMatch
+        for _ in 0..<6 where !link.exists {
+            app.swipeUp()
+        }
+        XCTAssertTrue(
+            link.waitForExistence(timeout: uiTimeout),
+            "the set-list link should appear; screen was:\n\(app.debugDescription)")
+        link.tap()
+    }
 }

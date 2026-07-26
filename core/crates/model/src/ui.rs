@@ -42,6 +42,21 @@ pub enum UiString {
     LabelKitName,
     ButtonSave,
     ButtonCancel,
+    // Set lists
+    SectionSetlist,
+    /// A set list the user hasn't opened yet, e.g. "Set list 7".
+    ValueSetlistNumber,
+    LabelSetlistName,
+    /// One step as one accessibility label, e.g. "Step 1: 5 · Jazz".
+    ValueSetlistStep,
+    ValueSetlistEmpty,
+    HintSetlist,
+    ButtonAddCurrentKit,
+    ButtonMoveStepUp,
+    ButtonMoveStepDown,
+    ButtonRemoveStep,
+    ButtonRenameSetlist,
+    TitleRenameSetlist,
     // Tempo
     SectionTempo,
     LabelTempo,
@@ -79,6 +94,18 @@ impl UiString {
         UiString::LabelKitName,
         UiString::ButtonSave,
         UiString::ButtonCancel,
+        UiString::SectionSetlist,
+        UiString::ValueSetlistNumber,
+        UiString::LabelSetlistName,
+        UiString::ValueSetlistStep,
+        UiString::ValueSetlistEmpty,
+        UiString::HintSetlist,
+        UiString::ButtonAddCurrentKit,
+        UiString::ButtonMoveStepUp,
+        UiString::ButtonMoveStepDown,
+        UiString::ButtonRemoveStep,
+        UiString::ButtonRenameSetlist,
+        UiString::TitleRenameSetlist,
         UiString::SectionTempo,
         UiString::LabelTempo,
         UiString::ValueUpdating,
@@ -113,6 +140,18 @@ impl UiString {
             UiString::LabelKitName => "ui-label-kit-name",
             UiString::ButtonSave => "ui-button-save",
             UiString::ButtonCancel => "ui-button-cancel",
+            UiString::SectionSetlist => "ui-section-setlist",
+            UiString::ValueSetlistNumber => "ui-value-setlist-number",
+            UiString::LabelSetlistName => "ui-label-setlist-name",
+            UiString::ValueSetlistStep => "ui-value-setlist-step",
+            UiString::ValueSetlistEmpty => "ui-value-setlist-empty",
+            UiString::HintSetlist => "ui-hint-setlist",
+            UiString::ButtonAddCurrentKit => "ui-button-add-current-kit",
+            UiString::ButtonMoveStepUp => "ui-button-move-step-up",
+            UiString::ButtonMoveStepDown => "ui-button-move-step-down",
+            UiString::ButtonRemoveStep => "ui-button-remove-step",
+            UiString::ButtonRenameSetlist => "ui-button-rename-setlist",
+            UiString::TitleRenameSetlist => "ui-title-rename-setlist",
             UiString::SectionTempo => "ui-section-tempo",
             UiString::LabelTempo => "ui-label-tempo",
             UiString::ValueUpdating => "ui-value-updating",
@@ -123,7 +162,10 @@ impl UiString {
 
     /// Whether the string takes a `{ $value }` argument.
     pub fn takes_value(self) -> bool {
-        matches!(self, UiString::ValueCurrentKit)
+        matches!(
+            self,
+            UiString::ValueCurrentKit | UiString::ValueSetlistNumber | UiString::ValueSetlistStep
+        )
     }
 }
 

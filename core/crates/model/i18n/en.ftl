@@ -63,6 +63,19 @@ ui-label-kit-name = Kit name
 ui-button-save = Save
 ui-button-cancel = Cancel
 
+ui-section-setlist = Set lists
+ui-value-setlist-number = Set list { $value }
+ui-label-setlist-name = Set list name
+ui-value-setlist-step = Step { $value }
+ui-value-setlist-empty = No kits in this set list yet
+ui-hint-setlist = Read and rearrange the kits of a set list
+ui-button-add-current-kit = Add the current kit
+ui-button-move-step-up = Move up
+ui-button-move-step-down = Move down
+ui-button-remove-step = Remove
+ui-button-rename-setlist = Rename set list…
+ui-title-rename-setlist = Rename set list
+
 ui-section-tempo = Tempo
 ui-label-tempo = Tempo
 ui-value-updating = Updating…

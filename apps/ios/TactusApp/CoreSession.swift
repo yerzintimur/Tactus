@@ -21,6 +21,9 @@ final class CoreSession: ObservableObject {
     /// core's snapshot. `nil` when no profile exposes it (e.g. unknown device).
     /// The value is the last value the device confirmed — never edit intent.
     @Published private(set) var tempo: ParameterView?
+    /// The set list currently open, as the module reports it: the kits in playing
+    /// order, ending at the module's own terminator. `nil` until one is opened.
+    @Published private(set) var setlist: SetlistView?
     /// True while a tempo edit is in flight (written, not yet device-confirmed).
     /// The UI presents the edit as *in-progress* so the screen reader never voices
     /// the stale value as current (ADR-0014 edge case); the displayed number stays
@@ -118,6 +121,18 @@ final class CoreSession: ObservableObject {
         return raw >= range.rawMax
     }
 
+    /// Open a set list (0-based) for reading and rearranging. Its contents arrive
+    /// from the module; `setlist` is republished as they land.
+    func readSetlist(_ number: UInt32) { perform(core.readSetlist(number: number)) }
+    /// Add the kit the module is currently on to the end of the open set list —
+    /// the eyes-closed way to build one: play a kit, keep it.
+    func appendSetlistStep(kit: UInt32) { perform(core.appendSetlistStep(kit: kit)) }
+    func removeSetlistStep(_ step: UInt32) { perform(core.removeSetlistStep(step: step)) }
+    func swapSetlistSteps(_ a: UInt32, _ b: UInt32) {
+        perform(core.swapSetlistSteps(a: a, b: b))
+    }
+    func renameSetlist(to name: String) { perform(core.renameSetlist(name: name)) }
+
     /// Step to the adjacent kit. The core knows both the current kit and how many
     /// the module has, so the bounds live there — at the first/last kit it writes
     /// nothing and announces the edge, and every platform gets that for free.
@@ -186,7 +201,9 @@ final class CoreSession: ObservableObject {
     /// (a small in-memory build); the snapshot holds the last device-confirmed
     /// values, so the UI never shows unverified edit intent.
     private func refreshViewModel() {
-        tempo = core.snapshot().parameters.first { $0.paramId == Self.tempoParamId }
+        let snapshot = core.snapshot()
+        tempo = snapshot.parameters.first { $0.paramId == Self.tempoParamId }
+        setlist = snapshot.setlist
     }
 
     private func apply(_ event: CoreEvent) {
@@ -203,6 +220,8 @@ final class CoreSession: ObservableObject {
             tempoEditInFlight = false
             currentKitNumber = number
             currentKit = name
+        case .setlistChanged(let number):
+            append("set list \(number + 1) updated")
         case .editConfirmed(let paramId, let display):
             if paramId == Self.tempoParamId { tempoEditInFlight = false }
             append("✓ \(display)")

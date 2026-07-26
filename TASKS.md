@@ -154,6 +154,22 @@ and verified; keep this file honest about real state.
   as `KitNav`, writing nothing; a direct out-of-range `select_kit` is rejected
   locally instead of timing out. Pinned in
   [full_session.rs](core/crates/e2e/tests/full_session.rs).
+- [x] **`P2` Set lists — read and rearrange.** A set list is the module's own
+  ordering of kits (32 lists × 32 steps, `END` = −1) and the drummer's answer to
+  "arrange the kits how I want"; on the V31 it is otherwise reachable only through
+  the screen. Landed as data + core + screen: `setlist.name` / `setlist.step` in
+  the profile (with the generic `ascii_nibble`, `sentinel` and `display_offset`
+  mechanics they needed), `Session::read_setlist` and the step edits, and an
+  accessible screen where each step reads "Step 1: 5 · Jazz" and carries move /
+  remove as row actions. Reading is one RQ1 for the whole block; multi-write edits
+  go one write at a time, each confirmed before the next
+  ([PROTOCOL §5](docs/PROTOCOL.md), [setlists.rs](core/crates/e2e/tests/setlists.rs)).
+  **Open on hardware:** the wire form of `END`, whether a 160-byte read comes back
+  as one DT1, and whether the *active* set list can be read or selected at all —
+  it is not in the address map, so stepping through a list looks panel-only.
+- [ ] **`P3` Set-list names without opening each list** — the picker offers
+  "Set list 1…32" because the names live in the module and reading all 32 would be
+  32 requests. Worth a background sweep (paced) once the hardware answers above.
 - [ ] **`P1` Speech model → "the screen reader is the only voice"**
   ([ADR-0014](docs/adr/0014-screen-reader-is-the-only-voice.md)). Live testing
   reframed two bugs (speech flood on hardware kit-scroll; double-speech on a UI
@@ -250,8 +266,9 @@ and verified; keep this file honest about real state.
   but are not wired into `format_parameter`. Needed before the M4 editors are
   usable eyes-closed.
 - [ ] **`P2` The `-INF` sentinel reads as a level** — raw −601 on every dB
-  parameter means silence, not −60.1 dB. Say "−∞" (or "off"); needs the profile
-  to mark the sentinel, since it is device data.
+  parameter means silence, not −60.1 dB. The mechanism now exists (`sentinel` in
+  the profile, used by the set-list `END`); this is marking the twelve dB
+  parameters and adding the phrasing.
 - [x] **Second module studied — Roland TD-17** ([notes](docs/devices/roland-td-17.md)).
   A blind drum teacher we can reach uses a TD-17KVX2, which makes it the first
   real second target. Same Roland SysEx mechanics (Model ID `00 00 00 4B`,
