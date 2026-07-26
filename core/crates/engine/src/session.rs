@@ -7,7 +7,8 @@ use crate::event::{
     ConnectionState, CoreEvent, DeviceInfo, Earcon, Effect, Speech, SpeechCategory, SpeechPriority,
     SpeechSource,
 };
-use crate::viewmodel::{self, KitRef, ParamKind, ParamValue, ParameterView, Snapshot};
+use crate::setlist::{END, SetlistState, StepWrite};
+use crate::viewmodel::{self, KitRef, ParamKind, ParamValue, ParameterView, SetlistView, Snapshot};
 use device::{DeviceProfile, FirmwareSupport, FirmwareVersion, ProfileRegistry};
 use model::{
     LocalizedText, Localizer, Message, UiString, format_kit, format_parameter,
@@ -36,6 +37,10 @@ enum Pending {
     Tempo(u32, KitOrigin),
     /// Read-back of an edit, awaiting verification.
     EditVerify(Edit),
+    /// The bulk read of one set list (name + every step in a single reply).
+    Setlist(u32),
+    /// A kit's name, requested to label a set-list step.
+    SetlistKitName(u32),
 }
 
 /// Why the current kit changed — decides how the resulting announcements are
@@ -69,6 +74,9 @@ impl KitOrigin {
 #[derive(Debug, Clone)]
 struct Edit {
     param_id: String,
+    /// Area/dim indices the edit was addressed with — an indexed parameter's
+    /// value belongs to one slot (set list 3, step 5), not to the parameter.
+    indices: Vec<u32>,
     intended: EditValue,
     age: u32,
 }
@@ -112,6 +120,11 @@ pub struct Session {
     pending: HashMap<[u8; 4], Pending>,
     /// An app-initiated kit selection awaiting confirmation via the `Current` read.
     kit_select: Option<KitSelect>,
+    /// The set list open for viewing/editing, if any (one at a time).
+    setlist: Option<SetlistState>,
+    /// Kit number → name, filled in as read-backs land. A set-list step is a kit
+    /// *number*; a name is the only part of it a blind user can act on.
+    kit_names: HashMap<u32, String>,
 }
 
 impl Session {
@@ -130,6 +143,8 @@ impl Session {
             values: HashMap::new(),
             pending: HashMap::new(),
             kit_select: None,
+            setlist: None,
+            kit_names: HashMap::new(),
         }
     }
 
@@ -166,6 +181,8 @@ impl Session {
         self.values.clear();
         self.pending.clear();
         self.kit_select = None;
+        self.setlist = None;
+        self.kit_names.clear();
         vec![
             Effect::Emit(CoreEvent::ConnectionChanged(ConnectionState::Identifying)),
             Effect::SendMidi(sysex::build_identity_request(IDENTITY_DEVICE_ID)),
@@ -184,6 +201,8 @@ impl Session {
         self.values.clear();
         self.pending.clear();
         self.kit_select = None;
+        self.setlist = None;
+        self.kit_names.clear();
         vec![
             Effect::Emit(CoreEvent::Earcon(Earcon::Disconnected)),
             Effect::Emit(CoreEvent::ConnectionChanged(ConnectionState::Disconnected)),
@@ -284,6 +303,8 @@ impl Session {
                 self.values.clear();
                 self.pending.clear();
                 self.kit_select = None;
+                self.setlist = None;
+                self.kit_names.clear();
 
                 let mut speech = self.render_spoken(
                     &Message::new("device.connected")
@@ -320,6 +341,8 @@ impl Session {
                 self.values.clear();
                 self.pending.clear();
                 self.kit_select = None;
+                self.setlist = None;
+                self.kit_names.clear();
                 let info = DeviceInfo {
                     model_id: Vec::new(),
                     device_id,
@@ -348,13 +371,13 @@ impl Session {
 
     fn handle_dt1(&mut self, address: [u8; 4], data: &[u8]) -> Vec<Effect> {
         if let Some(pending) = self.pending.remove(&address) {
-            self.handle_pending(pending, data)
+            self.handle_pending(pending, address, data)
         } else {
             self.handle_unsolicited(address, data)
         }
     }
 
-    fn handle_pending(&mut self, pending: Pending, data: &[u8]) -> Vec<Effect> {
+    fn handle_pending(&mut self, pending: Pending, address: [u8; 4], data: &[u8]) -> Vec<Effect> {
         match pending {
             Pending::CurrentKitNum => {
                 let decoded = self.profile.as_ref().and_then(|p| decode_kit_num(p, data));
@@ -396,12 +419,32 @@ impl Session {
                 )
             }
             Pending::EditVerify(edit) => self.handle_edit_verify(edit, data),
+            Pending::Setlist(index) => {
+                if self.absorb_setlist(address, data) {
+                    vec![Effect::Emit(CoreEvent::SetlistChanged { number: index })]
+                } else {
+                    Vec::new()
+                }
+            }
+            Pending::SetlistKitName(kit) => {
+                let name = self.decode_text("kit.common.name", data);
+                self.kit_names.insert(kit, name);
+                match self.setlist.as_ref().map(|s| s.index) {
+                    Some(number) => vec![Effect::Emit(CoreEvent::SetlistChanged { number })],
+                    None => Vec::new(),
+                }
+            }
         }
     }
 
     /// Unsolicited DT1 (e.g. a hardware edit pushed via Transmit Edit Data):
     /// best-effort match against the active kit's known addresses.
     fn handle_unsolicited(&mut self, address: [u8; 4], data: &[u8]) -> Vec<Effect> {
+        // A set list edited on the module while the user has it open here.
+        if self.absorb_setlist(address, data) {
+            let number = self.setlist.as_ref().map(|s| s.index).unwrap_or_default();
+            return vec![Effect::Emit(CoreEvent::SetlistChanged { number })];
+        }
         let Some(kit) = self.current_kit else {
             return Vec::new();
         };
@@ -524,9 +567,12 @@ impl Session {
         {
             return Vec::new();
         }
-        self.request_read("current.kit_num", &[], Pending::CurrentKitNum)
+        let mut fx: Vec<Effect> = self
+            .request_read("current.kit_num", &[], Pending::CurrentKitNum)
             .into_iter()
-            .collect()
+            .collect();
+        fx.extend(self.request_missing_step_name());
+        fx
     }
 
     /// Build an RQ1 for `param_id` at `indices` and remember what its reply means.
@@ -685,6 +731,191 @@ impl Session {
         )]
     }
 
+    // ── set lists ──
+
+    /// Open a set list (0-based) for viewing and editing.
+    ///
+    /// One RQ1 for the whole 160-byte block, not 33 for its parts: Roland asks for
+    /// a pause between consecutive messages, and a burst of requests is exactly
+    /// what a module drops. Whatever the reply covers is absorbed by
+    /// [`Session::absorb_setlist`], so a module that splits it still works.
+    pub fn read_setlist(&mut self, index: u32) -> Vec<Effect> {
+        let (addr, size, capacity, model_id) = {
+            let Some(p) = self.profile.as_ref() else {
+                return self.fail_simple("edit.not_ready", "setlist.name");
+            };
+            let Some(capacity) = setlist_capacity(p) else {
+                return self.fail_simple("edit.not_ready", "setlist.name");
+            };
+            if p.areas.get("setlist").and_then(|a| a.count) <= Some(index) {
+                return self.fail_simple("edit.out_of_range", "setlist.name");
+            }
+            let (Some(addr), Some(size)) = (
+                p.address_of("setlist.name", &[index]),
+                setlist_block_size(p, capacity),
+            ) else {
+                return self.fail_simple("edit.not_ready", "setlist.name");
+            };
+            (addr, size, capacity, p.model_id.clone())
+        };
+
+        self.setlist = Some(SetlistState::new(index, capacity as usize));
+        self.pending.insert(addr, Pending::Setlist(index));
+        vec![
+            Effect::SendMidi(sysex::build_rq1(
+                self.device_id,
+                &model_id,
+                addr,
+                sysex::address::from_linear(size as u32),
+            )),
+            Effect::ScheduleTick {
+                after_ms: POLL_INTERVAL_MS,
+            },
+        ]
+    }
+
+    /// Point a step at a kit, or at `None` for the list's `END` terminator.
+    pub fn set_setlist_step(&mut self, step: u32, kit: Option<u32>) -> Vec<Effect> {
+        let raw = kit.map_or(END, i64::from);
+        self.queue_step_writes(vec![StepWrite { step, raw }])
+    }
+
+    /// Add a kit to the end of the open set list, keeping it terminated.
+    pub fn append_setlist_step(&mut self, kit: u32) -> Vec<Effect> {
+        self.plan_setlist_edit(|s| s.append(i64::from(kit)))
+    }
+
+    /// Drop a step; the steps after it shift up.
+    pub fn remove_setlist_step(&mut self, step: u32) -> Vec<Effect> {
+        self.plan_setlist_edit(|s| s.remove(step as usize))
+    }
+
+    /// Exchange two steps — "move up" / "move down" in a list the user is reading.
+    pub fn swap_setlist_steps(&mut self, a: u32, b: u32) -> Vec<Effect> {
+        self.plan_setlist_edit(|s| s.swap(a as usize, b as usize))
+    }
+
+    /// Rename the open set list, verified by read-back.
+    pub fn rename_setlist(&mut self, name: String) -> Vec<Effect> {
+        let Some(index) = self.setlist.as_ref().map(|s| s.index) else {
+            return self.fail_simple("edit.not_ready", "setlist.name");
+        };
+        self.set_value("setlist.name", &[index], EditValue::Text(name))
+    }
+
+    /// Turn a list operation into step writes, refusing when the cached list can't
+    /// answer (nothing open, or the steps it depends on haven't been read).
+    fn plan_setlist_edit(
+        &mut self,
+        plan: impl FnOnce(&SetlistState) -> Option<Vec<StepWrite>>,
+    ) -> Vec<Effect> {
+        let Some(state) = self.setlist.as_ref() else {
+            return self.fail_simple("edit.not_ready", "setlist.step");
+        };
+        match plan(state) {
+            Some(writes) => self.queue_step_writes(writes),
+            None => self.fail_simple("edit.out_of_range", "setlist.step"),
+        }
+    }
+
+    /// Queue step writes and send the first. The rest go out one at a time as the
+    /// module confirms each — a reorder is several writes, and sending them in a
+    /// burst risks the module dropping one and silently scrambling the order.
+    fn queue_step_writes(&mut self, writes: Vec<StepWrite>) -> Vec<Effect> {
+        let Some(state) = self.setlist.as_mut() else {
+            return self.fail_simple("edit.not_ready", "setlist.step");
+        };
+        state.queue.extend(writes);
+        self.send_next_step_write()
+    }
+
+    fn send_next_step_write(&mut self) -> Vec<Effect> {
+        let Some(state) = self.setlist.as_mut() else {
+            return Vec::new();
+        };
+        let (Some(write), index) = (state.queue.pop_front(), state.index) else {
+            return Vec::new();
+        };
+        self.set_value(
+            "setlist.step",
+            &[index, write.step],
+            EditValue::Int(write.raw),
+        )
+    }
+
+    /// Absorb whatever part of the open set list a DT1 covers — the bulk read's
+    /// reply, one slice of a reply the module chose to split, or an edit the user
+    /// made on the module itself. Returns `true` if anything landed.
+    fn absorb_setlist(&mut self, address: [u8; 4], data: &[u8]) -> bool {
+        let Some(index) = self.setlist.as_ref().map(|s| s.index) else {
+            return false;
+        };
+        let Some(profile) = self.profile.as_ref() else {
+            return false;
+        };
+        let start = sysex::address::to_linear(address) as usize;
+        let end = start + data.len();
+        // The slice of `data` covering `field`, if the reply covers all of it.
+        let covered = |addr: Option<[u8; 4]>, len: usize| -> Option<&[u8]> {
+            let at = sysex::address::to_linear(addr?) as usize;
+            (at >= start && at + len <= end).then(|| &data[at - start..at - start + len])
+        };
+
+        let name = profile.parameter("setlist.name").and_then(|def| {
+            covered(profile.address_of("setlist.name", &[index]), def.len)
+                .and_then(|bytes| def.encoding.decode_text(bytes))
+        });
+        let steps: Vec<(usize, i64)> = match profile.parameter("setlist.step") {
+            Some(def) => (0..setlist_capacity(profile).unwrap_or(0))
+                .filter_map(|step| {
+                    let bytes =
+                        covered(profile.address_of("setlist.step", &[index, step]), def.len)?;
+                    Some((step as usize, def.encoding.decode_int(bytes)?))
+                })
+                .collect(),
+            None => Vec::new(),
+        };
+
+        let Some(state) = self.setlist.as_mut() else {
+            return false;
+        };
+        let mut landed = false;
+        if let Some(name) = name {
+            state.name = Some(name);
+            landed = true;
+        }
+        for (step, raw) in steps {
+            if let Some(slot) = state.steps.get_mut(step) {
+                *slot = Some(raw);
+                landed = true;
+            }
+        }
+        landed
+    }
+
+    /// Ask for one kit name the open set list still needs. Called from the poll so
+    /// a 12-step list fills in over a few ticks instead of firing a dozen requests
+    /// at once — same reason [`Session::read_setlist`] reads in bulk.
+    fn request_missing_step_name(&mut self) -> Option<Effect> {
+        let wanted = self.setlist.as_ref()?.steps.iter().find_map(|slot| {
+            let kit = u32::try_from((*slot)?).ok()?;
+            (!self.kit_names.contains_key(&kit)).then_some(kit)
+        })?;
+        // The current kit's name is already read by the kit flow, and its address
+        // is the one the poller uses — don't race it, just copy what we have.
+        if Some(wanted) == self.current_kit {
+            if let Some(ParamValue::Text(name)) = self.values.get("kit.common.name") {
+                self.kit_names.insert(wanted, name.clone());
+            }
+            return None;
+        }
+        self.request_read(
+            "kit.common.name",
+            &[wanted],
+            Pending::SetlistKitName(wanted),
+        )
+    }
+
     /// Set a numeric parameter to a raw value, verified by read-back.
     pub fn set_parameter(
         &mut self,
@@ -729,6 +960,7 @@ impl Session {
             addr,
             Pending::EditVerify(Edit {
                 param_id: param_id.to_string(),
+                indices: indices.to_vec(),
                 intended,
                 age: 0,
             }),
@@ -780,7 +1012,7 @@ impl Session {
         self.values
             .insert(edit.param_id.clone(), ParamValue::Int(actual));
         let display = self.render_int_value(&edit.param_id, actual);
-        vec![
+        let mut fx = vec![
             Effect::Emit(CoreEvent::EditConfirmed {
                 param_id: edit.param_id.clone(),
                 display: display.clone(),
@@ -792,7 +1024,34 @@ impl Session {
                 SpeechSource::UserInitiated,
             ),
             Effect::Emit(CoreEvent::Earcon(Earcon::Confirmed)),
-        ]
+        ];
+        fx.extend(self.confirm_setlist_step(edit, actual));
+        fx
+    }
+
+    /// A confirmed set-list step: record the value the module reported and release
+    /// the next queued write. A multi-step edit (reorder, remove) advances only on
+    /// confirmation, so a rejected write stops the sequence instead of leaving the
+    /// list half-rewritten.
+    fn confirm_setlist_step(&mut self, edit: &Edit, actual: i64) -> Vec<Effect> {
+        if edit.param_id != "setlist.step" {
+            return Vec::new();
+        }
+        let [index, step] = edit.indices[..] else {
+            return Vec::new();
+        };
+        let Some(state) = self.setlist.as_mut() else {
+            return Vec::new();
+        };
+        if state.index != index {
+            return Vec::new(); // a reply for a list the user has since left
+        }
+        if let Some(slot) = state.steps.get_mut(step as usize) {
+            *slot = Some(actual);
+        }
+        let mut fx = vec![Effect::Emit(CoreEvent::SetlistChanged { number: index })];
+        fx.extend(self.send_next_step_write());
+        fx
     }
 
     fn confirm_text(&mut self, edit: &Edit, actual: String) -> Vec<Effect> {
@@ -911,6 +1170,22 @@ impl Session {
                 display_number: number + 1,
                 name: self.text_value("kit.common.name").unwrap_or_default(),
             }),
+            setlist: self.setlist.as_ref().map(|state| SetlistView {
+                number: state.index,
+                display_number: state.index + 1,
+                name: state.name.clone().unwrap_or_default(),
+                // Only the steps the module confirmed, up to the list's END.
+                steps: (0..state.length())
+                    .filter_map(|step| state.kit_at(step))
+                    .filter_map(|kit| u32::try_from(kit).ok())
+                    .map(|number| KitRef {
+                        number,
+                        display_number: number + 1,
+                        name: self.kit_names.get(&number).cloned().unwrap_or_default(),
+                    })
+                    .collect(),
+                capacity: state.steps.len() as u32,
+            }),
             parameters,
         }
     }
@@ -992,5 +1267,22 @@ fn decode_kit_num(profile: &DeviceProfile, data: &[u8]) -> Option<u32> {
 }
 
 fn rq_size(len: usize) -> [u8; 4] {
-    [0, 0, 0, (len.min(0x7F)) as u8]
+    sysex::address::from_linear(len as u32)
+}
+
+/// How many steps this module's set lists hold, per the profile's `step` dim.
+fn setlist_capacity(profile: &DeviceProfile) -> Option<u32> {
+    let def = profile.parameter("setlist.step")?;
+    def.dims.iter().find(|d| d.name == "step").map(|d| d.count)
+}
+
+/// The byte size of one whole set list (name through last step), so it can be
+/// requested in a single RQ1. Derived from the profile rather than hardcoded —
+/// another module's set lists are a different size, or absent entirely.
+fn setlist_block_size(profile: &DeviceProfile, capacity: u32) -> Option<usize> {
+    let first = profile.address_of("setlist.name", &[0])?;
+    let last = profile.address_of("setlist.step", &[0, capacity.checked_sub(1)?])?;
+    let step_len = profile.parameter("setlist.step")?.len;
+    let span = sysex::address::to_linear(last).checked_sub(sysex::address::to_linear(first))?;
+    Some(span as usize + step_len)
 }

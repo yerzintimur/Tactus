@@ -109,6 +109,38 @@ impl TactusSession {
         self.run(|s| s.rename_kit(number, name))
     }
 
+    /// Open a set list (0-based) for viewing and editing. Its contents arrive via
+    /// `SetlistChanged` events; pull `snapshot()` for the list itself.
+    pub fn read_setlist(&self, number: u32) -> Vec<Effect> {
+        self.run(|s| s.read_setlist(number))
+    }
+
+    /// Point a step of the open set list at a kit, or at nothing to end the list
+    /// there. Verified by read-back.
+    pub fn set_setlist_step(&self, step: u32, kit: Option<u32>) -> Vec<Effect> {
+        self.run(|s| s.set_setlist_step(step, kit))
+    }
+
+    /// Add a kit to the end of the open set list.
+    pub fn append_setlist_step(&self, kit: u32) -> Vec<Effect> {
+        self.run(|s| s.append_setlist_step(kit))
+    }
+
+    /// Drop a step from the open set list; later steps shift up.
+    pub fn remove_setlist_step(&self, step: u32) -> Vec<Effect> {
+        self.run(|s| s.remove_setlist_step(step))
+    }
+
+    /// Exchange two steps — what "move up" / "move down" is built from.
+    pub fn swap_setlist_steps(&self, a: u32, b: u32) -> Vec<Effect> {
+        self.run(|s| s.swap_setlist_steps(a, b))
+    }
+
+    /// Rename the open set list, verified by read-back.
+    pub fn rename_setlist(&self, name: String) -> Vec<Effect> {
+        self.run(|s| s.rename_setlist(name))
+    }
+
     /// Pull the current observable state (connection, device, active kit, and the
     /// active device's parameters with last-known values + presentation metadata).
     /// Complements the event stream — call it when (re)building UI such as an editor.

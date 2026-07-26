@@ -7,6 +7,7 @@
 
 mod event;
 mod session;
+mod setlist;
 mod viewmodel;
 
 pub use event::{
@@ -16,7 +17,7 @@ pub use event::{
 pub use model::{LocaleInfo, UiString};
 pub use session::Session;
 pub use viewmodel::{
-    KitRef, NumericInfo, NumericRange, ParamKind, ParamValue, ParameterView, Snapshot,
+    KitRef, NumericInfo, NumericRange, ParamKind, ParamValue, ParameterView, SetlistView, Snapshot,
 };
 
 /// Crate version, exposed so the FFI layer can sanity-check linkage.

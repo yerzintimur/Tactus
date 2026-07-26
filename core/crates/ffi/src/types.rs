@@ -233,6 +233,7 @@ pub enum CoreEvent {
     ConnectionChanged { state: ConnectionState },
     DeviceIdentified { device: DeviceInfo },
     CurrentKitChanged { number: u32, name: String },
+    SetlistChanged { number: u32 },
     EditConfirmed { param_id: String, display: String },
     EditFailed { param_id: String, reason: String },
     Speak { speech: Speech },
@@ -260,7 +261,19 @@ pub struct Snapshot {
     pub connection: ConnectionState,
     pub device: Option<DeviceInfo>,
     pub current_kit: Option<KitRef>,
+    pub setlist: Option<SetlistView>,
     pub parameters: Vec<ParameterView>,
+}
+
+/// A set list as the drummer arranged it: the kits, in playing order, ending at
+/// the module's `END` terminator.
+#[derive(Debug, Clone, PartialEq, Eq, uniffi::Record)]
+pub struct SetlistView {
+    pub number: u32,
+    pub display_number: u32,
+    pub name: String,
+    pub steps: Vec<KitRef>,
+    pub capacity: u32,
 }
 
 /// A reference to a kit: 0-based wire `number`, 1-based `display_number`, name.
@@ -433,6 +446,7 @@ impl From<engine::CoreEvent> for CoreEvent {
             engine::CoreEvent::CurrentKitChanged { number, name } => {
                 Self::CurrentKitChanged { number, name }
             }
+            engine::CoreEvent::SetlistChanged { number } => Self::SetlistChanged { number },
             engine::CoreEvent::EditConfirmed { param_id, display } => {
                 Self::EditConfirmed { param_id, display }
             }
@@ -468,7 +482,20 @@ impl From<engine::Snapshot> for Snapshot {
             connection: s.connection.into(),
             device: s.device.map(Into::into),
             current_kit: s.current_kit.map(Into::into),
+            setlist: s.setlist.map(Into::into),
             parameters: s.parameters.into_iter().map(Into::into).collect(),
+        }
+    }
+}
+
+impl From<engine::SetlistView> for SetlistView {
+    fn from(s: engine::SetlistView) -> Self {
+        Self {
+            number: s.number,
+            display_number: s.display_number,
+            name: s.name,
+            steps: s.steps.into_iter().map(Into::into).collect(),
+            capacity: s.capacity,
         }
     }
 }

@@ -199,6 +199,31 @@ impl Harness {
         self.act(move |s| s.rename_kit(number, name))
     }
 
+    pub fn read_setlist(&mut self, number: u32) -> &mut Self {
+        self.act(move |s| s.read_setlist(number))
+    }
+
+    pub fn set_setlist_step(&mut self, step: u32, kit: Option<u32>) -> &mut Self {
+        self.act(move |s| s.set_setlist_step(step, kit))
+    }
+
+    pub fn append_setlist_step(&mut self, kit: u32) -> &mut Self {
+        self.act(move |s| s.append_setlist_step(kit))
+    }
+
+    pub fn remove_setlist_step(&mut self, step: u32) -> &mut Self {
+        self.act(move |s| s.remove_setlist_step(step))
+    }
+
+    pub fn swap_setlist_steps(&mut self, a: u32, b: u32) -> &mut Self {
+        self.act(move |s| s.swap_setlist_steps(a, b))
+    }
+
+    pub fn rename_setlist(&mut self, name: &str) -> &mut Self {
+        let name = name.to_string();
+        self.act(move |s| s.rename_setlist(name))
+    }
+
     /// Simulate a kit selected on the module's own panel (unsolicited push).
     pub fn hardware_select_kit(&mut self, index: u32) -> &mut Self {
         let push = self.device.hardware_select_kit(index);

@@ -20,9 +20,26 @@ pub struct Snapshot {
     pub device: Option<DeviceInfo>,
     /// The active kit, once known.
     pub current_kit: Option<KitRef>,
+    /// The set list currently open for viewing/editing, if one has been read.
+    pub setlist: Option<SetlistView>,
     /// The active device's parameters with their last-known values + metadata.
     /// Empty until a profile is matched.
     pub parameters: Vec<ParameterView>,
+}
+
+/// A set list as the drummer arranged it: the kits, in order. Only the steps the
+/// module has confirmed appear — the list ends at its `END` terminator.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SetlistView {
+    /// 0-based wire number, and the 1-based one to show.
+    pub number: u32,
+    pub display_number: u32,
+    /// The set list's own name (empty until read back).
+    pub name: String,
+    /// The kits in playing order; `steps[0]` is step 1.
+    pub steps: Vec<KitRef>,
+    /// How many steps this module's set lists hold.
+    pub capacity: u32,
 }
 
 /// A reference to a kit: the 0-based wire `number`, the 1-based `display_number`

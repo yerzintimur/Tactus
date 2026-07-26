@@ -98,6 +98,11 @@ pub enum CoreEvent {
         number: u32,
         name: String,
     },
+    /// The open set list's contents changed — read back from the module, or
+    /// confirmed after an edit. Pull [`Snapshot`](crate::Snapshot) for the list.
+    SetlistChanged {
+        number: u32,
+    },
     /// An edit was applied and verified by read-back (`display` = the actual value).
     EditConfirmed {
         param_id: String,

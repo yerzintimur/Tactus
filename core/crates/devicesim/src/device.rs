@@ -95,6 +95,23 @@ impl VirtualDevice {
         self.write_param("current.kit_num", &[], EditValue::Int(i64::from(index)))
     }
 
+    /// Seed a set list: its name and the kits it steps through. Every slot after
+    /// the last kit gets the `END` terminator (−1), the way a module's own list
+    /// ends — so a reader can tell where the list stops.
+    pub fn with_setlist(&mut self, index: u32, name: &str, kits: &[u32]) -> &mut Self {
+        self.write_param("setlist.name", &[index], EditValue::Text(name.to_string()));
+        let capacity = self
+            .profile
+            .parameter("setlist.step")
+            .and_then(|def| def.dims.iter().find(|d| d.name == "step").map(|d| d.count))
+            .unwrap_or(0);
+        for step in 0..capacity {
+            let raw = kits.get(step as usize).map_or(-1, |kit| i64::from(*kit));
+            self.write_param("setlist.step", &[index, step], EditValue::Int(raw));
+        }
+        self
+    }
+
     /// Override the firmware reported in the Identity Reply.
     pub fn with_firmware(&mut self, bytes: [u8; 4]) -> &mut Self {
         self.firmware = bytes;
@@ -147,11 +164,7 @@ impl VirtualDevice {
         }
         if let Some((addr, size)) = self.parse_rq1(host) {
             let len = address::to_linear(size) as usize;
-            let data = self
-                .state
-                .read(addr)
-                .map(<[u8]>::to_vec)
-                .unwrap_or_else(|| vec![0u8; len]);
+            let data = self.state.read(addr, len);
             return vec![build_dt1(
                 self.device_id,
                 &self.profile.model_id,
