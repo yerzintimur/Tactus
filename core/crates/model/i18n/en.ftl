@@ -10,14 +10,20 @@ kit-at-last = Last kit.
 param-tempo = { $value } BPM
 param-kit-name = { $name }
 param-kit-sub-name = { $name }
-param-kit-num = Kit { $number }
+param-kit-num = Kit { $value }
 param-tempo-switch = Tempo switch: { $value }
+param-setlist-name = { $name }
+param-setlist-step = Kit { $value }
+# A raw value with a meaning of its own (see the profile's `sentinel`).
+value-setlist-end = End of the set list
 
 # Parameter labels (control / accessibility labels — never carry the value).
 param-tempo-label = Tempo
 param-kit-name-label = Kit name
 param-kit-sub-name-label = Sub-name
 param-kit-num-label = Kit
+param-setlist-name-label = Set list name
+param-setlist-step-label = Step
 param-tempo-switch-label = Tempo switch
 
 instrument-name = { $name }

@@ -14,7 +14,7 @@ mod registry;
 
 pub use firmware::{FirmwareSupport, FirmwareVersion};
 pub use profile::{
-    AreaDef, Capabilities, DeviceProfile, DimDef, FirmwareConfig, Identity, ParameterDef,
+    AreaDef, Capabilities, DeviceProfile, DimDef, FirmwareConfig, Identity, ParameterDef, Sentinel,
     ValueRange,
 };
 pub use registry::{ProfileRegistry, builtin_catalog_json};

@@ -372,7 +372,7 @@ impl Session {
                 if Some(number) != self.current_kit {
                     return Vec::new();
                 }
-                let name = decode_ascii(data);
+                let name = self.decode_text("kit.common.name", data);
                 self.values.insert(
                     "kit.common.name".to_string(),
                     ParamValue::Text(name.clone()),
@@ -425,7 +425,7 @@ impl Session {
         } else if Some(address) == name_addr {
             // The current kit was renamed on the module — a device-initiated
             // parameter edit the screen reader cannot see.
-            let name = decode_ascii(data);
+            let name = self.decode_text("kit.common.name", data);
             self.values.insert(
                 "kit.common.name".to_string(),
                 ParamValue::Text(name.clone()),
@@ -717,7 +717,12 @@ impl Session {
                 Some(bytes) => bytes,
                 None => return self.fail_simple("edit.out_of_range", param_id),
             },
-            EditValue::Text(s) => sysex::encoding::encode_ascii(s, len),
+            // `None` means text was aimed at a numeric field — a profile/caller
+            // error, not something the module should be asked to store.
+            EditValue::Text(s) => match encoding.encode_text(s, len) {
+                Some(bytes) => bytes,
+                None => return self.fail_simple("edit.out_of_range", param_id),
+            },
         };
 
         self.pending.insert(
@@ -761,7 +766,7 @@ impl Session {
                 }
             }
             EditValue::Text(intended) => {
-                let actual = decode_ascii(data);
+                let actual = self.decode_text(&edit.param_id, data);
                 if &actual == intended {
                     self.confirm_text(&edit, actual)
                 } else {
@@ -865,6 +870,17 @@ impl Session {
             }
         }
         fx
+    }
+
+    /// Decode a text field with the parameter's own encoding: a name is stored
+    /// either one character per byte (kit name) or as a nibble pair per character
+    /// (set-list name). Falls back to plain ASCII for a parameter we don't know.
+    fn decode_text(&self, param_id: &str, data: &[u8]) -> String {
+        self.profile
+            .as_ref()
+            .and_then(|p| p.parameter(param_id))
+            .and_then(|def| def.encoding.decode_text(data))
+            .unwrap_or_else(|| decode_ascii(data))
     }
 
     /// Localize a numeric parameter's value for speech (e.g. 1300 -> "130.0 BPM").

@@ -9,14 +9,20 @@ kit-at-last = Последний кит.
 param-tempo = { $value } уд/мин
 param-kit-name = { $name }
 param-kit-sub-name = { $name }
-param-kit-num = Кит { $number }
+param-kit-num = Кит { $value }
 param-tempo-switch = Переключатель темпа: { $value }
+param-setlist-name = { $name }
+param-setlist-step = Кит { $value }
+# Сырое значение с собственным смыслом (см. `sentinel` в профиле).
+value-setlist-end = Конец сет-листа
 
 # Лейблы параметров (подписи контролов / для скринридера — без значения).
 param-tempo-label = Темп
 param-kit-name-label = Имя кита
 param-kit-sub-name-label = Доп. имя
 param-kit-num-label = Кит
+param-setlist-name-label = Имя сет-листа
+param-setlist-step-label = Шаг
 param-tempo-switch-label = Переключатель темпа
 
 instrument-name = { $name }

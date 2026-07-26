@@ -91,6 +91,18 @@ fn areas_match_the_top_level_map() {
         linear_u8(&p.areas["current"].address),
         linear(current["address"].as_array().unwrap())
     );
+
+    let setlist = top.iter().find(|e| e["block"] == "SetListParams").unwrap();
+    let area = &p.areas["setlist"];
+    assert_eq!(
+        linear_u8(&area.address),
+        linear(setlist["address"].as_array().unwrap())
+    );
+    assert_eq!(
+        linear_u8(&area.stride.unwrap()),
+        linear(setlist["stride"].as_array().unwrap())
+    );
+    assert_eq!(area.count, setlist["count"].as_u64().map(|c| c as u32));
 }
 
 #[test]
@@ -119,7 +131,16 @@ fn every_parameter_matches_its_doc_ref() {
         let doc_min = mp["range"][0].as_i64();
         match mp["encoding"].as_str().unwrap() {
             "plain7" => assert_eq!(param.encoding, Encoding::Plain7, "{}", param.id),
-            "ascii" => assert_eq!(param.encoding, Encoding::Ascii, "{}", param.id),
+            // The doc distinguishes the two ASCII packings by how many bytes a
+            // character occupies (`bytes_per_char: 2` = a nibble pair each).
+            "ascii" => {
+                let expect = if mp["bytes_per_char"].as_u64() == Some(2) {
+                    Encoding::AsciiNibble
+                } else {
+                    Encoding::Ascii
+                };
+                assert_eq!(param.encoding, expect, "{}", param.id);
+            }
             "nibble" => {
                 let expect = if doc_min.is_some_and(|v| v < 0) {
                     Encoding::SignedNibble
@@ -135,10 +156,8 @@ fn every_parameter_matches_its_doc_ref() {
         // profile). For ASCII the doc range is per character — not a string
         // constraint, so it isn't mirrored.
         match (
-            param.range.filter(|_| param.encoding != Encoding::Ascii),
-            mp["range"]
-                .as_array()
-                .filter(|_| param.encoding != Encoding::Ascii),
+            param.range.filter(|_| !param.encoding.is_text()),
+            mp["range"].as_array().filter(|_| !param.encoding.is_text()),
         ) {
             (Some(r), Some(dr)) => {
                 assert_eq!(Some(r.min), dr[0].as_i64(), "{}: range min", param.id);
@@ -186,6 +205,9 @@ fn every_parameter_matches_its_doc_ref() {
         // Absolute address at index 0 (and the dim grid below).
         let expected = match param.area.as_str() {
             "current" => linear(mp["offset"].as_array().unwrap()),
+            "setlist" => {
+                linear_u8(&p.areas["setlist"].address) + linear(mp["offset"].as_array().unwrap())
+            }
             "kit" => {
                 let anchor = KIT_ANCHORS
                     .iter()
@@ -258,8 +280,68 @@ fn every_parameter_matches_its_doc_ref() {
                     assert_eq!(linear_u8(&dim.stride), b - a, "{}: layer stride", param.id);
                     assert_eq!(c - b, b - a, "layer grid must be uniform");
                 }
+                // Set-list steps are 32 sibling rows in one block, not a repeated
+                // child: the grid is the distance between "Step 1 Kit" and
+                // "Step 2 Kit", and the count is how many such rows the doc has.
+                "step" => {
+                    let rows = m["blocks"]["SetListParams"]["params"].as_array().unwrap();
+                    let step_row = |n: u32| {
+                        rows.iter()
+                            .find(|r| r["name"] == format!("Step {n} Kit"))
+                            .unwrap_or_else(|| panic!("no 'Step {n} Kit' row in the doc"))
+                    };
+                    let stride = linear(step_row(2)["offset"].as_array().unwrap())
+                        - linear(step_row(1)["offset"].as_array().unwrap());
+                    assert_eq!(linear_u8(&dim.stride), stride, "{}: step stride", param.id);
+                    let documented = rows
+                        .iter()
+                        .filter(|r| {
+                            r["name"]
+                                .as_str()
+                                .is_some_and(|n| n.starts_with("Step ") && n.ends_with(" Kit"))
+                        })
+                        .count();
+                    assert_eq!(
+                        dim.count as usize, documented,
+                        "{}: step count differs from the doc",
+                        param.id
+                    );
+                    // The last step must land inside the block.
+                    let last = linear(step_row(dim.count)["offset"].as_array().unwrap())
+                        + param.len as u64;
+                    let total = linear(
+                        m["blocks"]["SetListParams"]["total_size"]
+                            .as_array()
+                            .unwrap(),
+                    );
+                    assert!(last <= total, "{}: steps overrun the block", param.id);
+                }
                 other => panic!("{}: unknown dim {other}", param.id),
             }
+        }
+
+        // A display offset is presentation, but it must still match the doc: the
+        // value column counts from 0, the display column from 1.
+        if param.display_offset != 0 {
+            let display = mp["display"]
+                .as_array()
+                .unwrap_or_else(|| panic!("{}: display_offset but no doc display", param.id))
+                .iter()
+                .filter_map(|d| d.as_str())
+                .collect::<Vec<_>>()
+                .join(" ");
+            let highest = display
+                .split(|c: char| !c.is_ascii_digit())
+                .filter_map(|t| t.parse::<i64>().ok())
+                .max()
+                .unwrap_or_else(|| panic!("{}: no numbers in the doc display", param.id));
+            let range = param.range.expect("display_offset implies a range");
+            assert_eq!(
+                highest,
+                range.max + param.display_offset,
+                "{}: the doc's display column disagrees with display_offset",
+                param.id
+            );
         }
     }
 }

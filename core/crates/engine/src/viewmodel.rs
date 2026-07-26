@@ -11,7 +11,6 @@
 
 use crate::event::{ConnectionState, DeviceInfo};
 use device::ParameterDef;
-use sysex::Encoding;
 
 /// A complete snapshot of the session's observable state.
 #[derive(Debug, Clone, PartialEq)]
@@ -91,11 +90,12 @@ pub struct NumericRange {
 }
 
 impl ParamKind {
-    /// Classify a parameter from its wire encoding (ASCII text vs numeric).
+    /// Classify a parameter from its wire encoding (text vs numeric).
     pub(crate) fn of(def: &ParameterDef) -> Self {
-        match def.encoding {
-            Encoding::Ascii => ParamKind::Text,
-            _ => ParamKind::Numeric,
+        if def.encoding.is_text() {
+            ParamKind::Text
+        } else {
+            ParamKind::Numeric
         }
     }
 }
@@ -105,12 +105,14 @@ pub(crate) fn numeric_info(def: &ParameterDef) -> NumericInfo {
     let scale = def.scale.filter(|s| *s > 1).unwrap_or(1);
     let range = def.range.map(|r| {
         let s = scale as f64;
+        // Raw stays raw — the offset is presentation only (see `display_offset`).
+        let shown = |raw: i64| (raw + def.display_offset) as f64 / s;
         NumericRange {
             raw_min: r.min,
             raw_max: r.max,
             raw_step: 1,
-            display_min: r.min as f64 / s,
-            display_max: r.max as f64 / s,
+            display_min: shown(r.min),
+            display_max: shown(r.max),
             display_step: 1.0 / s,
         }
     });

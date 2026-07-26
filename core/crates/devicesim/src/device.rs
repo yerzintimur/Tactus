@@ -2,7 +2,7 @@
 
 use crate::state::DeviceState;
 use device::{DeviceProfile, ProfileRegistry};
-use sysex::{SysexMessage, address, build_dt1, encoding, parse};
+use sysex::{SysexMessage, address, build_dt1, parse};
 
 // ── SysEx wire constants (only what the simulator needs to recognise). ──
 const SYSEX_START: u8 = 0xF0;
@@ -204,7 +204,7 @@ impl VirtualDevice {
         let addr = self.profile.address_of(param_id, indices)?;
         let data = match value {
             EditValue::Int(v) => def.encoding.encode_int(*v, def.len)?,
-            EditValue::Text(s) => encoding::encode_ascii(s, def.len),
+            EditValue::Text(s) => def.encoding.encode_text(s, def.len)?,
         };
         Some((addr, data))
     }
@@ -270,7 +270,7 @@ fn is_identity_request(b: &[u8]) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use sysex::{Encoding, build_identity_request, build_rq1};
+    use sysex::{Encoding, build_identity_request, build_rq1, encoding};
 
     fn rq1(dev: &VirtualDevice, addr: [u8; 4], len: u8) -> Vec<u8> {
         build_rq1(

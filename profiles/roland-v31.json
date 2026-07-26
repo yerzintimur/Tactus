@@ -31,8 +31,31 @@
       "len": 4,
       "encoding": "nibble",
       "range": { "min": 0, "max": 199 },
+      "display_offset": 1,
       "i18n_key": "param.kit_num",
       "doc": "Current/KitNum"
+    },
+    {
+      "id": "setlist.name",
+      "area": "setlist",
+      "offset": [0, 0],
+      "len": 32,
+      "encoding": "ascii_nibble",
+      "i18n_key": "param.setlist_name",
+      "doc": "SetListParams/Set List Bank Name"
+    },
+    {
+      "id": "setlist.step",
+      "area": "setlist",
+      "offset": [0, 32],
+      "len": 4,
+      "encoding": "signed_nibble",
+      "dims": [{ "name": "step", "count": 32, "stride": [0, 4] }],
+      "range": { "min": -1, "max": 199 },
+      "display_offset": 1,
+      "sentinel": { "raw": -1, "i18n_key": "value.setlist_end" },
+      "i18n_key": "param.setlist_step",
+      "doc": "SetListParams/Step 1 Kit"
     },
     {
       "id": "kit.common.name",

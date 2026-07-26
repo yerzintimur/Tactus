@@ -102,10 +102,21 @@ pub struct ParameterDef {
     /// Divisor applied for display (e.g. tempo 1200 -> 120.0). Presentation only.
     #[serde(default)]
     pub scale: Option<i64>,
+    /// Added to the raw value for display, before `scale`. Roland numbers kits
+    /// and set-list steps from 0 on the wire and from 1 on screen — the doc's
+    /// value column says `0 - 199`, its display column `1 - 200`. Presentation
+    /// only: everything on the wire stays raw.
+    #[serde(default)]
+    pub display_offset: i64,
     #[serde(default)]
     pub unit: Option<String>,
     #[serde(default)]
     pub i18n_key: Option<String>,
+    /// A raw value that means something other than a number on this parameter
+    /// (a set-list step's `END`, a level's `-INF`). Device data, so it belongs
+    /// in the profile — speaking it as a quantity would be a lie.
+    #[serde(default)]
+    pub sentinel: Option<Sentinel>,
     /// Enum value labels (raw = range.min + position), verbatim from the docs.
     #[serde(default)]
     pub labels: Option<Vec<String>>,
@@ -143,6 +154,14 @@ pub struct DimDef {
 pub struct ValueRange {
     pub min: i64,
     pub max: i64,
+}
+
+/// A raw value with a meaning of its own, spoken through its own message rather
+/// than as a number (`-1` on a set-list step is the list's end, not kit zero).
+#[derive(Debug, Clone, Deserialize)]
+pub struct Sentinel {
+    pub raw: i64,
+    pub i18n_key: String,
 }
 
 impl DeviceProfile {
@@ -223,6 +242,7 @@ fn de_encoding<'de, D: Deserializer<'de>>(d: D) -> Result<Encoding, D::Error> {
         "signed" => Ok(Encoding::Signed),
         "signed_nibble" => Ok(Encoding::SignedNibble),
         "ascii" => Ok(Encoding::Ascii),
+        "ascii_nibble" => Ok(Encoding::AsciiNibble),
         other => Err(serde::de::Error::custom(format!(
             "unknown encoding: {other}"
         ))),

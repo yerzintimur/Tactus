@@ -9,6 +9,15 @@ use device::ParameterDef;
 /// Applies the profile's `scale` for display (e.g. tempo raw 1200, scale 10 ->
 /// "120.0"), and uses the parameter's `i18n_key` as the message id.
 pub fn format_parameter(param: &ParameterDef, raw: i64) -> Message {
+    // A sentinel is not a quantity: -1 on a set-list step is the end of the list,
+    // -601 on a level is silence. Speaking the number instead would be a lie the
+    // user cannot see through — they have only what we say.
+    if let Some(sentinel) = &param.sentinel
+        && sentinel.raw == raw
+    {
+        return Message::new(sentinel.i18n_key.clone());
+    }
+
     // An enum value is the module's own word ("SRV-2000", "WARM HALL") — spoken
     // verbatim and tagged as device content so a localized voice does not mangle
     // it (ADR-0011). It is also what the module's own screen and Roland's manual
@@ -22,13 +31,16 @@ pub fn format_parameter(param: &ParameterDef, raw: i64) -> Message {
         .clone()
         .unwrap_or_else(|| format!("param.{}", param.id));
 
+    // Kits and set-list steps count from 0 on the wire and from 1 on the module's
+    // own screen; speak the number the user would read there.
+    let shown = raw + param.display_offset;
     match param.scale {
         Some(scale) if scale > 1 => {
             let digits = (scale as f64).log10().round() as usize;
-            let value = raw as f64 / scale as f64;
+            let value = shown as f64 / scale as f64;
             Message::new(id).arg("value", format!("{value:.digits$}"))
         }
-        _ => Message::new(id).arg("value", raw),
+        _ => Message::new(id).arg("value", shown),
     }
 }
 
@@ -143,6 +155,42 @@ mod tests {
                 }
             }
         }
+    }
+
+    /// The module counts kits and set-list steps from 0 on the wire and from 1 on
+    /// its own screen. A blind user has only what we say, so we say the number
+    /// they would read there — and the number the module's manual uses.
+    #[test]
+    fn zero_based_values_speak_the_number_on_the_module() {
+        let registry = device::ProfileRegistry::with_builtin();
+        let profile = registry.match_model(&[1, 6, 1]).expect("built-in V31");
+        let kit_num = profile.parameter("current.kit_num").expect("kit num");
+        let loc = Localizer::new();
+
+        assert_eq!(loc.format(&format_parameter(kit_num, 4), "en"), "Kit 5");
+        assert_eq!(loc.format(&format_parameter(kit_num, 199), "en"), "Kit 200");
+        assert_eq!(loc.format(&format_parameter(kit_num, 4), "ru"), "Кит 5");
+    }
+
+    /// A sentinel is not a quantity: the last step of a set list holds −1, which
+    /// means "the list ends here", not "kit zero".
+    #[test]
+    fn sentinel_values_speak_their_meaning_not_their_number() {
+        let registry = device::ProfileRegistry::with_builtin();
+        let profile = registry.match_model(&[1, 6, 1]).expect("built-in V31");
+        let step = profile.parameter("setlist.step").expect("set-list step");
+        let loc = Localizer::new();
+
+        assert_eq!(
+            loc.format(&format_parameter(step, -1), "en"),
+            "End of the set list"
+        );
+        assert_eq!(
+            loc.format(&format_parameter(step, -1), "ru"),
+            "Конец сет-листа"
+        );
+        // Every other value is still a kit, counted from 1.
+        assert_eq!(loc.format(&format_parameter(step, 46), "en"), "Kit 47");
     }
 
     #[test]

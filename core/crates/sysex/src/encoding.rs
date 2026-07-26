@@ -21,11 +21,42 @@ pub enum Encoding {
     /// MIDI Implementation; every live edit is confirmed by read-back anyway
     /// (no blind writes).
     SignedNibble,
-    /// ASCII text, one char per byte — use [`decode_ascii`] / [`encode_ascii`].
+    /// ASCII text, one char per byte — use [`Encoding::decode_text`] /
+    /// [`Encoding::encode_text`].
     Ascii,
+    /// ASCII text, one char per **two** bytes: the high nibble then the low one
+    /// (`0000 aaaa`, `0000 bbbb`), the same packing the numeric nibble fields
+    /// use. Roland stores some names this way — on the V31 the set-list name and
+    /// the trigger bank name.
+    AsciiNibble,
 }
 
 impl Encoding {
+    /// Whether this encoding carries text rather than a number.
+    pub fn is_text(self) -> bool {
+        matches!(self, Encoding::Ascii | Encoding::AsciiNibble)
+    }
+
+    /// Decode a text field, dropping the padding Roland writes after a name.
+    /// Returns `None` for numeric encodings.
+    pub fn decode_text(self, bytes: &[u8]) -> Option<String> {
+        match self {
+            Encoding::Ascii => Some(decode_ascii(bytes)),
+            Encoding::AsciiNibble => Some(decode_ascii(&unpack_nibble_chars(bytes))),
+            _ => None,
+        }
+    }
+
+    /// Encode text into exactly `len` bytes (space-padded or truncated).
+    /// Returns `None` for numeric encodings.
+    pub fn encode_text(self, text: &str, len: usize) -> Option<Vec<u8>> {
+        match self {
+            Encoding::Ascii => Some(encode_ascii(text, len)),
+            Encoding::AsciiNibble => Some(pack_nibble_chars(&encode_ascii(text, len / 2))),
+            _ => None,
+        }
+    }
+
     /// Decode a numeric field. Returns `None` for [`Encoding::Ascii`].
     pub fn decode_int(self, bytes: &[u8]) -> Option<i64> {
         match self {
@@ -37,12 +68,12 @@ impl Encoding {
                 let span = 1i64 << (4 * bytes.len());
                 Some(if raw >= span / 2 { raw - span } else { raw })
             }
-            Encoding::Ascii => None,
+            Encoding::Ascii | Encoding::AsciiNibble => None,
         }
     }
 
-    /// Encode a numeric value into exactly `len` bytes. Returns `None` for
-    /// [`Encoding::Ascii`] or if the value doesn't fit in `len` bytes.
+    /// Encode a numeric value into exactly `len` bytes. Returns `None` for a text
+    /// encoding or if the value doesn't fit in `len` bytes.
     pub fn encode_int(self, value: i64, len: usize) -> Option<Vec<u8>> {
         match self {
             Encoding::Plain7 => encode_base(u64::try_from(value).ok()?, 128, len),
@@ -59,9 +90,27 @@ impl Encoding {
                 let raw = if value < 0 { value + span } else { value };
                 encode_base(raw as u64, 16, len)
             }
-            Encoding::Ascii => None,
+            Encoding::Ascii | Encoding::AsciiNibble => None,
         }
     }
+}
+
+/// Two bytes per character (high nibble, low nibble) -> one byte per character.
+/// A trailing odd byte can only come from a malformed reply; drop it rather than
+/// invent a character.
+fn unpack_nibble_chars(bytes: &[u8]) -> Vec<u8> {
+    bytes
+        .chunks_exact(2)
+        .map(|pair| (pair[0] & 0x0F) << 4 | (pair[1] & 0x0F))
+        .collect()
+}
+
+/// One byte per character -> two bytes per character (high nibble, low nibble).
+fn pack_nibble_chars(bytes: &[u8]) -> Vec<u8> {
+    bytes
+        .iter()
+        .flat_map(|&b| [(b >> 4) & 0x0F, b & 0x0F])
+        .collect()
 }
 
 /// `64 · 128^(len-1)` — the zero point for a signed field of `len` bytes.
@@ -180,6 +229,37 @@ mod tests {
         assert_eq!(encode_ascii("TR-808", 8), b"TR-808  ".to_vec());
         assert_eq!(Encoding::Ascii.decode_int(b"x"), None);
         assert_eq!(Encoding::Ascii.encode_int(1, 1), None);
+        assert_eq!(
+            Encoding::Ascii.decode_text(b"TR-808  ").as_deref(),
+            Some("TR-808")
+        );
+    }
+
+    #[test]
+    fn ascii_nibble_splits_each_char_across_two_bytes() {
+        // 'S' = 0x53 -> 05 03, 'e' = 0x65 -> 06 05; the trailing pair is a space.
+        let wire = [0x05, 0x03, 0x06, 0x05, 0x07, 0x04, 0x02, 0x00];
+        assert_eq!(
+            Encoding::AsciiNibble.decode_text(&wire).as_deref(),
+            Some("Set")
+        );
+        assert_eq!(
+            Encoding::AsciiNibble.encode_text("Set", 8),
+            Some(wire.to_vec())
+        );
+        // `len` is the field's byte count, so a 16-char name occupies 32 bytes.
+        assert_eq!(
+            Encoding::AsciiNibble
+                .encode_text("Concert", 32)
+                .map(|b| b.len()),
+            Some(32)
+        );
+        // Numbers don't live in a text field.
+        assert_eq!(Encoding::AsciiNibble.decode_int(&wire), None);
+        assert_eq!(Encoding::AsciiNibble.encode_int(1, 2), None);
+        assert!(Encoding::AsciiNibble.is_text());
+        assert!(!Encoding::Nibble.is_text());
+        assert_eq!(Encoding::Nibble.decode_text(&wire), None);
     }
 
     #[test]
@@ -212,6 +292,18 @@ mod tests {
         fn signed_nibble4_roundtrip(v in -32768i64..=32767) {
             let bytes = Encoding::SignedNibble.encode_int(v, 4).unwrap();
             prop_assert_eq!(Encoding::SignedNibble.decode_int(&bytes), Some(v));
+        }
+
+        #[test]
+        fn ascii_nibble_roundtrip(s in "[ -~]{0,16}") {
+            let bytes = Encoding::AsciiNibble.encode_text(&s, 32).unwrap();
+            prop_assert_eq!(bytes.len(), 32);
+            // Every byte is a bare nibble — that is what makes it 7-bit safe.
+            prop_assert!(bytes.iter().all(|&b| b < 16));
+            prop_assert_eq!(
+                Encoding::AsciiNibble.decode_text(&bytes),
+                Some(s.trim_end().to_string())
+            );
         }
     }
 }
