@@ -167,6 +167,13 @@ and verified; keep this file honest about real state.
   **Open on hardware:** the wire form of `END`, whether a 160-byte read comes back
   as one DT1, and whether the *active* set list can be read or selected at all —
   it is not in the address map, so stepping through a list looks panel-only.
+- [x] **`P2` Notice the current kit's slot being replaced.** Copying or importing
+  a kit over the slot you are standing on changes everything about it while its
+  *number* stays put, so polling the number alone left the app naming the kit that
+  used to be there — reporting stale state as fact, the one thing it must never
+  do. The engine now re-reads the current kit's name every ~3 s, and on a change
+  drops the rest of that slot's cached values and re-reads them; silent while the
+  name is unchanged ([timed_scenarios.rs](core/crates/e2e/tests/timed_scenarios.rs)).
 - [ ] **`P3` Set-list names without opening each list** — the picker offers
   "Set list 1…32" because the names live in the module and reading all 32 would be
   32 requests. Worth a background sweep (paced) once the hardware answers above.

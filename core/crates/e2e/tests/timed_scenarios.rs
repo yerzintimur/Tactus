@@ -182,3 +182,56 @@ fn periodic_poll_detects_a_silent_kit_change() {
         "the periodic poll should detect the change"
     );
 }
+
+/// The kit *number* can stay put while the kit itself changes: copying or
+/// importing a kit over the current slot on the module replaces its contents with
+/// no push and no change to `Current`. Polling the number alone would leave the
+/// app naming the kit that used to be there — the one thing the app must never
+/// do, since the user has only what it says.
+#[test]
+fn periodic_poll_detects_the_current_slot_being_replaced() {
+    let mut h = Harness::v31("en");
+    h.connect().run_to_idle(); // kit 5 = "Jazz" at 120.0 BPM
+    h.take_events();
+
+    // Another kit is copied over slot 5 on the module: new name, new tempo, same
+    // number, and the module says nothing about it.
+    h.device_mut().with_kit(4, "Funk", 1300);
+    h.advance(5000); // more than one name-refresh interval
+
+    assert!(
+        h.events().iter().any(|e| matches!(e,
+            CoreEvent::CurrentKitChanged { number, name } if *number == 4 && name == "Funk")),
+        "the refresh should notice the slot's contents changed"
+    );
+    // …and everything else cached for that slot described the old kit, so it is
+    // re-read rather than left to be reported as fact.
+    assert!(
+        h.events()
+            .iter()
+            .any(|e| matches!(e, CoreEvent::Speak(s) if s.text == "130.0 BPM")),
+        "the replaced kit's other values should be read again"
+    );
+    let snapshot = h.snapshot();
+    assert_eq!(
+        snapshot.current_kit.map(|k| k.name),
+        Some("Funk".to_string())
+    );
+}
+
+/// The refresh runs every few seconds forever, so it must be silent unless the
+/// name actually changed — otherwise the app talks over the drummer for nothing.
+#[test]
+fn the_name_refresh_says_nothing_while_the_kit_is_unchanged() {
+    let mut h = Harness::v31("en");
+    h.connect().run_to_idle();
+    h.take_events();
+
+    h.advance(10_000); // many refresh intervals
+
+    let spoken = h.spoken();
+    assert!(
+        spoken.is_empty(),
+        "an unchanged kit must produce no speech; got {spoken:?}"
+    );
+}

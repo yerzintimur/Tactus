@@ -236,6 +236,17 @@ parameter-map JSON, §13 of SPEC, cross-checked against the Data List.)
   kit the device actually lands on — with a tick-driven timeout so a selection
   the module never performs still fails audibly. Reproduced deterministically in
   [timed_scenarios.rs](../core/crates/e2e/tests/timed_scenarios.rs).
+- **A kit's *contents* can change while its number doesn't.** Copying or
+  importing a kit over the current slot on the module replaces everything about
+  it — name, tempo, pads — while `Current` still reads the same number, so a
+  poller watching only the number would keep naming the kit that used to be
+  there. Kit copy/import/backup are panel operations with no SysEx command, so
+  the app can only notice them: the engine re-reads the current kit's **name**
+  every ~3 s (`KIT_NAME_REFRESH_POLLS`) and, when it differs from what it cached,
+  drops the rest of that slot's cached values and reads them again. Silent when
+  the name is unchanged, which is nearly always. Whether the module *also* pushes
+  anything on a kit copy (Transmit Edit Data) is untested — the refresh does not
+  depend on it.
 - **Announcement flood on hardware kit-scroll:** dialling through kits on the
   module pushes an unsolicited Current change per kit; naively announcing every
   name read floods speech. Handled per

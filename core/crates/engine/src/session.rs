@@ -26,6 +26,13 @@ const POLL_INTERVAL_MS: u64 = 300;
 /// An edit times out after this many ticks without a confirming read-back.
 const EDIT_TIMEOUT_TICKS: u32 = 5;
 
+/// Re-read the current kit's name every this many polls (~3 s), to notice its
+/// slot's contents being replaced on the module — a kit copied or imported over
+/// it changes everything about the kit while its *number* stays put, so the poll
+/// on the number alone would never see it. Every poll would be twice the traffic
+/// for an event that happens between songs, not during one.
+const KIT_NAME_REFRESH_POLLS: u32 = 10;
+
 /// What an outstanding RQ1 reply means when its DT1 comes back.
 #[derive(Debug, Clone)]
 enum Pending {
@@ -33,6 +40,9 @@ enum Pending {
     /// Kit-name read-back (the kit number lets us drop stale read-backs from
     /// rapid scrolling; the origin tags the announcement — ADR-0014).
     KitName(u32, KitOrigin),
+    /// Periodic re-read of the current kit's name, to notice its slot's contents
+    /// being replaced on the module. Silent unless the name actually changed.
+    KitNameRefresh(u32),
     /// Tempo read-back for the given kit.
     Tempo(u32, KitOrigin),
     /// Read-back of an edit, awaiting verification.
@@ -125,6 +135,9 @@ pub struct Session {
     /// Kit number → name, filled in as read-backs land. A set-list step is a kit
     /// *number*; a name is the only part of it a blind user can act on.
     kit_names: HashMap<u32, String>,
+    /// Polls since the current kit's name was last re-read (see
+    /// [`KIT_NAME_REFRESH_POLLS`]).
+    polls_since_name_check: u32,
 }
 
 impl Session {
@@ -145,6 +158,7 @@ impl Session {
             kit_select: None,
             setlist: None,
             kit_names: HashMap::new(),
+            polls_since_name_check: 0,
         }
     }
 
@@ -407,6 +421,7 @@ impl Session {
                     self.speak(speech, SpeechPriority::Default, category, source),
                 ]
             }
+            Pending::KitNameRefresh(kit) => self.handle_kit_name_refresh(kit, data),
             Pending::Tempo(kit, origin) => {
                 if Some(kit) != self.current_kit {
                     return Vec::new();
@@ -473,16 +488,7 @@ impl Session {
                 "kit.common.name".to_string(),
                 ParamValue::Text(name.clone()),
             );
-            let speech = self.render_spoken(&format_kit(kit + 1, &name));
-            vec![
-                Effect::Emit(CoreEvent::CurrentKitChanged { number: kit, name }),
-                self.speak(
-                    speech,
-                    SpeechPriority::Default,
-                    SpeechCategory::ParamEdit,
-                    SpeechSource::DeviceInitiated,
-                ),
-            ]
+            self.announce_kit_identity(kit, name)
         } else if Some(address) == tempo_addr {
             self.speak_tempo(
                 data,
@@ -493,6 +499,60 @@ impl Session {
         } else {
             Vec::new()
         }
+    }
+
+    /// A periodic name re-read came back. Silence is the answer almost every time:
+    /// this fires every few seconds, and announcing an unchanged name would make
+    /// the app talk over the drummer for nothing.
+    fn handle_kit_name_refresh(&mut self, kit: u32, data: &[u8]) -> Vec<Effect> {
+        if Some(kit) != self.current_kit {
+            return Vec::new();
+        }
+        let name = self.decode_text("kit.common.name", data);
+        let Some(known) = self.text_value("kit.common.name") else {
+            // Nothing to compare against yet — the kit-change flow is already
+            // reading this name and will announce it. Just seed the cache.
+            self.values
+                .insert("kit.common.name".to_string(), ParamValue::Text(name));
+            return Vec::new();
+        };
+        if known == name {
+            return Vec::new();
+        }
+
+        // The slot holds something else now: a kit copied or imported over it on
+        // the module, or a rename. Whatever else we cached for this slot describes
+        // the kit that used to be here, so drop it and read the rest again.
+        self.values.clear();
+        self.values.insert(
+            "kit.common.name".to_string(),
+            ParamValue::Text(name.clone()),
+        );
+        self.kit_names.insert(kit, name.clone());
+        let mut fx = self.announce_kit_identity(kit, name);
+        fx.extend(self.request_read(
+            "kit.common.tempo",
+            &[kit],
+            Pending::Tempo(kit, KitOrigin::Device),
+        ));
+        fx
+    }
+
+    /// Report what the active kit *is* now, after the module changed it under us.
+    /// Not `KitNav` — the drummer didn't navigate anywhere, the kit changed
+    /// beneath them — but device-initiated, so the screen reader can't see it and
+    /// it must be spoken (ADR-0014).
+    fn announce_kit_identity(&self, kit: u32, name: String) -> Vec<Effect> {
+        let speech = self.render_spoken(&format_kit(kit + 1, &name));
+        vec![
+            Effect::Emit(CoreEvent::CurrentKitChanged { number: kit, name }),
+            self.speak(
+                speech,
+                SpeechPriority::Default,
+                SpeechCategory::ParamEdit,
+                SpeechSource::DeviceInitiated,
+            ),
+        ]
     }
 
     /// A `Current` value arrived — via the poll, a kit-select confirmation read, or
@@ -571,8 +631,37 @@ impl Session {
             .request_read("current.kit_num", &[], Pending::CurrentKitNum)
             .into_iter()
             .collect();
-        fx.extend(self.request_missing_step_name());
+        self.polls_since_name_check += 1;
+        let mut refreshed = false;
+        if self.polls_since_name_check >= KIT_NAME_REFRESH_POLLS {
+            self.polls_since_name_check = 0;
+            if let Some(effect) = self.refresh_kit_name() {
+                fx.push(effect);
+                refreshed = true;
+            }
+        }
+        // Two messages per poll at most: filling in a set-list step's name can
+        // wait a tick rather than share one with the refresh (PROTOCOL §6 — a
+        // burst is what a module drops).
+        if !refreshed {
+            fx.extend(self.request_missing_step_name());
+        }
         fx
+    }
+
+    /// Re-read the current kit's name, unless a read of it is already outstanding
+    /// — the kit-change flow's own name read is what announces a new kit, and
+    /// replacing its pending slot would swallow that announcement.
+    fn refresh_kit_name(&mut self) -> Option<Effect> {
+        let kit = self.current_kit?;
+        let addr = self
+            .profile
+            .as_ref()?
+            .address_of("kit.common.name", &[kit])?;
+        if self.pending.contains_key(&addr) {
+            return None;
+        }
+        self.request_read("kit.common.name", &[kit], Pending::KitNameRefresh(kit))
     }
 
     /// Build an RQ1 for `param_id` at `indices` and remember what its reply means.
