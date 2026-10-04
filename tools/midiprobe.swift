@@ -43,21 +43,36 @@ func name(_ obj: MIDIObjectRef) -> String {
 var client = MIDIClientRef()
 MIDIClientCreateWithBlock("midiprobe" as CFString, &client) { _ in }
 
+func stamp() -> String {
+    String(format: "%.3f", Date().timeIntervalSince1970.truncatingRemainder(dividingBy: 1000))
+}
+
+// SysEx is reassembled across packets; channel messages (program change, bank
+// select, …) are printed as they come, so a kit change shows up even when the
+// module pushes no SysEx for it. Real-time bytes (F8–FF) are dropped.
 var buffer: [UInt8] = []
+var inSysex = false
 var inPort = MIDIPortRef()
 MIDIInputPortCreateWithBlock(client, "in" as CFString, &inPort) { packetList, _ in
     for packet in packetList.unsafeSequence() {
         let bytes = Array(packet.bytes())
+        var channel: [UInt8] = []
         for b in bytes {
-            if b == 0xF0 { buffer = [] }
-            if b & 0x80 == 0 || b == 0xF0 || b == 0xF7 { buffer.append(b) }
-            if b == 0xF7 {
-                let t = String(format: "%.3f", Date().timeIntervalSince1970.truncatingRemainder(dividingBy: 1000))
-                print("\(t) ← \(hex(buffer))")
-                fflush(stdout)
-                buffer = []
+            if b >= 0xF8 { continue }
+            if b == 0xF0 { buffer = []; inSysex = true }
+            if inSysex {
+                buffer.append(b)
+                if b == 0xF7 {
+                    print("\(stamp()) ← \(hex(buffer))")
+                    buffer = []
+                    inSysex = false
+                }
+            } else {
+                channel.append(b)
             }
         }
+        if !channel.isEmpty { print("\(stamp()) ← \(hex(channel))   (channel)") }
+        fflush(stdout)
     }
 }
 
