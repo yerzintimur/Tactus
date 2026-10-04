@@ -262,12 +262,22 @@ parameter-map JSON, §13 of SPEC, cross-checked against the Data List.)
   300 ms poll; it costs one read and stays as a cheap guard for a module that
   answers promptly. From knob to the new kit's name known: ~520 ms, all of it
   the module's.
-- **Transmit Edit Data = ON** (module setting): the module **pushes a DT1** for a
-  parameter when you edit it on the hardware. Parse address+value → update model
-  → announce. This keeps the app in sync with physical knob-turning. **Kit
-  selection is not one of those pushes:** with the app silent, panel kit changes
-  produced the Program Change above and **no DT1** for `Current` (2026-10-04) —
-  polling `Current` is the signal, not a push.
+- **Transmit Edit Data** (SYSTEM → MIDI → BASIC): **OFF on this unit as found**
+  — with it off the module sends nothing for panel edits (four edits, zero SysEx,
+  2026-10-04). With it **ON**, every edit arrives as a **DT1 to the parameter's
+  own address**, one per step of a knob sweep (~100 ms apart), with the index of
+  the kit being edited: kit volume `04 24 00 50` (kit 10) stepping 5, 10, 15, 20
+  (0.5 dB each); reverb level `04 26 70 02` from `0F 0F 0F 0B` (−0.5 dB) up and
+  back; a snare edit sends **two** DT1s per step, head and rim (`04 24 52 09` and
+  `04 24 54 09`: layer A volume of units 1 and 2); one-byte switches (a pad's Bus
+  Send Head/Rim `04 26 11 02`, Output Routing `04 26 11 07`) come as single bytes.
+  The core resolves the address back to a parameter and its indices
+  (`DeviceProfile::locate`) and announces "Label: value" as a device-initiated
+  edit; an address the profile does not describe is ignored, never guessed. The
+  setting itself is **not in the address map**, so the app cannot switch it on —
+  the user has to, and the app must say so. **Kit selection is not one of these
+  pushes:** panel kit changes produce the Program Change above and **no DT1** for
+  `Current` — polling `Current` is the signal, not a push.
 - The module also pushes DT1 in response to RQ1 (normal read), and sends Identity
   Reply to an Identity Request.
 - **Pace consecutive messages.** Roland's implementation notes ask for a gap

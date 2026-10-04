@@ -548,8 +548,63 @@ impl Session {
                 SpeechSource::DeviceInitiated,
             )
         } else {
-            Vec::new()
+            self.on_hardware_edit(address, data)
         }
+    }
+
+    /// A write the module made on its own: with Transmit Edit Data on, a knob
+    /// turned on the panel arrives as a DT1 to the parameter's own address, one
+    /// per step of the sweep (PROTOCOL §6). The screen reader cannot see it, so
+    /// it is announced as "Label: value", tagged device-initiated — the platform
+    /// lets each step of a sweep interrupt the last. An address the profile does
+    /// not describe is ignored, never guessed at. The value is cached only where
+    /// the cache can hold it: a parameter without a repeat grid, on the kit we
+    /// are on (the cache is keyed by parameter id alone).
+    fn on_hardware_edit(&mut self, address: [u8; 4], data: &[u8]) -> Vec<Effect> {
+        let Some(profile) = self.profile.as_ref() else {
+            return Vec::new();
+        };
+        let Some(located) = profile.locate(address) else {
+            return Vec::new();
+        };
+        let def = located.param;
+        let value = if def.encoding.is_text() {
+            ParamValue::Text(
+                def.encoding
+                    .decode_text(data)
+                    .unwrap_or_else(|| decode_ascii(data)),
+            )
+        } else {
+            match def.encoding.decode_int(data) {
+                Some(raw) => ParamValue::Int(raw),
+                None => return Vec::new(),
+            }
+        };
+        let spoken_value = match &value {
+            ParamValue::Text(text) => self.spoken_device_text(text.clone()),
+            ParamValue::Int(raw) => {
+                self.render_spoken(&format_parameter(def, *raw, &self.catalogs))
+            }
+        };
+        let mut text = self.render_spoken(&format_parameter_label(def));
+        text.push_str(": ");
+        text.push(&spoken_value);
+
+        let kit_area = profile
+            .parameter("kit.common.name")
+            .map(|p| p.area.as_str());
+        let on_this_kit = Some(def.area.as_str()) != kit_area
+            || located.indices.first().copied() == self.current_kit;
+        let cache_key = (def.dims.is_empty() && on_this_kit).then(|| def.id.clone());
+        if let Some(id) = cache_key {
+            self.values.insert(id, value);
+        }
+        vec![self.speak(
+            text,
+            SpeechPriority::Default,
+            SpeechCategory::ParamEdit,
+            SpeechSource::DeviceInitiated,
+        )]
     }
 
     /// A periodic name re-read came back. Silence is the answer almost every time:

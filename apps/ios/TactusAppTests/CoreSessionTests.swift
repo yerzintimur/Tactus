@@ -131,6 +131,12 @@ final class CoreSessionTests: XCTestCase {
             AnnouncementService.effectivePriority(
                 speech("120.0 BPM", .low, .info, .deviceInitiated)),
             .low)
+        // A knob turned on the module sends one message per step of a sweep;
+        // each step preempts the last so only the value settled on is heard.
+        XCTAssertEqual(
+            AnnouncementService.effectivePriority(
+                speech("Kit volume: 0.5 dB", .default, .paramEdit, .deviceInitiated)),
+            .high)
     }
 
     // MARK: - Language selection

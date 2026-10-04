@@ -251,8 +251,25 @@ and verified; keep this file honest about real state.
   shows raw dotted `0.2.1.0`; the V31 renders `00 02 01 00` as **"0.2.10"** (last
   two bytes = one component). Make the display honour the profile's
   `version_format`. (Build suffix "(0031)" isn't in the Identity Reply.)
-- [ ] **`P2` Full Transmit Edit Data handling** — announce any
-  hardware-initiated edit, not just kit/name/tempo.
+- [x] **`P2` Full Transmit Edit Data handling.** With the setting on, the module
+  sends a DT1 to the parameter's own address for every panel edit (one per knob
+  step; a snare edit sends head and rim as two). `DeviceProfile::locate` turns the
+  address back into a parameter and its indices, and the core announces any such
+  write as "Kit volume: 0.5 dB" — label and value, device-initiated, each step of
+  a sweep interrupting the last on the platform; addresses the profile does not
+  describe are ignored. Captured on the V31 2026-10-04 (PROTOCOL §6;
+  [hardware_edits.rs](core/crates/e2e/tests/hardware_edits.rs),
+  [locate.rs](core/crates/device/tests/locate.rs)). *Open:* pads have no names
+  in the profile yet, so a pad edit says "Layer volume" without which pad; the
+  value cache is per parameter id, so only grid-free parameters of the current
+  kit land in the snapshot.
+- [ ] **`P3` Transmit Edit Data is OFF out of the box** and not in the address
+  map, so the app cannot switch it on. Onboarding and the connect summary should
+  tell the user to enable it (SYSTEM → MIDI → BASIC); without it the app only
+  learns of kit changes.
+- [ ] **`P3` Name the pads.** `dims` carry counts and strides, not names: a panel
+  edit on the snare rim announces "Layer volume" with no pad. Add per-index
+  labels to the profile's dims (the unit order is in PROTOCOL §5) and speak them.
 - [ ] **`P2` Low-vision pass** — high-contrast theme + Dynamic Type hardening;
   re-enable `contrast` + `dynamicType` in the audit gate
   ([apps/ios/README.md](apps/ios/README.md) explains why they're excluded now).

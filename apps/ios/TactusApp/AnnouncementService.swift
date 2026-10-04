@@ -42,10 +42,14 @@ final class AnnouncementService {
         !(speech.category == .paramEdit && speech.source == .userInitiated)
     }
 
-    /// ADR-0014 §3 — kit navigation interrupts; everything else keeps the core's
+    /// ADR-0014 §3 — kit navigation interrupts, and so does a knob turned on the
+    /// module: Transmit Edit Data sends one message per step of a sweep, and only
+    /// the value settled on should be heard. Everything else keeps the core's
     /// priority (high already interrupts, low may be dropped by the system).
     static func effectivePriority(_ speech: Speech) -> SpeechPriority {
-        speech.category == .kitNav ? .high : speech.priority
+        if speech.category == .kitNav { return .high }
+        if speech.category == .paramEdit && speech.source == .deviceInitiated { return .high }
+        return speech.priority
     }
 
     private func post(_ speech: Speech, priority: SpeechPriority) {

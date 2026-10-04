@@ -135,6 +135,15 @@ pub struct ParameterDef {
     pub doc: Option<String>,
 }
 
+/// A parameter found at an address: its definition and the indices (the area's,
+/// then one per `dims` entry) that put it there — the inverse of
+/// [`DeviceProfile::address_of`].
+#[derive(Debug, Clone)]
+pub struct Located<'a> {
+    pub param: &'a ParameterDef,
+    pub indices: Vec<u32>,
+}
+
 impl ParameterDef {
     /// The documented label for a raw enum value (`labels[raw - range.min]`), or
     /// `None` if the parameter isn't an enum or the value is outside the list.
@@ -210,6 +219,45 @@ impl DeviceProfile {
             base = sysex::address::with_stride(base, pad_stride(&dim.stride), index);
         }
         Some(sysex::address::add_offset(base, &param.offset))
+    }
+
+    /// Which parameter starts at `address`, and at which indices — for a DT1 the
+    /// module sends on its own: with Transmit Edit Data on, a knob turned on the
+    /// panel arrives as a write to the parameter's own address, with the index of
+    /// the kit being edited (PROTOCOL §6). The inverse of [`Self::address_of`].
+    ///
+    /// `None` when no parameter *starts* there: an address inside a parameter,
+    /// or one the profile does not describe, is never guessed at.
+    pub fn locate(&self, address: [u8; 4]) -> Option<Located<'_>> {
+        let target = sysex::address::to_linear(address);
+        self.parameters.iter().find_map(|param| {
+            let area = self.areas.get(&param.area)?;
+            let offset = sysex::address::to_linear(pad_stride(&param.offset));
+            // Peel the grid outermost first: the area's repeat, then each dim.
+            let mut rem = target
+                .checked_sub(sysex::address::to_linear(area.address))?
+                .checked_sub(offset)?;
+            let mut indices = Vec::new();
+            if let Some(stride) = area.stride {
+                let stride = sysex::address::to_linear(stride);
+                let index = if stride == 0 { 0 } else { rem / stride };
+                if area.count.is_some_and(|c| index >= c) {
+                    return None;
+                }
+                indices.push(index);
+                rem -= index * stride;
+            }
+            for dim in &param.dims {
+                let stride = sysex::address::to_linear(pad_stride(&dim.stride));
+                let index = if stride == 0 { 0 } else { rem / stride };
+                if index >= dim.count {
+                    return None;
+                }
+                indices.push(index);
+                rem -= index * stride;
+            }
+            (rem == 0).then_some(Located { param, indices })
+        })
     }
 
     /// The highest kit number the module accepts (0-based), if the profile says.
