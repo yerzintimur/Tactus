@@ -5,12 +5,28 @@
 
 use serde::Deserialize;
 
-/// The instrument catalog: preset instruments plus expansion packs.
+/// The instrument catalog: preset instruments plus expansion packs, and the
+/// `Inst Bank` values that select among them on the wire. The banks are not in
+/// Roland's documents — they were read from the module (docs/PROTOCOL.md §5).
 #[derive(Debug, Clone, Deserialize)]
 pub struct Instruments {
+    /// The bank that selects a preset by its list number.
+    #[serde(default)]
+    pub preset_bank: u32,
+    /// Banks that are a single built-in instrument, whatever the number says
+    /// (the V31's SYNTH WAVE).
+    #[serde(default)]
+    pub builtin_banks: Vec<BuiltinBank>,
     pub preset: Vec<InstrumentEntry>,
     #[serde(default)]
     pub expansions: Vec<ExpansionPack>,
+}
+
+/// A bank holding one built-in instrument; selecting it ignores the number.
+#[derive(Debug, Clone, Deserialize)]
+pub struct BuiltinBank {
+    pub bank: u32,
+    pub name: String,
 }
 
 /// One instrument: its device number, doc group, display name, and remark
@@ -24,12 +40,14 @@ pub struct InstrumentEntry {
     pub flags: Vec<String>,
 }
 
-/// A downloadable instrument expansion (EXV) pack; numbering restarts at 1
-/// per pack (bank selection semantics to be confirmed on hardware).
+/// A downloadable instrument expansion (EXV) pack. Its instruments are numbered
+/// from 1 within the pack; `bank` is the `Inst Bank` value that selects it.
 #[derive(Debug, Clone, Deserialize)]
 pub struct ExpansionPack {
     pub id: String,
     pub title: String,
+    #[serde(default)]
+    pub bank: Option<u32>,
     pub instruments: Vec<InstrumentEntry>,
 }
 
@@ -90,6 +108,12 @@ mod tests {
         assert_eq!(snare.flags, ["M", "P", "X", "O"]);
         assert_eq!(cat.expansions.len(), 3);
         assert_eq!(cat.expansions[0].id, "EXV001");
+        // The banks the module selects these lists with (PROTOCOL §5).
+        assert_eq!(cat.preset_bank, 0);
+        assert_eq!(cat.builtin_banks[0].bank, 1);
+        assert_eq!(cat.builtin_banks[0].name, "SYNTH WAVE");
+        assert_eq!(cat.expansions[0].bank, Some(2007));
+        assert_eq!(cat.expansions[1].bank, Some(2008));
     }
 
     #[test]

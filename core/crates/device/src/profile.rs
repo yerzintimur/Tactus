@@ -117,6 +117,15 @@ pub struct ParameterDef {
     /// in the profile — speaking it as a quantity would be a lie.
     #[serde(default)]
     pub sentinel: Option<Sentinel>,
+    /// The catalog — a key of the profile's `catalogs` map — that names this
+    /// parameter's values: an instrument number, an FX type. The wire value
+    /// stays a number; the model layer speaks the name.
+    #[serde(default)]
+    pub catalog: Option<String>,
+    /// The parameter whose value, at the same indices, selects the bank within
+    /// `catalog`: a V31 instrument number names nothing without its `Inst Bank`.
+    #[serde(default)]
+    pub catalog_bank: Option<String>,
     /// Enum value labels (raw = range.min + position), verbatim from the docs.
     #[serde(default)]
     pub labels: Option<Vec<String>>,

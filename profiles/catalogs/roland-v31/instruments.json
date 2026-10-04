@@ -1,6 +1,6 @@
 {
  "schema_version": 1,
- "source": "Derived from Roland 'V31 Data List' (eng02), (c) Roland Corporation — facts (names/numbers) extracted by tools/parse_datalist.py.",
+ "source": "Derived from Roland 'V31 Data List' (eng02), (c) Roland Corporation — facts (names/numbers) extracted by tools/parse_datalist.py. Instrument banks (preset_bank, builtin_banks, expansions[].bank) are not in the document: read from a V31, see docs/PROTOCOL.md §5.",
  "remark_flags": {
   "M": "supports Mic Size / Mic Distance editing (Mic Size: kick only)",
   "P": "positional sensing (strike position / rim depth changes the sound)",
@@ -8,6 +8,13 @@
   "O": "supports Overtone editing",
   "L": "supports Lo Cut editing"
  },
+ "preset_bank": 0,
+ "builtin_banks": [
+  {
+   "bank": 1,
+   "name": "SYNTH WAVE"
+  }
+ ],
  "preset": [
   {
    "number": 0,
@@ -1942,6 +1949,7 @@
   {
    "id": "EXV001",
    "title": "Wood Room Studio UK 1",
+   "bank": 2007,
    "instruments": [
     {
      "number": 1,
@@ -2216,6 +2224,7 @@
   {
    "id": "EXV002",
    "title": "Electronic&Percussion 1",
+   "bank": 2008,
    "instruments": [
     {
      "number": 1,
@@ -6520,6 +6529,7 @@
   {
    "id": "EXV003",
    "title": "The Brush 1",
+   "bank": 2009,
    "instruments": [
     {
      "number": 1,

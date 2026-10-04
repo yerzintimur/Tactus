@@ -5,7 +5,8 @@ Emits our own derived data (committed under profiles/catalogs/roland-v31/):
   drum-kits.json    — the 200 preset kit names + sub names
   instruments.json  — preset instruments + EXV expansion packs, with group and
                       remark flags (*M mic, *P positional, *X cross-stick,
-                      *O overtone, *L lo-cut)
+                      *O overtone, *L lo-cut), plus the `Inst Bank` each list
+                      lives in (hardware-verified; the PDF has no such table)
   fx-types.json     — the 95 Bus FX types (read from the committed address map,
                       which is the cheaper/steadier source for that enum)
 
@@ -57,6 +58,18 @@ REMARK_FLAGS = {
     "O": "supports Overtone editing",
     "L": "supports Lo Cut editing",
 }
+
+# Instrument banks on the wire (`Inst Bank`, MIDI Implementation §3 KitUnitLayer).
+# The Data List only says an instrument is "selected by combining instrument
+# banks and instrument numbers"; which bank is which was read from a V31
+# (fw 0.2.1.0, 2026-10-04): bank 0 selects a preset by its list number, bank 1 is
+# SYNTH WAVE (the built-in synth, number 0), and expansion pack EXVnnn is bank
+# 2006 + nnn — EXV001 → 2007 and EXV002 → 2008 confirmed by the kits built on
+# them ("UK Wet Booth" kick = EXV001 #1 "Cm Vintage K", "TR-808" kick = EXV002
+# #97 "TR-808 Kick 1"). See docs/PROTOCOL.md §5.
+PRESET_BANK = 0
+EXPANSION_BANK_BASE = 2006
+BUILTIN_BANKS = [{"bank": 1, "name": "SYNTH WAVE"}]
 
 EXV_HEADING = re.compile(r"^(EXV\d+):\s*(.+)$")
 FLAGS_ONLY = re.compile(r"^(\*[A-Z]\s*)+$")
@@ -181,7 +194,12 @@ def parse_instruments(pdf) -> tuple[list[dict], list[dict]]:
             m = EXV_HEADING.match("".join(row["cells"]))
             if m:
                 expansions.append(
-                    {"id": m.group(1), "title": m.group(2).strip(), "instruments": []}
+                    {
+                        "id": m.group(1),
+                        "title": m.group(2).strip(),
+                        "bank": EXPANSION_BANK_BASE + int(m.group(1)[3:]),
+                        "instruments": [],
+                    }
                 )
                 current = expansions[-1]["instruments"]
                 continue
@@ -257,8 +275,12 @@ def main() -> None:
         args.out / "instruments.json",
         {
             "schema_version": 1,
-            "source": SOURCE,
+            "source": SOURCE
+            + " Instrument banks (preset_bank, builtin_banks, expansions[].bank) are"
+            " not in the document: read from a V31, see docs/PROTOCOL.md §5.",
             "remark_flags": REMARK_FLAGS,
+            "preset_bank": PRESET_BANK,
+            "builtin_banks": BUILTIN_BANKS,
             "preset": preset,
             "expansions": expansions,
         },

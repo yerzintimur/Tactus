@@ -115,8 +115,8 @@ and verified; keep this file honest about real state.
   bus FX type/switch, overhead/room/reverb) — every parameter carries a `doc`
   ref and is **cross-checked byte-for-byte against the parsed map** by
   `device/tests/map_crosscheck.rs`. Found & fixed: `sub_name` is 64 bytes, not
-  16. *(Deferred: per-FX-type parameter names for the 95 MFX types; expansion
-  bank numbering to confirm on hardware.)*
+  16. *(Deferred: per-FX-type parameter names for the 95 MFX types. Expansion
+  bank numbering read from the module 2026-10-04 — PROTOCOL §5.)*
 
 ## M4 — Finish the Apple app toward V1
 
@@ -295,11 +295,18 @@ and verified; keep this file honest about real state.
   labels and value phrasing in both catalogs; enum values speak the module's own
   word (tagged English) rather than a raw number. A test walks every parameter in
   every locale, so an unlabelled parameter fails the build.
-- [ ] **`P2` Speak instrument and effect *names*, not numbers** —
-  `kit.unit.layer.instrument` and `kit.fx.type` are raw numbers today; the
-  catalogs to resolve them (`InstrumentCatalog`, `fx-types.json`) already exist
-  but are not wired into `format_parameter`. Needed before the M4 editors are
-  usable eyes-closed.
+- [x] **`P2` Speak instrument and effect *names*, not numbers.** A parameter
+  may bind a `catalog` (and, for the V31's instruments, the `catalog_bank`
+  parameter that selects the bank at the same indices); `format_parameter` then
+  speaks the catalogued name as device content — `kit.fx.type` 13 is "PHASER"
+  end to end, read-back confirmation included. Instruments need both numbers:
+  reading the module showed bank 0 = presets, bank 1 = SYNTH WAVE, bank 2006+n =
+  pack EXVnnn (PROTOCOL §5), so `format_parameter_in_bank(def, bank, number)`
+  names "TR-808 Kick 1", and an uncatalogued pack says "Instrument #3 in bank
+  2032 (unknown)" rather than guessing a preset. *Remaining for the kit editor:*
+  read `inst_bank` alongside the instrument (same indices) and announce through
+  the banked formatter — the engine's value cache is still keyed by parameter id
+  alone, with no indices.
 - [x] **`P2` The `-INF` sentinel reads as silence.** Raw −601 on every dB
   parameter is `-INF` on the module's screen — silence, not "−60.1 dB". The nine
   dB parameters now carry a `sentinel` (the mechanism the set-list `END` uses) and

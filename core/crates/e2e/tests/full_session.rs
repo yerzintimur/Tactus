@@ -514,3 +514,18 @@ fn a_level_at_its_floor_is_confirmed_as_silence() {
         .run_to_idle();
     assert!(has_speak(h.events(), "-60.0 dB"));
 }
+
+/// An FX type is a number on the wire and a name on the module's screen; the
+/// read-back confirmation speaks the name — the word a drummer cross-checking the
+/// module or its manual will find.
+#[test]
+fn a_catalogued_value_is_confirmed_by_name() {
+    let mut h = Harness::v31("en");
+    h.connect().run_to_idle();
+    h.take_events();
+
+    h.set_parameter("kit.fx.type", vec![4, 0], 13).run_to_idle();
+    assert!(has_speak(h.events(), "PHASER"));
+    assert!(h.events().iter().any(|e| matches!(e,
+        CoreEvent::EditConfirmed { display, .. } if display == "PHASER")));
+}

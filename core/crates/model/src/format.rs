@@ -1,14 +1,40 @@
 //! Turn a parameter's raw value into a localizable [`Message`]. Scaling/units come
 //! from the device profile; the actual phrasing lives in the Fluent catalogs.
 
+use crate::catalog::Catalogs;
 use crate::i18n::Message;
 use device::ParameterDef;
 
 /// Build a localizable message for a numeric parameter's raw value.
 ///
 /// Applies the profile's `scale` for display (e.g. tempo raw 1200, scale 10 ->
-/// "120.0"), and uses the parameter's `i18n_key` as the message id.
-pub fn format_parameter(param: &ParameterDef, raw: i64) -> Message {
+/// "120.0"), and uses the parameter's `i18n_key` as the message id. A value the
+/// profile binds to a `catalog` speaks its name instead ("PHASER"). A parameter
+/// whose catalog is banked (`catalog_bank`) cannot be named from the number
+/// alone and speaks the bare number here — see [`format_parameter_in_bank`].
+pub fn format_parameter(param: &ParameterDef, raw: i64, catalogs: &Catalogs) -> Message {
+    format_in_bank(param, None, raw, catalogs)
+}
+
+/// [`format_parameter`] for a value whose catalog is banked: a V31 instrument is
+/// a number *within* the bank its `catalog_bank` parameter holds at the same
+/// indices, and the same 97 is a tom in the presets and "TR-808 Kick 1" in the
+/// Electronic pack (PROTOCOL §5). Callers that have read both pass the bank here.
+pub fn format_parameter_in_bank(
+    param: &ParameterDef,
+    bank: u32,
+    raw: i64,
+    catalogs: &Catalogs,
+) -> Message {
+    format_in_bank(param, Some(bank), raw, catalogs)
+}
+
+fn format_in_bank(
+    param: &ParameterDef,
+    bank: Option<u32>,
+    raw: i64,
+    catalogs: &Catalogs,
+) -> Message {
     // A sentinel is not a quantity: -1 on a set-list step is the end of the list,
     // -601 on a level is silence. Speaking the number instead would be a lie the
     // user cannot see through — they have only what we say.
@@ -16,6 +42,16 @@ pub fn format_parameter(param: &ParameterDef, raw: i64) -> Message {
         && sentinel.raw == raw
     {
         return Message::new(sentinel.i18n_key.clone());
+    }
+
+    // A catalogued value is a *name* on the module's screen — "TR-808 Kick 1",
+    // "PHASER" — and that is what the drummer hears, as device content
+    // (ADR-0011). A banked catalog answers only when given its bank; otherwise
+    // the number below is the honest fallback, never a guessed name.
+    if let Some(catalog) = &param.catalog
+        && let Some(message) = catalogs.label(catalog, bank, raw)
+    {
+        return message;
     }
 
     // An enum value is the module's own word ("SRV-2000", "WARM HALL") — spoken
@@ -81,6 +117,18 @@ mod tests {
     use crate::i18n::Localizer;
     use device::DeviceProfile;
 
+    /// The formatter with no catalogs loaded — every value is a number.
+    fn fmt(param: &ParameterDef, raw: i64) -> Message {
+        format_parameter(param, raw, &Catalogs::empty())
+    }
+
+    fn v31() -> DeviceProfile {
+        device::ProfileRegistry::with_builtin()
+            .match_model(&[1, 6, 1])
+            .expect("built-in V31")
+            .clone()
+    }
+
     const PROFILE: &str = r#"{
         "schema_version": 1,
         "profile_id": "t",
@@ -103,7 +151,7 @@ mod tests {
     fn scaled_tempo_renders_with_unit() {
         let p = profile();
         let tempo = p.parameter("kit.common.tempo").unwrap();
-        let msg = format_parameter(tempo, 1200);
+        let msg = fmt(tempo, 1200);
         let loc = Localizer::new();
         assert_eq!(loc.format(&msg, "en"), "120.0 BPM");
         assert_eq!(loc.format(&msg, "ru"), "120.0 уд/мин");
@@ -113,7 +161,7 @@ mod tests {
     fn unscaled_value_is_integer() {
         let p = profile();
         let sw = p.parameter("kit.common.tempo_switch").unwrap();
-        let msg = format_parameter(sw, 1);
+        let msg = fmt(sw, 1);
         assert_eq!(Localizer::new().format(&msg, "en"), "Tempo switch: 1");
     }
 
@@ -168,7 +216,7 @@ mod tests {
                 if param.labels.is_none()
                     && let Some(range) = param.range
                 {
-                    let value = loc.format(&format_parameter(param, range.min), locale);
+                    let value = loc.format(&fmt(param, range.min), locale);
                     assert_ne!(
                         value, unresolved,
                         "{} has no {locale} value phrasing",
@@ -190,9 +238,9 @@ mod tests {
         let kit_num = profile.parameter("current.kit_num").expect("kit num");
         let loc = Localizer::new();
 
-        assert_eq!(loc.format(&format_parameter(kit_num, 4), "en"), "Kit 5");
-        assert_eq!(loc.format(&format_parameter(kit_num, 199), "en"), "Kit 200");
-        assert_eq!(loc.format(&format_parameter(kit_num, 4), "ru"), "Кит 5");
+        assert_eq!(loc.format(&fmt(kit_num, 4), "en"), "Kit 5");
+        assert_eq!(loc.format(&fmt(kit_num, 199), "en"), "Kit 200");
+        assert_eq!(loc.format(&fmt(kit_num, 4), "ru"), "Кит 5");
     }
 
     /// A sentinel is not a quantity: the last step of a set list holds −1, which
@@ -204,16 +252,10 @@ mod tests {
         let step = profile.parameter("setlist.step").expect("set-list step");
         let loc = Localizer::new();
 
-        assert_eq!(
-            loc.format(&format_parameter(step, -1), "en"),
-            "End of the set list"
-        );
-        assert_eq!(
-            loc.format(&format_parameter(step, -1), "ru"),
-            "Конец сет-листа"
-        );
+        assert_eq!(loc.format(&fmt(step, -1), "en"), "End of the set list");
+        assert_eq!(loc.format(&fmt(step, -1), "ru"), "Конец сет-листа");
         // Every other value is still a kit, counted from 1.
-        assert_eq!(loc.format(&format_parameter(step, 46), "en"), "Kit 47");
+        assert_eq!(loc.format(&fmt(step, 46), "en"), "Kit 47");
     }
 
     /// A level turned all the way down stores −601, which the module's screen
@@ -234,24 +276,68 @@ mod tests {
         assert!(levels.len() >= 9, "the V31 profile has nine dB parameters");
         for level in levels {
             assert_eq!(
-                loc.format(&format_parameter(level, -601), "en"),
+                loc.format(&fmt(level, -601), "en"),
                 "Silent",
                 "{}",
                 level.id
             );
             assert_eq!(
-                loc.format(&format_parameter(level, -601), "ru"),
+                loc.format(&fmt(level, -601), "ru"),
                 "Тишина",
                 "{}",
                 level.id
             );
             assert_eq!(
-                loc.format(&format_parameter(level, -600), "en"),
+                loc.format(&fmt(level, -600), "en"),
                 "-60.0 dB",
                 "{}",
                 level.id
             );
         }
+    }
+
+    /// The module stores an FX type as a number and shows its name on screen; the
+    /// catalog gives the drummer the same word, tagged as device content.
+    #[test]
+    fn catalogued_values_speak_the_name_on_the_modules_screen() {
+        let profile = v31();
+        let cats = Catalogs::for_profile(&profile);
+        let fx = profile.parameter("kit.fx.type").expect("fx type");
+        let loc = Localizer::new();
+
+        let msg = format_parameter(fx, 13, &cats);
+        assert_eq!(loc.format(&msg, "en"), "PHASER");
+        assert_eq!(loc.format(&msg, "ru"), "PHASER");
+        assert_eq!(loc.format_spans(&msg, "ru").spans[0].lang, "en");
+        assert_eq!(
+            loc.format(&format_parameter(fx, 94, &cats), "en"),
+            "JD-MULTI"
+        );
+        // Past the list (a firmware we have not catalogued): the number, honestly.
+        assert_eq!(loc.format(&format_parameter(fx, 95, &cats), "en"), "95");
+    }
+
+    /// An instrument number names nothing without its bank — read from the V31,
+    /// 97 is a tom among the presets and "TR-808 Kick 1" in the Electronic pack
+    /// (PROTOCOL §5). With the bank, the name; without it, the bare number —
+    /// never a guess.
+    #[test]
+    fn an_instrument_is_named_only_together_with_its_bank() {
+        let profile = v31();
+        let cats = Catalogs::for_profile(&profile);
+        let inst = profile
+            .parameter("kit.unit.layer.instrument")
+            .expect("instrument");
+        let loc = Localizer::new();
+
+        let named = |bank, raw| loc.format(&format_parameter_in_bank(inst, bank, raw, &cats), "en");
+        assert_eq!(named(2008, 97), "TR-808 Kick 1");
+        assert_eq!(named(0, 35), "DW Concrete S");
+        assert_eq!(named(1, 0), "SYNTH WAVE");
+        // A pack installed on the module that we have not catalogued.
+        assert_eq!(named(2032, 3), "Instrument #3 in bank 2032 (unknown)");
+        // The number alone is spoken as a number, not as a preset name.
+        assert_eq!(loc.format(&format_parameter(inst, 97, &cats), "en"), "97");
     }
 
     #[test]
@@ -262,7 +348,7 @@ mod tests {
         let loc = Localizer::new();
 
         // Roland's name, not a number and not a translation — in either language.
-        let msg = format_parameter(reverb, 2);
+        let msg = fmt(reverb, 2);
         assert_eq!(loc.format(&msg, "en"), "WARM HALL");
         assert_eq!(loc.format(&msg, "ru"), "WARM HALL");
         // …and tagged as English so a Russian voice doesn't mangle it (ADR-0011).

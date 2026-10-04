@@ -8,7 +8,7 @@ core is built on. The PDFs themselves are © Roland and deliberately **not** in 
 | Script | Input (git-ignored) | Output (committed) |
 |---|---|---|
 | `parse_midi_impl.py` | a MIDI Implementation PDF, §3 "Parameter Address Map" | [profiles/maps/](../profiles/maps/) — every block, parameter offset, size, encoding, range, and value-label list, plus the pad/bus assignment tables |
-| `parse_datalist.py` | V31 Data List PDF (+ the address map, for the FX enum) | [profiles/catalogs/roland-v31/](../profiles/catalogs/roland-v31/) — `drum-kits.json` (200 kits), `instruments.json` (preset + EXV expansion packs, with group and remark flags), `fx-types.json` (95 Bus FX types) |
+| `parse_datalist.py` | V31 Data List PDF (+ the address map, for the FX enum) | [profiles/catalogs/roland-v31/](../profiles/catalogs/roland-v31/) — `drum-kits.json` (200 kits), `instruments.json` (preset + EXV expansion packs, with group and remark flags, and the `Inst Bank` each list lives in — read from the module, the PDF has no such table: PROTOCOL §5), `fx-types.json` (95 Bus FX types) |
 
 **`parse_midi_impl.py` is device-agnostic.** The table grammar belongs to Roland,
 not to one module, so a new module contributes an entry in the script's `DEVICES`

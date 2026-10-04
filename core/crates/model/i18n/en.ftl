@@ -34,6 +34,8 @@ param-tempo-switch-label = Tempo switch
 
 instrument-name = { $name }
 instrument-unknown = Instrument #{ $number } (unknown)
+# A bank we have no catalog for — an expansion pack not yet catalogued.
+instrument-unknown-bank = Instrument #{ $number } in bank { $bank } (unknown)
 
 edit-mismatch = Couldn't change it — it's still { $value }.
 edit-timeout = No response — the value is unknown. Check the connection.

@@ -194,6 +194,8 @@
         { "name": "layer", "count": 3, "stride": [0, 64, 0] },
         { "name": "unit", "count": 28, "stride": [0, 2, 0] }
       ],
+      "catalog": "instruments",
+      "catalog_bank": "kit.unit.layer.inst_bank",
       "i18n_key": "param.layer_instrument",
       "doc": "KitUnitLayer/Instrument"
     },
@@ -277,6 +279,7 @@
       "encoding": "plain7",
       "dims": [{ "name": "fx", "count": 8, "stride": [0, 2, 0] }],
       "range": { "min": 0, "max": 94 },
+      "catalog": "fx-types",
       "i18n_key": "param.fx_type",
       "doc": "KitFx/Bus Fx Type"
     },

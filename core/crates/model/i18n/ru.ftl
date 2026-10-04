@@ -33,6 +33,8 @@ param-tempo-switch-label = Переключатель темпа
 
 instrument-name = { $name }
 instrument-unknown = Инструмент №{ $number } (неизвестен)
+# Банк, для которого у нас нет каталога — ещё не описанный пак расширения.
+instrument-unknown-bank = Инструмент №{ $number } в банке { $bank } (неизвестен)
 
 edit-mismatch = Не удалось изменить — осталось { $value }.
 edit-timeout = Нет ответа — значение неизвестно. Проверьте подключение.

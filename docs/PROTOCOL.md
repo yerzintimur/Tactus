@@ -208,6 +208,28 @@ list is active (see the open question below).
 - `KitPad` index 1–14 (per-pad, not per-zone): KICK..AUX4.
 - `KitFx` index 1–4: BUS-A FX1/2, BUS-B FX1/2.
 
+### Instrument banks (`Inst Bank`) — read from the module (2026-10-04)
+A layer's instrument is **two numbers**: `Instrument` (`00 01`–`00 04`) and
+`Inst Bank` (`00 05`–`00 08`), both open-ended in the doc (`0 -`). The Data List
+says only that an instrument is selected "by combining instrument banks and
+instrument numbers" (000 OFF, 001– presets and Instrument Expansions, SYNTH WAVE,
+U001–U500 user samples); which bank is which is written nowhere. Read from the
+V31 (fw 0.2.1.0): the kick's layer A on all 200 kits, plus the full layer blocks
+of kits 1 and 9.
+
+| `Inst Bank` | Meaning | Evidence |
+|---|---|---|
+| `0` | the **preset** list; number = Data List number | kit 1 "Studio A": 21 (kick), 35/36 (snare head/rim), 114–121 (toms), 147/148 (hi-hat), 158–160 (ride), 188–193 (crashes) — every unit in the right group |
+| `1` | **SYNTH WAVE**, the built-in synth; the number is `0` | kits 9 "Pure Analog" and 45 "Electro Synth": every unit `0 @ 1`, the sound lives in the forty V-EDIT parameters |
+| `2006 + n` | expansion pack **EXV<nnn>**; number = its own 1-based list | `2007`: kit 46 "UK Wet Booth" kick = EXV001 #1 "Cm Vintage K". `2008`: "TR-808" kick = EXV002 #97 "TR-808 Kick 1", "TR-909" #109 "TR-909 Low Kick", "TR-707" #111 "TR-707 Kick", "CR-78" #96 "CR-78 Kick", "Orchestral" #450 "Concert BD" |
+| `2024`, `2032` | packs installed on this unit that the Data List does not list (EXV018 / EXV026 by the formula — the pack identity is unconfirmed) | user kits 79–91 ("Gumwood Forge", "DP Standard Kit", …), numbers 1–4 |
+
+Consequences: **a number alone names nothing** — speak an instrument only with
+its bank (`format_parameter_in_bank`), never assume preset; 97 is a tom in bank 0
+and a TR-808 kick in bank 2008. The bank of user samples (U001–U500) was not
+observed. The catalog carries these as data (`preset_bank`, `builtin_banks`,
+`expansions[].bank`), emitted by `tools/parse_datalist.py`.
+
 (Exact offsets within a pad/layer — instrument, pitch, decay, volume, pan, EQ,
 comp, sends — come from the address-map tables; capture them in the generated
 parameter-map JSON, §13 of SPEC, cross-checked against the Data List.)

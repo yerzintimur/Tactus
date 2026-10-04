@@ -420,3 +420,56 @@ fn named_doc_values_are_sentinels_in_the_profile() {
         "nine dB levels and the set-list step carry sentinels; found {sentinels}"
     );
 }
+
+/// A `catalog` binding must name a catalog the profile ships, and a
+/// `catalog_bank` a parameter that sits next to it — same area, same repeat grid
+/// — so the bank read at the instrument's indices is that instrument's own.
+#[test]
+fn catalog_bindings_resolve() {
+    let p = v31();
+    let mut bound = 0;
+
+    for param in &p.parameters {
+        if let Some(catalog) = &param.catalog {
+            assert!(
+                p.catalogs.contains_key(catalog),
+                "{}: catalog {catalog:?} is not in the profile's catalogs",
+                param.id
+            );
+            bound += 1;
+        }
+        if let Some(bank_id) = &param.catalog_bank {
+            assert!(
+                param.catalog.is_some(),
+                "{}: a bank without a catalog",
+                param.id
+            );
+            let bank = p.parameter(bank_id).unwrap_or_else(|| {
+                panic!("{}: catalog_bank {bank_id:?} is not a parameter", param.id)
+            });
+            assert_eq!(
+                bank.area, param.area,
+                "{}: the bank lives in another area",
+                param.id
+            );
+            assert_eq!(
+                bank.dims.len(),
+                param.dims.len(),
+                "{}: the bank repeats differently",
+                param.id
+            );
+            for (a, b) in bank.dims.iter().zip(&param.dims) {
+                assert_eq!(
+                    (&a.name, a.count, &a.stride),
+                    (&b.name, b.count, &b.stride),
+                    "{}: dim grid",
+                    param.id
+                );
+            }
+        }
+    }
+    assert!(
+        bound >= 2,
+        "the instrument and the FX type are catalogued; found {bound}"
+    );
+}

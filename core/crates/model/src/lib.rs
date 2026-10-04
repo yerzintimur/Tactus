@@ -11,8 +11,11 @@ mod i18n;
 mod intent;
 mod ui;
 
-pub use catalog::InstrumentCatalog;
-pub use format::{format_kit, format_parameter, format_parameter_label, format_setlist_step};
+pub use catalog::{Catalogs, InstrumentCatalog};
+pub use format::{
+    format_kit, format_parameter, format_parameter_in_bank, format_parameter_label,
+    format_setlist_step,
+};
 pub use i18n::{
     AVAILABLE_LOCALES, Arg, DEVICE_CONTENT_LANG, LocaleInfo, LocalizedText, Localizer, Message,
     TextSpan,

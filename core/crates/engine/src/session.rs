@@ -11,7 +11,7 @@ use crate::setlist::{END, SetlistState, StepEdge, StepWrite};
 use crate::viewmodel::{self, KitRef, ParamKind, ParamValue, ParameterView, SetlistView, Snapshot};
 use device::{DeviceProfile, FirmwareSupport, FirmwareVersion, ProfileRegistry};
 use model::{
-    LocalizedText, Localizer, Message, UiString, format_kit, format_parameter,
+    Catalogs, LocalizedText, Localizer, Message, UiString, format_kit, format_parameter,
     format_parameter_label, format_setlist_step,
 };
 use std::collections::HashMap;
@@ -121,6 +121,9 @@ pub struct Session {
     state: ConnectionState,
     device_id: u8,
     profile: Option<DeviceProfile>,
+    /// The value catalogs the profile names (instrument and FX-type names), so a
+    /// catalogued number is spoken as the word on the module's screen.
+    catalogs: Catalogs,
     /// The identified module (cached so `snapshot` can report it after the
     /// one-shot `DeviceIdentified` event).
     device_info: Option<DeviceInfo>,
@@ -157,6 +160,7 @@ impl Session {
             state: ConnectionState::Disconnected,
             device_id: IDENTITY_DEVICE_ID,
             profile: None,
+            catalogs: Catalogs::empty(),
             device_info: None,
             current_kit: None,
             values: HashMap::new(),
@@ -319,6 +323,7 @@ impl Session {
                     profile_id: profile.profile_id.clone(),
                     recognized: true,
                 };
+                self.catalogs = Catalogs::for_profile(&profile);
                 self.profile = Some(profile);
                 self.device_info = Some(info.clone());
                 self.device_id = device_id;
@@ -767,7 +772,7 @@ impl Session {
             let Some(raw) = def.encoding.decode_int(data) else {
                 return Vec::new();
             };
-            (format_parameter(def, raw), raw)
+            (format_parameter(def, raw, &self.catalogs), raw)
         };
         self.values
             .insert("kit.common.tempo".to_string(), ParamValue::Int(raw));
@@ -1380,7 +1385,7 @@ impl Session {
     /// Localize a numeric parameter's value for speech (e.g. 1300 -> "130.0 BPM").
     fn render_int_value(&self, param_id: &str, value: i64) -> String {
         match self.profile.as_ref().and_then(|p| p.parameter(param_id)) {
-            Some(def) => self.render(&format_parameter(def, value)),
+            Some(def) => self.render(&format_parameter(def, value, &self.catalogs)),
             None => value.to_string(),
         }
     }
@@ -1434,7 +1439,9 @@ impl Session {
                 let kind = ParamKind::of(def);
                 let value = self.values.get(&def.id).cloned();
                 let display = value.as_ref().map(|v| match v {
-                    ParamValue::Int(raw) => self.render(&format_parameter(def, *raw)),
+                    ParamValue::Int(raw) => {
+                        self.render(&format_parameter(def, *raw, &self.catalogs))
+                    }
                     ParamValue::Text(text) => text.clone(),
                 });
                 let numeric =
