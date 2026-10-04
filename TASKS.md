@@ -270,9 +270,12 @@ and verified; keep this file honest about real state.
   map, so the app cannot switch it on. Onboarding and the connect summary should
   tell the user to enable it (SYSTEM → MIDI → BASIC); without it the app only
   learns of kit changes.
-- [ ] **`P3` Name the pads.** `dims` carry counts and strides, not names: a panel
-  edit on the snare rim announces "Layer volume" with no pad. Add per-index
-  labels to the profile's dims (the unit order is in PROTOCOL §5) and speak them.
+- [x] **`P3` Name the pads.** The profile's `dimensions` name every position a
+  parameter repeats over (`unit` 1–28, `pad` 1–14, `layer` A–C, `fx` 1–8 by bus;
+  set-list steps by number), from the MIDI Implementation's index tables; a
+  panel edit is spoken from the pad outwards — "Snare rim, Layer A, Layer
+  volume: 0.5 dB", cymbal zones as bow/edge. Not yet used by any screen: the
+  pad/layer screens, when they come, take their row labels from the same data.
 - [ ] **`P2` Low-vision pass** — high-contrast theme + Dynamic Type hardening;
   re-enable `contrast` + `dynamicType` in the audit gate
   ([apps/ios/README.md](apps/ios/README.md) explains why they're excluded now).

@@ -13,8 +13,8 @@ mod ui;
 
 pub use catalog::{Catalogs, InstrumentCatalog};
 pub use format::{
-    format_kit, format_parameter, format_parameter_in_bank, format_parameter_label,
-    format_setlist_step,
+    format_dim_label, format_kit, format_located_label, format_parameter, format_parameter_in_bank,
+    format_parameter_label, format_setlist_step,
 };
 pub use i18n::{
     AVAILABLE_LOCALES, Arg, DEVICE_CONTENT_LANG, LocaleInfo, LocalizedText, Localizer, Message,

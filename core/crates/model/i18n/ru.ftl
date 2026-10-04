@@ -146,3 +146,67 @@ param-reverb-switch-label = Реверберация
 param-reverb-type-label = Тип реверберации
 param-reverb-level = { $value } дБ
 param-reverb-level-label = Уровень реверберации
+
+# Имена позиций, по которым повторяется параметр (`dimensions` профиля).
+# Произносятся перед параметром: «Обод малого, Слой A, Громкость слоя: 0.5 дБ».
+# Ключи следуют Data List Roland, где зоны любого пэда называются HEAD/RIM
+# (у райда ещё EDGE и BELL); озвучка — словами барабанщика.
+pad-kick = Бочка
+pad-snare = Малый
+pad-snare-head = Пластик малого
+pad-snare-rim = Обод малого
+pad-tom1 = Том 1
+pad-tom1-head = Пластик тома 1
+pad-tom1-rim = Обод тома 1
+pad-tom2 = Том 2
+pad-tom2-head = Пластик тома 2
+pad-tom2-rim = Обод тома 2
+pad-tom3 = Том 3
+pad-tom3-head = Пластик тома 3
+pad-tom3-rim = Обод тома 3
+pad-tom4 = Том 4
+pad-tom4-head = Пластик тома 4
+pad-tom4-rim = Обод тома 4
+pad-hihat = Хай-хэт
+pad-hihat-head = Боу хай-хэта
+pad-hihat-rim = Край хай-хэта
+pad-crash1 = Крэш 1
+pad-crash1-head = Боу крэша 1
+pad-crash1-rim = Край крэша 1
+pad-crash2 = Крэш 2
+pad-crash2-head = Боу крэша 2
+pad-crash2-rim = Край крэша 2
+pad-ride = Райд
+pad-ride-head = Боу райда
+pad-ride-edge = Край райда
+pad-ride-bell = Колокол райда
+# Первый дополнительный вход модуль подписывает AUX, остальные — AUX2–AUX4.
+pad-aux = Aux
+pad-aux-head = Пластик Aux
+pad-aux-rim = Обод Aux
+pad-aux2 = Aux 2
+pad-aux2-head = Пластик Aux 2
+pad-aux2-rim = Обод Aux 2
+pad-aux3 = Aux 3
+pad-aux3-head = Пластик Aux 3
+pad-aux3-rim = Обод Aux 3
+pad-aux4 = Aux 4
+pad-aux4-head = Пластик Aux 4
+pad-aux4-rim = Обод Aux 4
+
+layer-a = Слой A
+layer-b = Слой B
+layer-c = Слой C
+
+# Слоты эффектов кита: по два на шину, четыре шины (BUS-A FX1 … BUS-D FX2).
+fx-bus-a-1 = Шина A, эффект 1
+fx-bus-a-2 = Шина A, эффект 2
+fx-bus-b-1 = Шина B, эффект 1
+fx-bus-b-2 = Шина B, эффект 2
+fx-bus-c-1 = Шина C, эффект 1
+fx-bus-c-2 = Шина C, эффект 2
+fx-bus-d-1 = Шина D, эффект 1
+fx-bus-d-2 = Шина D, эффект 2
+
+# Позиция, у которой есть только номер (с 1, как на экране модуля).
+dim-step = Шаг { $number }

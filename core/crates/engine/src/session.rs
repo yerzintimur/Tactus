@@ -11,8 +11,8 @@ use crate::setlist::{END, SetlistState, StepEdge, StepWrite};
 use crate::viewmodel::{self, KitRef, ParamKind, ParamValue, ParameterView, SetlistView, Snapshot};
 use device::{DeviceProfile, FirmwareSupport, FirmwareVersion, ProfileRegistry};
 use model::{
-    Catalogs, LocalizedText, Localizer, Message, UiString, format_kit, format_parameter,
-    format_parameter_label, format_setlist_step,
+    Catalogs, LocalizedText, Localizer, Message, UiString, format_kit, format_located_label,
+    format_parameter, format_parameter_label, format_setlist_step,
 };
 use std::collections::HashMap;
 use sysex::SysexMessage;
@@ -555,8 +555,9 @@ impl Session {
     /// A write the module made on its own: with Transmit Edit Data on, a knob
     /// turned on the panel arrives as a DT1 to the parameter's own address, one
     /// per step of the sweep (PROTOCOL §6). The screen reader cannot see it, so
-    /// it is announced as "Label: value", tagged device-initiated — the platform
-    /// lets each step of a sweep interrupt the last. An address the profile does
+    /// it is announced from the pad outwards — "Snare rim, Layer A, Layer
+    /// volume: 0.5 dB" — tagged device-initiated; the platform lets each step of
+    /// a sweep interrupt the last. An address the profile does
     /// not describe is ignored, never guessed at. The value is cached only where
     /// the cache can hold it: a parameter without a repeat grid, on the kit we
     /// are on (the cache is keyed by parameter id alone).
@@ -586,7 +587,14 @@ impl Session {
                 self.render_spoken(&format_parameter(def, *raw, &self.catalogs))
             }
         };
-        let mut text = self.render_spoken(&format_parameter_label(def));
+        // Named from the pad outwards: "Snare rim, Layer A, Layer volume: 0.5 dB".
+        let mut text = LocalizedText::default();
+        for part in format_located_label(profile, &located) {
+            if !text.text.is_empty() {
+                text.push_str(", ");
+            }
+            text.push(&self.render_spoken(&part));
+        }
         text.push_str(": ");
         text.push(&spoken_value);
 

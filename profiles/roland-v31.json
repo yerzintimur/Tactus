@@ -13,7 +13,7 @@
   },
   "capabilities": {
     "kit_count": 200,
-    "fx_slots": 4,
+    "fx_slots": 8,
     "features": ["transmit_edit_data", "ambience", "bus_fx", "set_lists"]
   },
   "areas": {
@@ -22,6 +22,42 @@
     "trigger": { "address": [2, 0, 0, 0], "stride": [0, 1, 0, 0], "count": 16 },
     "setlist": { "address": [3, 0, 0, 0], "stride": [0, 0, 16, 0], "count": 32 },
     "kit":     { "address": [4, 0, 0, 0], "stride": [0, 4, 0, 0], "count": 200 }
+  },
+  "dimensions": {
+    "unit": {
+      "doc": "MIDI Implementation, 'Pad assignments': KitUnitCommon / KitUnitLayer index 1-28. Keys use the Data List's zone words (HEAD/RIM on every pad, EDGE/BELL on the ride); the spoken names are the drummer's.",
+      "labels": [
+        "pad.kick", "pad.snare.head", "pad.snare.rim", "pad.tom1.head",
+        "pad.tom1.rim", "pad.tom2.head", "pad.tom2.rim", "pad.tom3.head",
+        "pad.tom3.rim", "pad.tom4.head", "pad.tom4.rim", "pad.hihat.head",
+        "pad.hihat.rim", "pad.crash1.head", "pad.crash1.rim", "pad.crash2.head",
+        "pad.crash2.rim", "pad.ride.head", "pad.ride.edge", "pad.ride.bell",
+        "pad.aux.head", "pad.aux.rim", "pad.aux2.head", "pad.aux2.rim",
+        "pad.aux3.head", "pad.aux3.rim", "pad.aux4.head", "pad.aux4.rim"
+      ]
+    },
+    "pad": {
+      "doc": "MIDI Implementation, 'Pad assignments': KitPad index 1-14 (per pad, not per zone).",
+      "labels": [
+        "pad.kick", "pad.snare", "pad.tom1", "pad.tom2", "pad.tom3", "pad.tom4", "pad.hihat",
+        "pad.crash1", "pad.crash2", "pad.ride", "pad.aux", "pad.aux2", "pad.aux3", "pad.aux4"
+      ]
+    },
+    "layer": {
+      "doc": "KitUnitLayer blocks 'Kit Unit LayerA/B/C' (Data List address map).",
+      "labels": ["layer.a", "layer.b", "layer.c"]
+    },
+    "fx": {
+      "doc": "MIDI Implementation, 'Pad assignments': KitFx index 1-8 = BUS-A FX1, BUS-A FX2, BUS-B FX1, ... BUS-D FX2.",
+      "labels": [
+        "fx.bus_a.1", "fx.bus_a.2", "fx.bus_b.1", "fx.bus_b.2",
+        "fx.bus_c.1", "fx.bus_c.2", "fx.bus_d.1", "fx.bus_d.2"
+      ]
+    },
+    "step": {
+      "doc": "Set-list steps have no names, only 1-based numbers.",
+      "i18n_key": "dim.step"
+    }
   },
   "parameters": [
     {

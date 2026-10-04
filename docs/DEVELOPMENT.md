@@ -117,8 +117,7 @@ Roland; различаются данные.** Поэтому:
 
   "capabilities": {
     "kit_count": 200,
-    "fx_slots": 4,
-    "pads": [ /* машинно-читаемый layout пэдов/зон, индексы как в PROTOCOL */ ],
+    "fx_slots": 8,
     "features": ["transmit_edit_data", "ambience", "bus_fx", "set_lists"]
   },
 
@@ -127,6 +126,18 @@ Roland; различаются данные.** Поэтому:
     "setup":   { "address": [1,0,0,0] },
     "kit":     { "address": [4,0,0,0], "stride": [0,4,0,0], "count": 200 }
     // ...
+  },
+
+  // Имена позиций повторяющихся измерений (`dims` параметров ссылаются на них
+  // по `name`): какие пэды/зоны есть у модуля и в каком порядке — факт о модуле
+  // (PROTOCOL §5), поэтому данные, не код. `labels` — i18n-ключ на позицию,
+  // `i18n_key` — нумерованная фраза для позиций без имени (шаги сет-листа).
+  "dimensions": {
+    "unit":  { "labels": ["pad.kick", "pad.snare.head", "pad.snare.rim", /* … 28 */] },
+    "pad":   { "labels": ["pad.kick", "pad.snare", /* … 14 */] },
+    "layer": { "labels": ["layer.a", "layer.b", "layer.c"] },
+    "fx":    { "labels": ["fx.bus_a.1", "fx.bus_a.2", /* … 8 */] },
+    "step":  { "i18n_key": "dim.step" }
   },
 
   "parameters": [

@@ -73,12 +73,14 @@ fn a_pad_edit_is_announced_but_not_cached_per_kit() {
     h.connect().run_to_idle();
     h.take_events();
 
-    // The snare head's layer-A volume turned down to the floor.
+    // The snare head's layer-A volume turned down to the floor. The drummer
+    // hears which pad, which zone and which layer before the parameter.
     h.hardware_edit("kit.unit.layer.volume", &[4, 0, 1], -601)
         .run_to_idle();
 
     assert!(
-        h.spoken().contains(&"Layer volume: Silent".to_string()),
+        h.spoken()
+            .contains(&"Snare head, Layer A, Layer volume: Silent".to_string()),
         "got {:?}",
         h.spoken()
     );
@@ -96,7 +98,49 @@ fn a_catalogued_panel_edit_speaks_the_name() {
     h.hardware_edit("kit.fx.type", &[4, 0], 13).run_to_idle();
 
     assert!(
-        h.spoken().contains(&"Effect type: PHASER".to_string()),
+        h.spoken()
+            .contains(&"Bus A effect 1, Effect type: PHASER".to_string()),
+        "got {:?}",
+        h.spoken()
+    );
+}
+
+/// The snare sends head and rim together (PROTOCOL §6); each step names its
+/// zone, so two equal values are not heard as one knob stuttering.
+#[test]
+fn a_snare_edit_names_head_and_rim() {
+    let mut h = Harness::v31("en");
+    h.connect().run_to_idle();
+    h.take_events();
+
+    h.hardware_edit("kit.unit.layer.volume", &[4, 0, 1], 5);
+    h.hardware_edit("kit.unit.layer.volume", &[4, 0, 2], 5);
+    h.run_to_idle();
+
+    assert_eq!(
+        h.spoken(),
+        vec![
+            "Snare head, Layer A, Layer volume: 0.5 dB",
+            "Snare rim, Layer A, Layer volume: 0.5 dB"
+        ]
+    );
+}
+
+/// Roland's table calls a cymbal's zones HEAD and RIM; the drummer hears bow and
+/// edge, in their own language.
+#[test]
+fn cymbal_zones_are_named_as_drummers_call_them() {
+    let mut h = Harness::v31("ru");
+    h.connect().run_to_idle();
+    h.take_events();
+
+    // Ride edge (unit 19) pad volume.
+    h.hardware_edit("kit.unit.common.volume", &[4, 18], -30)
+        .run_to_idle();
+
+    assert!(
+        h.spoken()
+            .contains(&"Край райда, Громкость пэда: -3.0 дБ".to_string()),
         "got {:?}",
         h.spoken()
     );

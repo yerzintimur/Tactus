@@ -33,6 +33,12 @@ pub struct DeviceProfile {
     pub capabilities: Capabilities,
     /// Named parameter areas (Current, Setup, Kit, …) keyed by name.
     pub areas: BTreeMap<String, AreaDef>,
+    /// What each position of a repeat dimension is called, keyed by the
+    /// `DimDef::name` the parameters use ("unit" → kick, snare head, snare rim
+    /// …). Device data: which pads a module has, and in what order, is a fact
+    /// about the module (PROTOCOL §5), so it lives here and not in code.
+    #[serde(default)]
+    pub dimensions: BTreeMap<String, DimensionDef>,
     #[serde(default)]
     pub parameters: Vec<ParameterDef>,
     /// Named catalog files (instruments / fx / ambience), relative paths.
@@ -144,6 +150,16 @@ pub struct Located<'a> {
     pub indices: Vec<u32>,
 }
 
+impl Located<'_> {
+    /// The indices that belong to the parameter's own `dims`, one each in
+    /// declaration order — what is left after the area's index, if its area has
+    /// one. Pairs with [`ParameterDef::dims`] to name the position.
+    pub fn dim_indices(&self) -> &[u32] {
+        let start = self.indices.len().saturating_sub(self.param.dims.len());
+        &self.indices[start..]
+    }
+}
+
 impl ParameterDef {
     /// The documented label for a raw enum value (`labels[raw - range.min]`), or
     /// `None` if the parameter isn't an enum or the value is outside the list.
@@ -160,11 +176,40 @@ impl ParameterDef {
 /// One repeat dimension of a parameter: how many instances and how far apart.
 #[derive(Debug, Clone, Deserialize)]
 pub struct DimDef {
-    /// What the dimension ranges over ("unit", "layer", "pad", "fx" …).
+    /// What the dimension ranges over ("unit", "layer", "pad", "fx" …) — the key
+    /// into [`DeviceProfile::dimensions`] that names its positions.
     pub name: String,
     pub count: u32,
     /// Right-aligned address step between instances (7-bit bytes, like offsets).
     pub stride: Vec<u8>,
+}
+
+/// The names of one dimension's positions, shared by every parameter that
+/// repeats over it. Either a label key per position (pads, layers, FX slots) or
+/// one key that takes the 1-based number (set-list steps).
+#[derive(Debug, Clone, Default, Deserialize)]
+pub struct DimensionDef {
+    /// i18n key for each position, in index order; as long as the dimension's
+    /// `count` when present.
+    #[serde(default)]
+    pub labels: Vec<String>,
+    /// i18n key of a numbered label ("Step { $number }") for positions without a
+    /// name of their own.
+    #[serde(default)]
+    pub i18n_key: Option<String>,
+    /// Provenance in the vendor documents (ADR-0004).
+    #[serde(default)]
+    pub doc: Option<String>,
+}
+
+/// How to call one position of a dimension.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DimLabel<'a> {
+    /// The position has a name of its own: the i18n key of that name.
+    Named(&'a str),
+    /// The position is only a number: the i18n key of a numbered phrase and the
+    /// 1-based number to put in it.
+    Numbered { key: &'a str, number: u32 },
 }
 
 /// Inclusive valid range of a parameter's raw value.
@@ -257,6 +302,22 @@ impl DeviceProfile {
                 rem -= index * stride;
             }
             (rem == 0).then_some(Located { param, indices })
+        })
+    }
+
+    /// How the profile calls position `index` (0-based) of `dim`: a name when
+    /// the dimension lists one, a numbered phrase when it only counts, `None`
+    /// when the profile says nothing — the caller then says nothing rather than
+    /// reading out a raw index.
+    pub fn dim_label(&self, dim: &DimDef, index: u32) -> Option<DimLabel<'_>> {
+        let def = self.dimensions.get(&dim.name)?;
+        if let Some(key) = def.labels.get(index as usize) {
+            return Some(DimLabel::Named(key));
+        }
+        let key = def.i18n_key.as_deref()?;
+        Some(DimLabel::Numbered {
+            key,
+            number: index + 1,
         })
     }
 

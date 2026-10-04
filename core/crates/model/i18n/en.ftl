@@ -147,3 +147,68 @@ param-reverb-switch-label = Reverb
 param-reverb-type-label = Reverb type
 param-reverb-level = { $value } dB
 param-reverb-level-label = Reverb level
+
+# Names of the positions a parameter repeats over (the profile's `dimensions`).
+# Spoken before the parameter: "Snare rim, Layer A, Layer volume: 0.5 dB".
+# Keys follow Roland's Data List, which calls every pad's zones HEAD/RIM (EDGE
+# and BELL on the ride); the spoken names are what drummers call them, and what
+# Roland's own prose calls them ("hi-hat bow", "ride edge").
+pad-kick = Kick
+pad-snare = Snare
+pad-snare-head = Snare head
+pad-snare-rim = Snare rim
+pad-tom1 = Tom 1
+pad-tom1-head = Tom 1 head
+pad-tom1-rim = Tom 1 rim
+pad-tom2 = Tom 2
+pad-tom2-head = Tom 2 head
+pad-tom2-rim = Tom 2 rim
+pad-tom3 = Tom 3
+pad-tom3-head = Tom 3 head
+pad-tom3-rim = Tom 3 rim
+pad-tom4 = Tom 4
+pad-tom4-head = Tom 4 head
+pad-tom4-rim = Tom 4 rim
+pad-hihat = Hi-hat
+pad-hihat-head = Hi-hat bow
+pad-hihat-rim = Hi-hat edge
+pad-crash1 = Crash 1
+pad-crash1-head = Crash 1 bow
+pad-crash1-rim = Crash 1 edge
+pad-crash2 = Crash 2
+pad-crash2-head = Crash 2 bow
+pad-crash2-rim = Crash 2 edge
+pad-ride = Ride
+pad-ride-head = Ride bow
+pad-ride-edge = Ride edge
+pad-ride-bell = Ride bell
+# The module labels its first aux input AUX, the others AUX2–AUX4.
+pad-aux = Aux
+pad-aux-head = Aux head
+pad-aux-rim = Aux rim
+pad-aux2 = Aux 2
+pad-aux2-head = Aux 2 head
+pad-aux2-rim = Aux 2 rim
+pad-aux3 = Aux 3
+pad-aux3-head = Aux 3 head
+pad-aux3-rim = Aux 3 rim
+pad-aux4 = Aux 4
+pad-aux4-head = Aux 4 head
+pad-aux4-rim = Aux 4 rim
+
+layer-a = Layer A
+layer-b = Layer B
+layer-c = Layer C
+
+# Kit FX slots: two per bus, four buses (BUS-A FX1 … BUS-D FX2).
+fx-bus-a-1 = Bus A effect 1
+fx-bus-a-2 = Bus A effect 2
+fx-bus-b-1 = Bus B effect 1
+fx-bus-b-2 = Bus B effect 2
+fx-bus-c-1 = Bus C effect 1
+fx-bus-c-2 = Bus C effect 2
+fx-bus-d-1 = Bus D effect 1
+fx-bus-d-2 = Bus D effect 2
+
+# A position that has only a number (1-based, as on the module's screen).
+dim-step = Step { $number }

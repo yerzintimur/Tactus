@@ -3,7 +3,7 @@
 
 use crate::catalog::Catalogs;
 use crate::i18n::Message;
-use device::ParameterDef;
+use device::{DeviceProfile, DimDef, DimLabel, Located, ParameterDef};
 
 /// Build a localizable message for a numeric parameter's raw value.
 ///
@@ -90,6 +90,36 @@ pub fn format_parameter_label(param: &ParameterDef) -> Message {
         .clone()
         .unwrap_or_else(|| format!("param.{}", param.id));
     Message::new(format!("{base}.label"))
+}
+
+/// The name of position `index` of `dim` as the profile gives it — "Snare rim",
+/// "Layer A", "Step 5" — or `None` when the profile has no name for it, so the
+/// caller says nothing rather than a raw index.
+pub fn format_dim_label(profile: &DeviceProfile, dim: &DimDef, index: u32) -> Option<Message> {
+    Some(match profile.dim_label(dim, index)? {
+        DimLabel::Named(key) => Message::new(key),
+        DimLabel::Numbered { key, number } => Message::new(key).arg("number", number),
+    })
+}
+
+/// Everything that names a parameter found at an address, as the pieces of one
+/// spoken phrase: the positions it sits at, innermost first, then its label —
+/// `["Snare rim", "Layer A", "Layer volume"]` for the snare rim's layer-A
+/// volume. The innermost dimension is the thing itself on Roland's maps (the pad
+/// or zone, the FX slot); the outer ones qualify it (the layer). Positions the
+/// profile cannot name are left out; the kit is not named — callers know which
+/// kit they are on.
+pub fn format_located_label(profile: &DeviceProfile, located: &Located<'_>) -> Vec<Message> {
+    let param = located.param;
+    let mut parts: Vec<Message> = param
+        .dims
+        .iter()
+        .zip(located.dim_indices())
+        .rev()
+        .filter_map(|(dim, &index)| format_dim_label(profile, dim, index))
+        .collect();
+    parts.push(format_parameter_label(param));
+    parts
 }
 
 /// Build a localizable label for a kit. `display_number` is 1-based (the value
@@ -226,6 +256,67 @@ mod tests {
                 }
             }
         }
+
+        // The same guard for the names of the positions parameters repeat
+        // over: every pad, zone, layer and FX slot the profile lists, in every
+        // language — and the numbered phrase for the ones that only count.
+        for (name, def) in &profile.dimensions {
+            let keys = def.labels.iter().chain(def.i18n_key.iter());
+            for key in keys {
+                let message = Message::new(key.clone()).arg("number", 1u32);
+                let unresolved = key.replace(['.', '_'], "-");
+                for locale in crate::i18n::AVAILABLE_LOCALES.iter().map(|l| l.code) {
+                    let text = loc.format(&message, locale);
+                    assert_ne!(
+                        text, unresolved,
+                        "dimension {name}: {key} has no {locale} text"
+                    );
+                    assert!(!text.is_empty());
+                }
+            }
+        }
+    }
+
+    /// A panel edit is named from the pad outwards: the zone the drummer
+    /// touched, the layer, then the parameter — in the app's language, with
+    /// the module's zone words translated into the drummer's.
+    #[test]
+    fn a_located_parameter_is_named_from_the_pad_outwards() {
+        let p = v31();
+        let loc = Localizer::new();
+        let render = |located: &Located<'_>, locale: &str| -> Vec<String> {
+            format_located_label(&p, located)
+                .iter()
+                .map(|m| loc.format(m, locale))
+                .collect()
+        };
+
+        // The snare rim's layer-A volume on kit 10, as the module sent it.
+        let rim = p.locate([0x04, 0x24, 0x54, 0x09]).unwrap();
+        assert_eq!(render(&rim, "en"), ["Snare rim", "Layer A", "Layer volume"]);
+        assert_eq!(
+            render(&rim, "ru"),
+            ["Обод малого", "Слой A", "Громкость слоя"]
+        );
+
+        // A cymbal zone Roland's table calls HEAD is the bow to a drummer.
+        let hihat = p.address_of("kit.unit.common.volume", &[9, 11]).unwrap();
+        let hihat = p.locate(hihat).unwrap();
+        assert_eq!(render(&hihat, "en"), ["Hi-hat bow", "Pad volume"]);
+
+        // An FX slot is named by its bus; a parameter without dims is just itself.
+        let fx = p
+            .locate(p.address_of("kit.fx.type", &[9, 7]).unwrap())
+            .unwrap();
+        assert_eq!(render(&fx, "en"), ["Bus D effect 2", "Effect type"]);
+        let volume = p.locate([0x04, 0x24, 0x00, 0x50]).unwrap();
+        assert_eq!(render(&volume, "en"), ["Kit volume"]);
+
+        // A set-list step has only its number, 1-based as on the module.
+        let step = p
+            .locate(p.address_of("setlist.step", &[0, 4]).unwrap())
+            .unwrap();
+        assert_eq!(render(&step, "en"), ["Step 5", "Step"]);
     }
 
     /// The module counts kits and set-list steps from 0 on the wire and from 1 on

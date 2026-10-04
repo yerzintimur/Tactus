@@ -202,11 +202,20 @@ list is active (see the open question below).
 - **Kit Tempo Switch:** offset `00 70` (0/1).
 
 ### Pad layout within a kit
-- `KitUnitCommon` / `KitUnitLayer` index 1–28: KICK(1), SNARE HEAD(2), SNARE
-  RIM(3), TOM1 HEAD/RIM(4/5) … HI-HAT HEAD/RIM(12/13), CRASH1/2, RIDE HEAD/EDGE/
-  BELL(18/19/20), AUX1–4 HEAD/RIM(21–28).
-- `KitPad` index 1–14 (per-pad, not per-zone): KICK..AUX4.
-- `KitFx` index 1–4: BUS-A FX1/2, BUS-B FX1/2.
+(MIDI Implementation, "Pad assignments" tables; carried as data in the profile's
+`dimensions` — `unit`, `pad`, `layer`, `fx` — and spoken before the parameter on
+a panel edit: "Snare rim, Layer A, Layer volume: 0.5 dB".)
+- `KitUnitCommon` / `KitUnitLayer` index 1–28: KICK(1), SNARE HEAD/RIM(2/3),
+  TOM1–4 HEAD/RIM(4–11), HI-HAT HEAD/RIM(12/13), CRASH1 HEAD/RIM(14/15), CRASH2
+  HEAD/RIM(16/17), RIDE HEAD/EDGE/BELL(18/19/20), AUX HEAD/RIM(21/22), AUX2–4
+  HEAD/RIM(23–28). The first aux input is plain **AUX** on the module. Roland's
+  table says HEAD/RIM for cymbals too; its prose (and drummers) say bow/edge,
+  and so does the app.
+- `KitPad` index 1–14 (per-pad, not per-zone): KICK, SNARE, TOM1–4, HI-HAT,
+  CRASH1, CRASH2, RIDE, AUX, AUX2–4.
+- `KitFx` index 1–8: BUS-A FX1, BUS-A FX2, BUS-B FX1, BUS-B FX2, … BUS-D FX2
+  (two FX slots per bus, four buses; `KitBusSetup` index 1–4 = BUS-A–D).
+- Layers: `Kit Unit LayerA/B/C` blocks at `00 50 00`, `01 10 00`, `01 50 00`.
 
 ### Instrument banks (`Inst Bank`) — read from the module (2026-10-04)
 A layer's instrument is **two numbers**: `Instrument` (`00 01`–`00 04`) and
