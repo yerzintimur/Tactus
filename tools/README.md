@@ -18,6 +18,16 @@ Today it derives the V31 (5 areas, 25 blocks, 792 parameters) and the TD-17
 `--device td-17`, or all of them with no arguments. `parse_datalist.py` is **not**
 device-agnostic yet: it reads glyph positions tuned to the V31's page layout.
 
+## `midiprobe.swift` — raw SysEx against the real module
+
+A macOS-only CoreMIDI tool for hardware sessions: send RQ1/DT1 messages (checksum
+added for you) and print every SysEx the module returns, timestamped. Used to
+verify the set-list layout on the V31 — the `END` bytes, the single-DT1 reply to a
+160-byte read, nibble-packed name writes (see PROTOCOL §5). With no messages it is
+a plain monitor for unsolicited traffic. Build with `swiftc -O -o midiprobe
+tools/midiprobe.swift`; usage is in the file header. It writes to the module when
+you ask it to, so keep edits to a slot you can restore (set list 32 was empty).
+
 ## Running
 
 One-time venv (host Python is externally managed; `.docker/` is git-ignored):
