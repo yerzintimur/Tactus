@@ -196,13 +196,6 @@ and verified; keep this file honest about real state.
   (documented on the effect, implemented by the Swift session and the e2e harness,
   pinned in [timed_scenarios.rs](core/crates/e2e/tests/timed_scenarios.rs) and
   the Swift unit tests).
-- [ ] **`P1` The Mac app opens no window on macOS 27.** Observed 2026-10-04: after
-  the window was closed once, every later launch (including with saved state
-  ignored) runs the session — MIDI connects and polls — but shows no window: the
-  window server lists none, the AX tree has none, and File → New Window adds
-  nothing. First seen while a set list with no steps was on screen. Blocks the
-  hardware-in-the-loop workflow in `docs/DEVELOPMENT.md`; raw checks meanwhile go
-  through [tools/midiprobe.swift](tools/midiprobe.swift).
 - [ ] **`P3` Program Change as a re-poll hint.** The module sends Bank Select +
   Program Change on channel 10 for every kit change it makes itself (panel knob,
   set-list step — seen 2026-10-04); the transport already forwards channel bytes

@@ -702,7 +702,14 @@ just test-core        # cargo test + clippy
 - **Cross-platform contract:** общий набор фикстур, против которого тестируется
   core; нативные слои — на правильность «проводки».
 - **Hardware-in-the-loop:** харнесс к реальному модулю (round-trip,
-  персистентность, live-edit).
+  персистентность, live-edit). Сегодня это Mac-сборка (`just mac-run`), поток
+  `midi.io` в `log stream` и управление через дерево доступности (System
+  Events); для сырых SysEx-проверок — `tools/midiprobe.swift`. **Stage
+  Manager:** когда приложение не на «сцене», его окна лежат миниатюрами в
+  боковой полосе и AX для них ничего не отдаёт (System Events видит 0 окон,
+  window server — окна 127×125 у левого края). Перед AX-сессией активируйте
+  приложение (`tell application "TactusApp" to activate`) и не переключайтесь
+  на другие приложения, пока она идёт — или выключите Stage Manager.
 - **Тесты следуют Nonvisual-first:** невизуальные проверки — первичны и пишутся
   первыми; визуальные — вторичны (SPEC §16).
 
