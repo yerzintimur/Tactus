@@ -205,6 +205,10 @@ and verified; keep this file honest about real state.
   source of truth (PROTOCOL §6). The virtual device sends the same triple and no
   DT1 for its own kit changes, so the simulator and the UI tests exercise the
   real path ([timed_scenarios.rs](core/crates/e2e/tests/timed_scenarios.rs)).
+  **On hardware** the read leaves in the same millisecond as the Program Change,
+  but the module answers ~416 ms later together with the regular poll's reply:
+  it is silent for ~400 ms after a kit change, so the gain over the 300 ms poll
+  is marginal on this firmware (PROTOCOL §6). Kept as a cheap, harmless guard.
 - [ ] **`P3` Set-list names without opening each list** — the picker offers
   "Set list 1…32" because the names live in the module and reading all 32 would be
   32 requests. Worth a background sweep (paced) once the hardware answers above.

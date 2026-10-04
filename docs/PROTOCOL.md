@@ -253,9 +253,15 @@ parameter-map JSON, §13 of SPEC, cross-checked against the Data List.)
   bank bytes are there for kits beyond 128; the module also sends the same triple
   once at connect. The transport forwards these bytes to the core, and the core
   treats any inbound Program Change as the hint: it reads `Current` at once
-  (skipped only over an in-flight edit's read-back), so a panel kit change is
-  announced within one read's latency instead of up to a poll interval later. The
-  number in the message is never used as the kit.
+  (skipped only over an in-flight edit's read-back). The number in the message
+  is never used as the kit. **Measured (2026-10-04, knob 9 → 10):** the read went
+  out in the same millisecond as `C9 09`, but the module answered it only
+  **416 ms later**, in one burst together with the answer to the regular poll
+  sent 27 ms after it — after a kit change the module is silent for ~400 ms (as
+  after a run of writes, §5). So on this firmware the hint saves little over the
+  300 ms poll; it costs one read and stays as a cheap guard for a module that
+  answers promptly. From knob to the new kit's name known: ~520 ms, all of it
+  the module's.
 - **Transmit Edit Data = ON** (module setting): the module **pushes a DT1** for a
   parameter when you edit it on the hardware. Parse address+value → update model
   → announce. This keeps the app in sync with physical knob-turning. **Kit
