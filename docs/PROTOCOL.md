@@ -101,6 +101,14 @@ several schemes; the core must encode/decode each:
 - **Signed (2 byte):** `00 00 = -8192`, `40 00 = ±0`, `7F 7F = +8191`
   (value = `aa*128 + bb - 64*128`).
 - **ASCII:** one char per byte, `0–127` (names).
+- **Named values (sentinels):** some ranges start with a value that is a *word* on
+  the module's screen, not a number — every dB level's lowest raw value **−601 is
+  `-INF`** (silence; the numbers start at −600 = −60.0 dB), and a set-list step's
+  **−1 is `END`**. Spoken as numbers they would lie ("−60.1 dB"), so the profile
+  marks them as `sentinel`s and the app speaks the meaning. On the wire they are
+  ordinary two's-complement nibble packings: **−601 = `0F 0D 0A 07`**, −1 =
+  `0F 0F 0F 0F` — both written to and read back from the V31 (2026-10-04; kit 9's
+  volume was set to −601, read back byte-for-byte, and restored).
 
 The core stores, per parameter: `address`, `byte_len`, `encoding`, `range`, and
 a `format(value) → String` for what the screen reader reads and the UI shows.

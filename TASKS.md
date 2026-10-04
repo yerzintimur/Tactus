@@ -300,10 +300,17 @@ and verified; keep this file honest about real state.
   catalogs to resolve them (`InstrumentCatalog`, `fx-types.json`) already exist
   but are not wired into `format_parameter`. Needed before the M4 editors are
   usable eyes-closed.
-- [ ] **`P2` The `-INF` sentinel reads as a level** — raw −601 on every dB
-  parameter means silence, not −60.1 dB. The mechanism now exists (`sentinel` in
-  the profile, used by the set-list `END`); this is marking the twelve dB
-  parameters and adding the phrasing.
+- [x] **`P2` The `-INF` sentinel reads as silence.** Raw −601 on every dB
+  parameter is `-INF` on the module's screen — silence, not "−60.1 dB". The nine
+  dB parameters now carry a `sentinel` (the mechanism the set-list `END` uses) and
+  speak "Silent" / «Тишина»; the view-model's display range stops at the lowest
+  number (−60.0 dB) while the raw range still includes the sentinel, so an
+  adjustable can still reach it. A cross-check test demands a sentinel wherever
+  the doc's display column names a value before the numbers, so a future level
+  can't be added without one
+  ([map_crosscheck.rs](core/crates/device/tests/map_crosscheck.rs)). **Verified
+  on the V31 (2026-10-04):** −601 is accepted and reads back as `0F 0D 0A 07`
+  (PROTOCOL §4).
 - [x] **Second module studied — Roland TD-17** ([notes](docs/devices/roland-td-17.md)).
   A blind drum teacher we can reach uses a TD-17KVX2, which makes it the first
   real second target. Same Roland SysEx mechanics (Model ID `00 00 00 4B`,

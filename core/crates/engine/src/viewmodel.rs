@@ -103,6 +103,10 @@ pub struct NumericRange {
     pub raw_max: i64,
     /// Smallest raw increment (Roland parameters step by 1).
     pub raw_step: i64,
+    /// The display range covers the *numbers* only: a sentinel the profile
+    /// declares at an end of the raw range (-INF under the lowest level) is still
+    /// inside `raw_min..=raw_max`, but it has no number — it reads through
+    /// [`ParameterView::display`].
     pub display_min: f64,
     pub display_max: f64,
     /// Smallest display increment (`raw_step / scale`, e.g. 0.1 BPM).
@@ -127,12 +131,18 @@ pub(crate) fn numeric_info(def: &ParameterDef) -> NumericInfo {
         let s = scale as f64;
         // Raw stays raw — the offset is presentation only (see `display_offset`).
         let shown = |raw: i64| (raw + def.display_offset) as f64 / s;
+        // A sentinel at an end of the range is not a quantity (−601 under the
+        // lowest level is -INF, −1 before the first kit is END): the display
+        // range covers the numbers only, and the sentinel speaks through `display`.
+        let is_sentinel = |raw: i64| def.sentinel.as_ref().is_some_and(|x| x.raw == raw);
+        let lowest = if is_sentinel(r.min) { r.min + 1 } else { r.min };
+        let highest = if is_sentinel(r.max) { r.max - 1 } else { r.max };
         NumericRange {
             raw_min: r.min,
             raw_max: r.max,
             raw_step: 1,
-            display_min: shown(r.min),
-            display_max: shown(r.max),
+            display_min: shown(lowest),
+            display_max: shown(highest),
             display_step: 1.0 / s,
         }
     });

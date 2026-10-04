@@ -487,3 +487,30 @@ fn announcements_report_the_language_of_each_run() {
         .expect("the kit announcement");
     assert_eq!(kit_en.spans.len(), 1, "one language needs no tagging");
 }
+
+/// A level turned all the way down stores −601, which the module's own screen
+/// shows as -INF. That is silence, not "−60.1 dB", and the read-back confirmation
+/// says so — the number would be a lie the drummer has no way to see through.
+#[test]
+fn a_level_at_its_floor_is_confirmed_as_silence() {
+    let mut h = Harness::v31("en");
+    h.connect().run_to_idle();
+    h.take_events();
+
+    h.set_parameter("kit.common.volume", vec![4], -601)
+        .run_to_idle();
+    assert!(h.events().iter().any(|e| matches!(e,
+        CoreEvent::EditConfirmed { display, .. } if display == "Silent")));
+    assert!(has_speak(h.events(), "Silent"));
+    assert!(
+        !h.spoken().iter().any(|s| s.contains("60.1")),
+        "the floor must never be spoken as a quantity; got {:?}",
+        h.spoken()
+    );
+
+    // One step up it is a quantity again — the lowest level the module shows.
+    h.take_events();
+    h.set_parameter("kit.common.volume", vec![4], -600)
+        .run_to_idle();
+    assert!(has_speak(h.events(), "-60.0 dB"));
+}

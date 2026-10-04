@@ -17,8 +17,10 @@ param-kit-num = Кит { $value }
 param-tempo-switch = Переключатель темпа: { $value }
 param-setlist-name = { $name }
 param-setlist-step = Кит { $value }
-# Сырое значение с собственным смыслом (см. `sentinel` в профиле).
+# Сырые значения с собственным смыслом (см. `sentinel` в профиле).
 value-setlist-end = Конец сет-листа
+# Уровень на самом дне: модуль показывает -INF, и ничего не слышно.
+value-level-silent = Тишина
 
 # Лейблы параметров (подписи контролов / для скринридера — без значения).
 param-tempo-label = Темп

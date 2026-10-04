@@ -18,8 +18,10 @@ param-kit-num = Kit { $value }
 param-tempo-switch = Tempo switch: { $value }
 param-setlist-name = { $name }
 param-setlist-step = Kit { $value }
-# A raw value with a meaning of its own (see the profile's `sentinel`).
+# Raw values with a meaning of their own (see the profile's `sentinel`).
 value-setlist-end = End of the set list
+# A level at its floor: the module shows -INF, and nothing is heard.
+value-level-silent = Silent
 
 # Parameter labels (control / accessibility labels — never carry the value).
 param-tempo-label = Tempo

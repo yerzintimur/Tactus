@@ -216,6 +216,44 @@ mod tests {
         assert_eq!(loc.format(&format_parameter(step, 46), "en"), "Kit 47");
     }
 
+    /// A level turned all the way down stores −601, which the module's screen
+    /// shows as -INF: silence, not "−60.1 dB". One step up it is a quantity
+    /// again — the lowest the module shows.
+    #[test]
+    fn a_level_at_its_floor_is_silence_not_a_number() {
+        let registry = device::ProfileRegistry::with_builtin();
+        let profile = registry.match_model(&[1, 6, 1]).expect("built-in V31");
+        let loc = Localizer::new();
+
+        // Every dB parameter in the profile, not just the kit volume.
+        let levels: Vec<_> = profile
+            .parameters
+            .iter()
+            .filter(|p| p.unit.as_deref() == Some("db"))
+            .collect();
+        assert!(levels.len() >= 9, "the V31 profile has nine dB parameters");
+        for level in levels {
+            assert_eq!(
+                loc.format(&format_parameter(level, -601), "en"),
+                "Silent",
+                "{}",
+                level.id
+            );
+            assert_eq!(
+                loc.format(&format_parameter(level, -601), "ru"),
+                "Тишина",
+                "{}",
+                level.id
+            );
+            assert_eq!(
+                loc.format(&format_parameter(level, -600), "en"),
+                "-60.0 dB",
+                "{}",
+                level.id
+            );
+        }
+    }
+
     #[test]
     fn enum_values_speak_the_modules_own_word() {
         let registry = device::ProfileRegistry::with_builtin();

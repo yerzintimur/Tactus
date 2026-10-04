@@ -352,3 +352,71 @@ fn sub_name_is_64_chars_per_the_doc() {
     let p = v31();
     assert_eq!(p.parameter("kit.common.sub_name").unwrap().len, 64);
 }
+
+/// The doc's display column sometimes names a value before the numbers — `-INF`
+/// under the lowest level, `END` before the first kit of a set-list step. Such a
+/// value is not a quantity, and the profile must say so with a `sentinel` at that
+/// end of the range: spoken as a number, −601 would become "−60.1 dB", a lie the
+/// user cannot see through. The converse holds too: a sentinel the doc does not
+/// list is invented.
+///
+/// Returns the named value when `display` has the shape `NAME, <numeric range>`
+/// (footnote markers like `(*2)` dropped). An enum's list (`THRU, EQUALIZER, …`)
+/// and a notation like `L30 - 1, CTR, R1 - 30` do not match: their second part
+/// is not a number.
+fn named_floor(display: &str) -> Option<String> {
+    let (head, tail) = display.split_once(',')?;
+    let head = head.split('(').next()?.trim();
+    let is_number = |s: &str| {
+        s.trim_start_matches(['-', '+'])
+            .starts_with(|c: char| c.is_ascii_digit())
+    };
+    (!head.is_empty() && !head.contains(' ') && !is_number(head) && is_number(tail.trim()))
+        .then(|| head.to_string())
+}
+
+#[test]
+fn named_doc_values_are_sentinels_in_the_profile() {
+    let p = v31();
+    let m = map();
+    let mut sentinels = 0;
+
+    for param in &p.parameters {
+        let (block, name) = param.doc.as_deref().unwrap().split_once('/').unwrap();
+        let display = map_param(&m, block, name)["display"]
+            .as_array()
+            .map(|d| {
+                d.iter()
+                    .filter_map(Value::as_str)
+                    .collect::<Vec<_>>()
+                    .join(" ")
+            })
+            .unwrap_or_default();
+
+        match (&param.sentinel, named_floor(&display)) {
+            (Some(sentinel), Some(word)) => {
+                let range = param.range.expect("a sentinel needs a range");
+                assert_eq!(
+                    sentinel.raw, range.min,
+                    "{}: the doc lists {word} first, so the sentinel is the range minimum",
+                    param.id
+                );
+                sentinels += 1;
+            }
+            (None, Some(word)) => panic!(
+                "{}: the doc lists {word} before the numbers, but the profile has no \
+                 sentinel — the value would be spoken as a number",
+                param.id
+            ),
+            (Some(sentinel), None) => panic!(
+                "{}: sentinel {} is not in the doc's display column {display:?}",
+                param.id, sentinel.raw
+            ),
+            (None, None) => {}
+        }
+    }
+    assert!(
+        sentinels >= 10,
+        "nine dB levels and the set-list step carry sentinels; found {sentinels}"
+    );
+}

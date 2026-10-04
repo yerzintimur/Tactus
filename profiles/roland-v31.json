@@ -84,6 +84,7 @@
       "range": { "min": -601, "max": 60 },
       "scale": 10,
       "unit": "db",
+      "sentinel": { "raw": -601, "i18n_key": "value.level_silent" },
       "i18n_key": "param.kit_volume",
       "doc": "KitCommon/Volume"
     },
@@ -121,6 +122,7 @@
       "range": { "min": -601, "max": 60 },
       "scale": 10,
       "unit": "db",
+      "sentinel": { "raw": -601, "i18n_key": "value.level_silent" },
       "i18n_key": "param.unit_volume",
       "doc": "KitUnitCommon/Volume"
     },
@@ -134,6 +136,7 @@
       "range": { "min": -601, "max": 60 },
       "scale": 10,
       "unit": "db",
+      "sentinel": { "raw": -601, "i18n_key": "value.level_silent" },
       "i18n_key": "param.unit_overhead_send",
       "doc": "KitUnitCommon/Overhead Send Level"
     },
@@ -147,6 +150,7 @@
       "range": { "min": -601, "max": 60 },
       "scale": 10,
       "unit": "db",
+      "sentinel": { "raw": -601, "i18n_key": "value.level_silent" },
       "i18n_key": "param.unit_room_send",
       "doc": "KitUnitCommon/Room Send Level"
     },
@@ -160,6 +164,7 @@
       "range": { "min": -601, "max": 60 },
       "scale": 10,
       "unit": "db",
+      "sentinel": { "raw": -601, "i18n_key": "value.level_silent" },
       "i18n_key": "param.unit_reverb_send",
       "doc": "KitUnitCommon/Reverb Send Level"
     },
@@ -218,6 +223,7 @@
       "range": { "min": -601, "max": 60 },
       "scale": 10,
       "unit": "db",
+      "sentinel": { "raw": -601, "i18n_key": "value.level_silent" },
       "i18n_key": "param.layer_volume",
       "doc": "KitUnitLayer/Volume"
     },
@@ -318,6 +324,7 @@
       "range": { "min": -601, "max": 120 },
       "scale": 10,
       "unit": "db",
+      "sentinel": { "raw": -601, "i18n_key": "value.level_silent" },
       "i18n_key": "param.overhead_level",
       "doc": "KitOverhead/Level"
     },
@@ -352,6 +359,7 @@
       "range": { "min": -601, "max": 120 },
       "scale": 10,
       "unit": "db",
+      "sentinel": { "raw": -601, "i18n_key": "value.level_silent" },
       "i18n_key": "param.room_level",
       "doc": "KitRoom/Level"
     },
@@ -386,6 +394,7 @@
       "range": { "min": -601, "max": 120 },
       "scale": 10,
       "unit": "db",
+      "sentinel": { "raw": -601, "i18n_key": "value.level_silent" },
       "i18n_key": "param.reverb_level",
       "doc": "KitReverb/Level"
     }

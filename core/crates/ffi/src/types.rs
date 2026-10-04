@@ -370,7 +370,10 @@ pub struct NumericInfo {
     pub range: Option<NumericRange>,
 }
 
-/// The inclusive range of a numeric parameter, in raw and display units.
+/// The inclusive range of a numeric parameter, in raw and display units. The
+/// display range covers the numbers only: a profile `sentinel` at an end of the
+/// raw range (-INF under the lowest level) has no number and reads through
+/// `ParameterView::display`.
 #[derive(Debug, Clone, PartialEq, uniffi::Record)]
 pub struct NumericRange {
     pub raw_min: i64,
