@@ -144,18 +144,38 @@ list is active (see the open question below).
   parts — see §6 on message pacing. **Writing** a multi-step change (reorder,
   removal) is sequential: one write at a time, each confirmed before the next.
 
-**Open questions — verify on hardware:**
-1. **`END` on the wire.** −1 in a 4-nibble field is *inferred* to be the same
-   two's-complement packing the negative-range fields use (`0F 0F 0F 0F`), by the
-   same reasoning as the `signed_nibble` values above. Read a set list whose last
-   step is `END` and confirm the bytes before trusting a write of it.
-2. **Does the module answer a 160-byte RQ1 with one DT1**, or split it? The engine
-   absorbs whatever a reply covers, keyed by address, so either works — but the
-   answer decides whether a reply can be assumed complete.
-3. **The active set list is not in the address map.** There is no "current set
-   list" pointer and no step pointer, so selecting one and stepping through it
-   looks panel-only. The app can still *build* lists, and the kit changes a set
-   list causes are visible through `Current` like any other.
+**Verified on hardware (2026-10-04, V31 fw 0.2.1.0, via
+[tools/midiprobe.swift](../tools/midiprobe.swift)):**
+- **`END` on the wire is `0F 0F 0F 0F`** — the two's-complement nibble packing the
+  other negative-range fields use. Read from the factory list 1 ("Standard", 11
+  kits then 21 × `END`) and from empty list 32 (32 × `END`); **writing** it works
+  the same way: `DT1 … 0F 0F 0F 0F` to a step read back as `0F 0F 0F 0F`.
+- **A 160-byte RQ1 is answered by one DT1** — 160 data bytes and a single checksum
+  (`F0 41 10 01 06 01 12 03 00 00 00 <160 bytes> 61 F7` for list 1). The engine
+  still absorbs replies by address, so a module that split them would work too.
+- **Step writes round-trip:** `00 00 00 00` (kit 1) and `00 00 00 01` (kit 2)
+  written to steps 1–2 of list 32 read back exactly, as did restoring `END`.
+- **Name writes round-trip** in the nibble-packed form: "Tactus" padded to 16
+  spaces (`05 04 06 01 06 03 07 04 07 05 07 03 02 00 × 10`) read back verbatim,
+  and the original "Set List 32" was restored the same way.
+- **Read-back latency.** A single write read back within 1 ms. A *run* of three
+  write+read pairs 60 ms apart got no answer for ~400 ms and then all three
+  read-backs in one burst — the module appears to settle a sequence of set-list
+  writes before answering. The engine's sequential, confirmed writes tolerate this
+  (`EDIT_TIMEOUT_TICKS` = 5 × 300 ms); a reorder of *n* steps costs *n* such
+  round trips.
+- **Addressing:** list 32 is at `03 03 70 00` — the stride `00 00 10 00` carries
+  into the second byte in 7-bit arithmetic (31 × 0x10 = 0x1F0 → `03 70`), as the
+  profile's address math predicted.
+
+**Still open — needs the module's panel:**
+- **The active set list is not in the address map.** There is no "current set
+  list" pointer and no step pointer, so selecting one and stepping through it
+  looks panel-only. The app can still *build* lists, and the kit changes a set
+  list causes are visible through `Current` like any other. To settle it: switch
+  set lists and step through one on the module while a monitor runs
+  (`midiprobe 60000`), and see whether anything beyond the `Current` change is
+  pushed.
 
 ### Kit → KitCommon (offset `00 00 00` within a kit)
 - **Kit Name:** offsets `00 00`–`00 0F`, **16 bytes ASCII** (some chars not shown

@@ -164,9 +164,12 @@ and verified; keep this file honest about real state.
   remove as row actions. Reading is one RQ1 for the whole block; multi-write edits
   go one write at a time, each confirmed before the next
   ([PROTOCOL §5](docs/PROTOCOL.md), [setlists.rs](core/crates/e2e/tests/setlists.rs)).
-  **Open on hardware:** the wire form of `END`, whether a 160-byte read comes back
-  as one DT1, and whether the *active* set list can be read or selected at all —
-  it is not in the address map, so stepping through a list looks panel-only.
+  **Verified on the V31 (2026-10-04):** `END` is `0F 0F 0F 0F` on the wire, read
+  and written; a 160-byte read comes back as one DT1; step and nibble-packed name
+  writes round-trip (set list 32 was edited and restored byte-for-byte). **Still
+  open:** whether the *active* set list is visible over MIDI at all — it is not in
+  the address map, so stepping through a list looks panel-only; needs someone at
+  the module's panel with a monitor running (PROTOCOL §5).
 - [x] **`P2` Notice the current kit's slot being replaced.** Copying or importing
   a kit over the slot you are standing on changes everything about it while its
   *number* stays put, so polling the number alone left the app naming the kit that
@@ -174,6 +177,23 @@ and verified; keep this file honest about real state.
   do. The engine now re-reads the current kit's name every ~3 s, and on a change
   drops the rest of that slot's cached values and re-reads them; silent while the
   name is unchanged ([timed_scenarios.rs](core/crates/e2e/tests/timed_scenarios.rs)).
+  Seen on hardware: the name read goes out every tenth poll (~3.3 s) and nothing
+  is spoken while the kit is unchanged.
+- [x] **`P1` One tick timer, not one per action.** Every user action asks the core
+  for a tick (edits need ageing, selections a confirmation read) and the Mac app
+  made a new timer for each request; a tick re-arms itself, so each action added a
+  polling chain that never ended — on hardware the `Current` read ran nine times a
+  second after three actions. `ScheduleTick` now means "re-arm the one timer"
+  (documented on the effect, implemented by the Swift session and the e2e harness,
+  pinned in [timed_scenarios.rs](core/crates/e2e/tests/timed_scenarios.rs) and
+  the Swift unit tests).
+- [ ] **`P1` The Mac app opens no window on macOS 27.** Observed 2026-10-04: after
+  the window was closed once, every later launch (including with saved state
+  ignored) runs the session — MIDI connects and polls — but shows no window: the
+  window server lists none, the AX tree has none, and File → New Window adds
+  nothing. First seen while a set list with no steps was on screen. Blocks the
+  hardware-in-the-loop workflow in `docs/DEVELOPMENT.md`; raw checks meanwhile go
+  through [tools/midiprobe.swift](tools/midiprobe.swift).
 - [ ] **`P3` Set-list names without opening each list** — the picker offers
   "Set list 1…32" because the names live in the module and reading all 32 would be
   32 requests. Worth a background sweep (paced) once the hardware answers above.
