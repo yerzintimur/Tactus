@@ -168,14 +168,15 @@ list is active (see the open question below).
   into the second byte in 7-bit arithmetic (31 × 0x10 = 0x1F0 → `03 70`), as the
   profile's address math predicted.
 
-**Still open — needs the module's panel:**
-- **The active set list is not in the address map.** There is no "current set
-  list" pointer and no step pointer, so selecting one and stepping through it
-  looks panel-only. The app can still *build* lists, and the kit changes a set
-  list causes are visible through `Current` like any other. To settle it: switch
-  set lists and step through one on the module while a monitor runs
-  (`midiprobe 60000`), and see whether anything beyond the `Current` change is
-  pushed.
+- **The active set list is invisible over MIDI — settled on the panel.** There
+  is no "current set list" pointer or step pointer in the address map, and the
+  module pushes nothing about them either: stepping through a set list on the
+  panel (monitor running, app silent) produced only **Bank Select + Program
+  Change on channel 10** per step — `B9 00 00 B9 20 00 C9 03`, `… C9 04` — byte
+  for byte what turning the kit knob produces, and no SysEx at all. So the app
+  cannot read or select the module's list position; what it *can* do is read the
+  list and drive kit selection along it itself, which is how a "next step" control
+  would have to work nonvisually.
 
 ### Kit → KitCommon (offset `00 00 00` within a kit)
 - **Kit Name:** offsets `00 00`–`00 0F`, **16 bytes ASCII** (some chars not shown
@@ -209,10 +210,18 @@ parameter-map JSON, §13 of SPEC, cross-checked against the Data List.)
 
 - **Program Change on kit change is unreliable** (≤128 programs; depends on the
   PROG CHG mapping). Do **not** use it as the primary signal. Poll `Current`;
-  treat an inbound PC as a hint to re-poll immediately.
+  treat an inbound PC as a hint to re-poll immediately. **Observed (2026-10-04):**
+  every panel kit change — knob or set-list step — sent **Bank Select MSB/LSB +
+  Program Change on channel 10** (`B9 00 00 B9 20 00 C9 03` for kit 4), so the
+  bank bytes are there for kits beyond 128; the module also sends the same triple
+  once at connect. The transport forwards these bytes to the core, which today
+  ignores everything but SysEx — using them as the re-poll hint is still a to-do.
 - **Transmit Edit Data = ON** (module setting): the module **pushes a DT1** for a
   parameter when you edit it on the hardware. Parse address+value → update model
-  → announce. This keeps the app in sync with physical knob-turning.
+  → announce. This keeps the app in sync with physical knob-turning. **Kit
+  selection is not one of those pushes:** with the app silent, panel kit changes
+  produced the Program Change above and **no DT1** for `Current` (2026-10-04) —
+  polling `Current` is the signal, not a push.
 - The module also pushes DT1 in response to RQ1 (normal read), and sends Identity
   Reply to an Identity Request.
 - **Pace consecutive messages.** Roland's implementation notes ask for a gap

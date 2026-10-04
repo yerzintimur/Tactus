@@ -166,10 +166,14 @@ and verified; keep this file honest about real state.
   ([PROTOCOL §5](docs/PROTOCOL.md), [setlists.rs](core/crates/e2e/tests/setlists.rs)).
   **Verified on the V31 (2026-10-04):** `END` is `0F 0F 0F 0F` on the wire, read
   and written; a 160-byte read comes back as one DT1; step and nibble-packed name
-  writes round-trip (set list 32 was edited and restored byte-for-byte). **Still
-  open:** whether the *active* set list is visible over MIDI at all — it is not in
-  the address map, so stepping through a list looks panel-only; needs someone at
-  the module's panel with a monitor running (PROTOCOL §5).
+  writes round-trip (set list 32 was edited and restored byte-for-byte). The
+  *active* set list is invisible over MIDI: stepping through one on the panel
+  sends only Bank Select + Program Change, exactly like the kit knob, and no
+  SysEx — so list position is the app's to drive, not to read (PROTOCOL §5).
+- [ ] **`P2` Step through a set list from the app.** The module cannot tell us
+  which list or step it is on, so a nonvisual "next / previous step" has to live
+  in the app: read the list, keep the position, select the kit at the next step
+  through the ordinary verified kit-select path. Announce like `KitNav`.
 - [x] **`P2` Notice the current kit's slot being replaced.** Copying or importing
   a kit over the slot you are standing on changes everything about it while its
   *number* stays put, so polling the number alone left the app naming the kit that
@@ -194,6 +198,12 @@ and verified; keep this file honest about real state.
   nothing. First seen while a set list with no steps was on screen. Blocks the
   hardware-in-the-loop workflow in `docs/DEVELOPMENT.md`; raw checks meanwhile go
   through [tools/midiprobe.swift](tools/midiprobe.swift).
+- [ ] **`P3` Program Change as a re-poll hint.** The module sends Bank Select +
+  Program Change on channel 10 for every kit change it makes itself (panel knob,
+  set-list step — seen 2026-10-04); the transport already forwards channel bytes
+  but the core drops them. Polling `Current` on receipt would announce a hardware
+  kit change at once instead of up to 300 ms later. The poll stays the source of
+  truth (PROTOCOL §6).
 - [ ] **`P3` Set-list names without opening each list** — the picker offers
   "Set list 1…32" because the names live in the module and reading all 32 would be
   32 requests. Worth a background sweep (paced) once the hardware answers above.
