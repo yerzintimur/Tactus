@@ -259,7 +259,10 @@ and verified; keep this file honest about real state.
   a sweep interrupting the last on the platform; addresses the profile does not
   describe are ignored. Captured on the V31 2026-10-04 (PROTOCOL §6;
   [hardware_edits.rs](core/crates/e2e/tests/hardware_edits.rs),
-  [locate.rs](core/crates/device/tests/locate.rs)). *Open:* pads have no names
+  [locate.rs](core/crates/device/tests/locate.rs)) and **verified end to end in
+  the Mac app** the same day: the kit-volume knob read "Kit volume: 0.5 dB … 1.5
+  dB … 0.0 dB", a pad's volume "Pad volume: …" twice per step (head and rim).
+  *Open:* pads have no names
   in the profile yet, so a pad edit says "Layer volume" without which pad; the
   value cache is per parameter id, so only grid-free parameters of the current
   kit land in the snapshot.
