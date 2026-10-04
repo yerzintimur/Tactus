@@ -84,9 +84,10 @@ fn rejected_kit_select_fails_by_timeout_not_falsely() {
     );
 }
 
-/// A fast dial through kits (two unsolicited Current pushes closer together than a
-/// name read-back) must announce only the kit we settle on — the intermediate
-/// kit's stale name read is dropped.
+/// A fast dial through kits: the module sends a Program Change per kit and the
+/// app reads `Current` for each. The first read's reply (kit 0) is still in
+/// flight when the dial lands on kit 1, so only the kit we settle on is announced
+/// — the intermediate kit's name read-back is dropped as stale.
 #[test]
 fn rapid_kit_scroll_announces_only_the_settled_kit() {
     let mut h = Harness::v31("en");
@@ -94,8 +95,8 @@ fn rapid_kit_scroll_announces_only_the_settled_kit() {
     h.take_events();
     h.device_mut().with_kit(1, "Funk", 1300);
 
-    // Two pushes at the same instant: kit 0, then kit 1.
     h.hardware_select_kit(0);
+    h.step(); // the Program Change lands: a Current read goes out, its reply is in flight
     h.hardware_select_kit(1);
     h.run_to_idle();
 
@@ -263,5 +264,72 @@ fn actions_do_not_multiply_the_polling_chain() {
     assert!(
         (9..=11).contains(&polls),
         "expected one Current read per 300 ms over 3 s, got {polls}"
+    );
+}
+
+/// The module tells of its own kit changes with a Program Change and nothing
+/// else (PROTOCOL §6); waiting for the next poll would cost up to an interval.
+/// The message is a hint to read `Current` now: the new kit is announced within
+/// one read's latency, with one read — not a burst.
+#[test]
+fn a_program_change_from_the_module_is_read_at_once() {
+    let mut h = Harness::v31("en");
+    h.connect().run_to_idle();
+    h.take_events();
+    h.take_sent();
+
+    let before = h.now();
+    h.hardware_select_kit(0).run_to_idle();
+
+    assert!(
+        h.events().iter().any(|e| matches!(e,
+            CoreEvent::CurrentKitChanged { number, .. } if *number == 0)),
+        "the kit change is announced"
+    );
+    assert!(
+        h.now() - before < 300,
+        "announced within a read's latency, not a poll interval; took {} ms",
+        h.now() - before
+    );
+    assert_eq!(
+        h.sent().iter().filter(|m| is_current_read(m)).count(),
+        1,
+        "one Current read for one Program Change"
+    );
+}
+
+/// The number inside a Program Change is not the kit: the module's PROG CHG
+/// mapping is a setting, and bank bytes come with it. The message only prompts a
+/// read — a stray Program Change with the kit unchanged announces nothing.
+#[test]
+fn a_program_change_is_a_hint_not_a_kit_number() {
+    let mut h = Harness::v31("en");
+    h.connect().run_to_idle(); // kit 4
+    h.take_events();
+
+    h.feed(&[0xB9, 0x00, 0x00, 0xB9, 0x20, 0x00, 0xC9, 0x05])
+        .run_to_idle();
+
+    assert!(
+        !h.events()
+            .iter()
+            .any(|e| matches!(e, CoreEvent::CurrentKitChanged { .. })),
+        "nothing changed on the module, so nothing is announced"
+    );
+    assert!(h.spoken().is_empty(), "got {:?}", h.spoken());
+}
+
+/// Like the poll, the hinted read stays out of an edit's read-back exchange.
+#[test]
+fn a_program_change_does_not_interrupt_an_edit_in_flight() {
+    let mut h = Harness::v31("en");
+    h.connect().run_to_idle();
+    h.take_events();
+
+    h.set_parameter("kit.common.tempo", vec![4], 1300); // verify not yet settled
+    let fx = h.act_capturing(|s| s.handle_midi_input(&[0xC9, 0x05]));
+    assert!(
+        !fx.iter().any(|e| matches!(e, engine::Effect::SendMidi(_))),
+        "no read goes out over an in-flight edit"
     );
 }

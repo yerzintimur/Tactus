@@ -251,8 +251,11 @@ parameter-map JSON, §13 of SPEC, cross-checked against the Data List.)
   every panel kit change — knob or set-list step — sent **Bank Select MSB/LSB +
   Program Change on channel 10** (`B9 00 00 B9 20 00 C9 03` for kit 4), so the
   bank bytes are there for kits beyond 128; the module also sends the same triple
-  once at connect. The transport forwards these bytes to the core, which today
-  ignores everything but SysEx — using them as the re-poll hint is still a to-do.
+  once at connect. The transport forwards these bytes to the core, and the core
+  treats any inbound Program Change as the hint: it reads `Current` at once
+  (skipped only over an in-flight edit's read-back), so a panel kit change is
+  announced within one read's latency instead of up to a poll interval later. The
+  number in the message is never used as the kit.
 - **Transmit Edit Data = ON** (module setting): the module **pushes a DT1** for a
   parameter when you edit it on the hardware. Parse address+value → update model
   → announce. This keeps the app in sync with physical knob-turning. **Kit

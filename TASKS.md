@@ -196,12 +196,15 @@ and verified; keep this file honest about real state.
   (documented on the effect, implemented by the Swift session and the e2e harness,
   pinned in [timed_scenarios.rs](core/crates/e2e/tests/timed_scenarios.rs) and
   the Swift unit tests).
-- [ ] **`P3` Program Change as a re-poll hint.** The module sends Bank Select +
+- [x] **`P3` Program Change as a re-poll hint.** The module sends Bank Select +
   Program Change on channel 10 for every kit change it makes itself (panel knob,
-  set-list step — seen 2026-10-04); the transport already forwards channel bytes
-  but the core drops them. Polling `Current` on receipt would announce a hardware
-  kit change at once instead of up to 300 ms later. The poll stays the source of
-  truth (PROTOCOL §6).
+  set-list step — seen 2026-10-04) and no SysEx. The core now reads `Current` the
+  moment a Program Change arrives (not over an in-flight edit), so a panel kit
+  change is announced within one read's latency instead of up to 300 ms later;
+  the number in the message is never trusted as the kit — the poll stays the
+  source of truth (PROTOCOL §6). The virtual device sends the same triple and no
+  DT1 for its own kit changes, so the simulator and the UI tests exercise the
+  real path ([timed_scenarios.rs](core/crates/e2e/tests/timed_scenarios.rs)).
 - [ ] **`P3` Set-list names without opening each list** — the picker offers
   "Set list 1…32" because the names live in the module and reading all 32 would be
   32 requests. Worth a background sweep (paced) once the hardware answers above.

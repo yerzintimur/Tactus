@@ -133,7 +133,7 @@ fn hardware_kit_change_is_picked_up() {
     h.connect().run_to_idle(); // Ready, kit 4
     h.take_events();
 
-    // The module pushes an unsolicited Current change to kit index 0.
+    // The module sends its Program Change for kit index 0; the app reads Current.
     h.hardware_select_kit(0).run_to_idle();
     assert!(
         h.events()

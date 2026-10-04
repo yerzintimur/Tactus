@@ -185,9 +185,14 @@ impl VirtualDevice {
     // ── unsolicited hardware-initiated pushes (Transmit Edit Data) ──
 
     /// Simulate selecting a kit on the module's own panel: update state and return
-    /// the unsolicited DT1 the module pushes to the host.
+    /// what the module transmits for it — Bank Select MSB/LSB + Program Change
+    /// on channel 10, and **no** DT1 (PROTOCOL §6; `B9 00 00 B9 20 00 C9 03` was
+    /// observed for kit 4). How kits beyond 128 map to banks is a module setting;
+    /// this model counts the LSB up every 128 kits.
     pub fn hardware_select_kit(&mut self, index: u32) -> Vec<u8> {
-        self.push_param("current.kit_num", &[], EditValue::Int(i64::from(index)))
+        self.set_current_kit(index);
+        let (bank_lsb, program) = ((index / 128) as u8, (index % 128) as u8);
+        vec![0xB9, 0x00, 0x00, 0xB9, 0x20, bank_lsb, 0xC9, program]
     }
 
     /// Simulate editing a parameter on the module's own panel.
@@ -393,20 +398,14 @@ mod tests {
     }
 
     #[test]
-    fn hardware_select_kit_updates_state_and_returns_a_push() {
+    fn hardware_select_kit_updates_state_and_sends_a_program_change() {
         let mut dev = VirtualDevice::v31();
         let push = dev.hardware_select_kit(0);
-        // The push is a DT1 to the Current address carrying the new kit.
-        let Ok(SysexMessage::Dt1 { address, data, .. }) = parse(&push, &dev.profile().model_id)
-        else {
-            panic!("expected DT1 push");
-        };
-        assert_eq!(
-            address,
-            dev.profile().address_of("current.kit_num", &[]).unwrap()
-        );
-        assert_eq!(Encoding::Nibble.decode_int(&data), Some(0));
-        // And a subsequent read reflects it.
+        // What the real module sends: Bank Select + Program Change on channel 10,
+        // and no SysEx at all — the host has to read `Current` to learn the kit.
+        assert_eq!(push, [0xB9, 0x00, 0x00, 0xB9, 0x20, 0x00, 0xC9, 0x00]);
+        assert!(!push.contains(&0xF0));
+        // A subsequent read reflects it.
         let addr = dev.profile().address_of("current.kit_num", &[]).unwrap();
         let reply = dev.respond(&rq1(&dev, addr, 4));
         let Ok(SysexMessage::Dt1 { data, .. }) = parse(&reply[0], &dev.profile().model_id) else {

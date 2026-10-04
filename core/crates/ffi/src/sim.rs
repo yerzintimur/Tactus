@@ -56,7 +56,8 @@ impl VirtualDeviceHandle {
     }
 
     /// The user turns the kit dial on the module: updates the simulated state and
-    /// returns the unsolicited DT1 push the module would transmit.
+    /// returns what the module transmits — Bank Select + Program Change, no DT1
+    /// (the host reads `Current` to learn the kit).
     pub fn hardware_select_kit(&self, index: u32) -> Vec<u8> {
         self.device.lock().unwrap().hardware_select_kit(index)
     }
@@ -121,6 +122,10 @@ mod tests {
         let handle = VirtualDeviceHandle::v31();
         handle.seed_kit(7, "Latin".to_string(), 1100);
         let push = handle.hardware_select_kit(7);
-        assert!(!push.is_empty(), "a hardware kit change emits a DT1 push");
+        assert_eq!(
+            push[6..],
+            [0xC9, 7],
+            "a hardware kit change emits a Program Change"
+        );
     }
 }

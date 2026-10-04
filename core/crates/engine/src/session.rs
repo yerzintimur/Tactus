@@ -292,7 +292,39 @@ impl Session {
                 _ => {}
             }
         }
+        // Channel messages are not reassembled, and a Program Change status byte
+        // (Cn) can appear nowhere inside SysEx — so a scan of the raw bytes is an
+        // exact test for one.
+        if bytes.iter().any(|b| (0xC0..=0xCF).contains(b)) {
+            effects.extend(self.on_program_change());
+        }
         effects
+    }
+
+    /// A Program Change from the module is its own kit change — the knob, a
+    /// set-list step — and the only sign of it the module sends (PROTOCOL §6).
+    /// Read `Current` now rather than at the next tick, so the new kit is
+    /// announced within one read's latency instead of up to a poll interval
+    /// later. The number in the message is not trusted (its mapping to kits is a
+    /// module setting); only the fact that something changed is. The poll stays
+    /// the source of truth.
+    fn on_program_change(&mut self) -> Vec<Effect> {
+        if self.state != ConnectionState::Ready || self.edit_in_flight() {
+            return Vec::new();
+        }
+        self.request_read("current.kit_num", &[], Pending::CurrentKitNum)
+            .into_iter()
+            .collect()
+    }
+
+    /// Is a write's read-back verify outstanding? Reading `Current` over one
+    /// would let a surfaced kit change clear the value cache and issue reads
+    /// around the verify — the edit exchange stays atomic. (A kit *selection* is
+    /// the opposite: the `Current` read is exactly how it gets confirmed.)
+    fn edit_in_flight(&self) -> bool {
+        self.pending
+            .values()
+            .any(|p| matches!(p, Pending::EditVerify(_)))
     }
 
     // ── internals ──
@@ -684,16 +716,7 @@ impl Session {
     }
 
     fn poll_current(&mut self) -> Vec<Effect> {
-        // Don't poll over an in-flight edit: if the poll surfaced a kit change
-        // mid-verify, the kit-change flow would clear the value cache and issue
-        // name/tempo reads around the verify — keep the edit exchange atomic.
-        // (A kit *selection* is the opposite: polling is exactly how it gets
-        // confirmed, so it never suppresses the poll.)
-        if self
-            .pending
-            .values()
-            .any(|p| matches!(p, Pending::EditVerify(_)))
-        {
+        if self.edit_in_flight() {
             return Vec::new();
         }
         let mut fx: Vec<Effect> = self
