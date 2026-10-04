@@ -357,3 +357,40 @@ fn the_step_is_announced_in_the_users_language() {
     h.next_setlist_step().run_to_idle();
     assert_eq!(h.spoken(), vec!["Шаг 1, кит 5: Jazz"]);
 }
+
+/// Two presses faster than the module answers (seen on the V31 driven from the
+/// Mac app): the module confirms the first step's kit while the second is still
+/// in flight. The intermediate kit is announced as what it is, and the step the
+/// drummer actually asked for is still announced *as a step* when it lands —
+/// the earlier confirmation must not resolve the newer selection.
+#[test]
+fn rapid_steps_still_announce_the_step_you_land_on() {
+    let mut h = Harness::v31("en");
+    h.device_mut()
+        .with_kit(4, "Jazz", 1200)
+        .with_kit(0, "Rock", 1400)
+        .with_kit(11, "Funk", 1300)
+        .with_setlist(0, "Concert", &[4, 0, 11]);
+    h.connect().run_to_idle();
+    h.read_setlist(0).run_to_idle();
+    h.advance(2000);
+    h.take_events();
+
+    h.next_setlist_step();
+    h.next_setlist_step();
+    h.next_setlist_step();
+    h.run_to_idle();
+
+    let spoken = h.spoken();
+    assert_eq!(
+        spoken.last().map(String::as_str),
+        Some("130.0 BPM"),
+        "the last kit's tempo follows its announcement; got {spoken:?}"
+    );
+    assert!(
+        spoken.contains(&"Step 3, Kit 12: Funk".to_string()),
+        "the step the drummer asked for is announced as a step; got {spoken:?}"
+    );
+    assert_eq!(setlist(&h).position, Some(2));
+    assert_eq!(h.snapshot().current_kit.map(|k| k.display_number), Some(12));
+}

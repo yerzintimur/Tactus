@@ -639,9 +639,19 @@ impl Session {
     }
 
     fn on_kit_changed(&mut self, number: u32, origin: KitOrigin) -> Vec<Effect> {
-        // The device settled on a kit: any in-flight selection is resolved by
+        // The device settled on a kit: a selection aiming at it is resolved by
         // announcing the *actual* kit below (the device is the source of truth).
-        self.kit_select = None;
+        // A selection aiming elsewhere stays in flight — two quick presses write
+        // two kits, and this is the module confirming the first; the second is
+        // still coming (or will time out audibly), and it is the one that carries
+        // the set-list step the drummer asked for.
+        if self
+            .kit_select
+            .as_ref()
+            .is_some_and(|ks| ks.intended == number)
+        {
+            self.kit_select = None;
+        }
         self.current_kit = Some(number);
         // New kit: the previous kit's cached values no longer apply. The name and
         // tempo reads below repopulate the cache for the new kit.
