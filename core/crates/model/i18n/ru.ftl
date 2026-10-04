@@ -5,6 +5,10 @@ kit-label = Кит { $number }: { $name }
 # Ответ на «следующий/предыдущий кит» на краю списка китов модуля.
 kit-at-first = Первый кит.
 kit-at-last = Последний кит.
+setlist-step-kit = Шаг { $step }, кит { $number }: { $name }
+setlist-at-first = Первый шаг сет-листа.
+setlist-at-last = Последний шаг сет-листа.
+setlist-empty = Сет-лист пуст.
 
 param-tempo = { $value } уд/мин
 param-kit-name = { $name }
@@ -74,6 +78,9 @@ ui-button-move-step-down = Вниз
 ui-button-remove-step = Убрать
 ui-button-rename-setlist = Переименовать сет-лист…
 ui-title-rename-setlist = Переименование сет-листа
+ui-button-previous-step = Предыдущий шаг
+ui-button-next-step = Следующий шаг
+ui-value-setlist-current-step = { $value }, текущий шаг
 
 ui-section-tempo = Темп
 ui-label-tempo = Темп

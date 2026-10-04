@@ -40,6 +40,9 @@ pub struct SetlistView {
     pub steps: Vec<KitRef>,
     /// How many steps this module's set lists hold.
     pub capacity: u32,
+    /// The step the drummer is on (0-based), once they have stepped into the
+    /// list. The app's own position — the module keeps none.
+    pub position: Option<u32>,
 }
 
 /// A reference to a kit: the 0-based wire `number`, the 1-based `display_number`

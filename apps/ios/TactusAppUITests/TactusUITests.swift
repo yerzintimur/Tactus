@@ -222,6 +222,30 @@ final class TactusUITests: XCTestCase {
         XCTAssertTrue(element(in: app, containing: "Step 2: 5 · Jazz").exists)
     }
 
+    /// Playing a set: "Next step" selects the step's kit on the module and the
+    /// row the drummer is on says so. Two presses land on step 2 (kit 6, Funk) —
+    /// the first step is the kit the simulated module already plays.
+    func testSteppingThroughTheSetlistSelectsItsKits() {
+        let app = launchSimulated()
+        openSetlist(in: app)
+        XCTAssertTrue(
+            element(in: app, containing: "Step 2: 6 · Funk").waitForExistence(timeout: uiTimeout))
+
+        let next = app.buttons["Next step"].firstMatch
+        XCTAssertTrue(next.waitForExistence(timeout: uiTimeout))
+        next.tap()
+        XCTAssertTrue(
+            element(in: app, containing: "Step 1: 5 · Jazz, current step")
+                .waitForExistence(timeout: uiTimeout),
+            "the first press should land on step 1")
+        next.tap()
+        XCTAssertTrue(
+            element(in: app, containing: "Step 2: 6 · Funk, current step")
+                .waitForExistence(timeout: uiTimeout),
+            "the second press should move to step 2 once the module confirms")
+        XCTAssertFalse(element(in: app, containing: "Step 1: 5 · Jazz, current step").exists)
+    }
+
     /// The set-list screen is held to the same audit as the main one — it is a
     /// screen a blind user has to work in, not a read-only view.
     @MainActor

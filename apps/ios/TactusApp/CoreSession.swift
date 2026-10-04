@@ -132,6 +132,8 @@ final class CoreSession: ObservableObject {
         perform(core.swapSetlistSteps(a: a, b: b))
     }
     func renameSetlist(to name: String) { perform(core.renameSetlist(name: name)) }
+    func nextSetlistStep() { perform(core.nextSetlistStep()) }
+    func previousSetlistStep() { perform(core.previousSetlistStep()) }
 
     /// Step to the adjacent kit. The core knows both the current kit and how many
     /// the module has, so the bounds live there — at the first/last kit it writes

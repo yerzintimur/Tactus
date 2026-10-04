@@ -128,6 +128,9 @@ pub enum UiString {
     ButtonRemoveStep,
     ButtonRenameSetlist,
     TitleRenameSetlist,
+    ButtonPreviousStep,
+    ButtonNextStep,
+    ValueSetlistCurrentStep,
     SectionTempo,
     LabelTempo,
     ValueUpdating,
@@ -174,6 +177,9 @@ impl From<UiString> for engine::UiString {
             UiString::ButtonRemoveStep => engine::UiString::ButtonRemoveStep,
             UiString::ButtonRenameSetlist => engine::UiString::ButtonRenameSetlist,
             UiString::TitleRenameSetlist => engine::UiString::TitleRenameSetlist,
+            UiString::ButtonPreviousStep => engine::UiString::ButtonPreviousStep,
+            UiString::ButtonNextStep => engine::UiString::ButtonNextStep,
+            UiString::ValueSetlistCurrentStep => engine::UiString::ValueSetlistCurrentStep,
             UiString::SectionTempo => engine::UiString::SectionTempo,
             UiString::LabelTempo => engine::UiString::LabelTempo,
             UiString::ValueUpdating => engine::UiString::ValueUpdating,
@@ -222,6 +228,9 @@ impl From<engine::UiString> for UiString {
             engine::UiString::ButtonRemoveStep => Self::ButtonRemoveStep,
             engine::UiString::ButtonRenameSetlist => Self::ButtonRenameSetlist,
             engine::UiString::TitleRenameSetlist => Self::TitleRenameSetlist,
+            engine::UiString::ButtonPreviousStep => Self::ButtonPreviousStep,
+            engine::UiString::ButtonNextStep => Self::ButtonNextStep,
+            engine::UiString::ValueSetlistCurrentStep => Self::ValueSetlistCurrentStep,
             engine::UiString::SectionTempo => Self::SectionTempo,
             engine::UiString::LabelTempo => Self::LabelTempo,
             engine::UiString::ValueUpdating => Self::ValueUpdating,
@@ -311,6 +320,8 @@ pub struct SetlistView {
     pub name: String,
     pub steps: Vec<KitRef>,
     pub capacity: u32,
+    /// The step the drummer is on (0-based), once they have stepped into the list.
+    pub position: Option<u32>,
 }
 
 /// A reference to a kit: 0-based wire `number`, 1-based `display_number`, name.
@@ -533,6 +544,7 @@ impl From<engine::SetlistView> for SetlistView {
             name: s.name,
             steps: s.steps.into_iter().map(Into::into).collect(),
             capacity: s.capacity,
+            position: s.position,
         }
     }
 }

@@ -170,10 +170,15 @@ and verified; keep this file honest about real state.
   *active* set list is invisible over MIDI: stepping through one on the panel
   sends only Bank Select + Program Change, exactly like the kit knob, and no
   SysEx — so list position is the app's to drive, not to read (PROTOCOL §5).
-- [ ] **`P2` Step through a set list from the app.** The module cannot tell us
-  which list or step it is on, so a nonvisual "next / previous step" has to live
-  in the app: read the list, keep the position, select the kit at the next step
-  through the ordinary verified kit-select path. Announce like `KitNav`.
+- [x] **`P2` Step through a set list from the app.** The module cannot tell us
+  which list or step it is on, so the position lives in the engine: "Next step" /
+  "Previous step" select the step's kit through the ordinary verified kit-select
+  path and, once the module confirms, announce "Step 2, Kit 5: Jazz" (`KitNav`,
+  spoken even when the kit was already current — the drummer asked where they
+  are). The list never wraps: the edges and an empty list are announced and write
+  nothing. The position survives reopening the screen and follows the list when
+  it is shortened; the row being played reads "…, current step"
+  ([setlists.rs](core/crates/e2e/tests/setlists.rs), `SetlistState::target`).
 - [x] **`P2` Notice the current kit's slot being replaced.** Copying or importing
   a kit over the slot you are standing on changes everything about it while its
   *number* stays put, so polling the number alone left the app naming the kit that

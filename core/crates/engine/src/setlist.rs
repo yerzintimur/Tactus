@@ -32,6 +32,21 @@ pub(crate) struct SetlistState {
     /// One slot per step the module has; `None` until read back.
     pub steps: Vec<Option<i64>>,
     pub queue: VecDeque<StepWrite>,
+    /// Where in the list the drummer is (0-based step), once they have started
+    /// stepping through it. The module keeps no such pointer (PROTOCOL §5), so
+    /// this is the app's own and never read from the device.
+    pub position: Option<usize>,
+}
+
+/// Why a step could not be taken.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum StepEdge {
+    /// Nothing to step through.
+    Empty,
+    /// Already at (or before) the first step.
+    AtFirst,
+    /// Already at the last step.
+    AtLast,
 }
 
 impl SetlistState {
@@ -41,7 +56,41 @@ impl SetlistState {
             name: None,
             steps: vec![None; capacity],
             queue: VecDeque::new(),
+            position: None,
         }
+    }
+
+    /// The step `delta` away from the current position. Before any stepping,
+    /// "next" is the first step and "previous" has nowhere to go. Never wraps —
+    /// at a gig, running off the end into step 1 is the one surprise to avoid.
+    pub fn target(&self, delta: i64) -> Result<usize, StepEdge> {
+        let len = self.length();
+        if len == 0 {
+            return Err(StepEdge::Empty);
+        }
+        let target = match self.position {
+            Some(position) => position as i64 + delta,
+            None if delta > 0 => delta - 1,
+            None => return Err(StepEdge::AtFirst),
+        };
+        if target < 0 {
+            Err(StepEdge::AtFirst)
+        } else if target as usize >= len {
+            Err(StepEdge::AtLast)
+        } else {
+            Ok(target as usize)
+        }
+    }
+
+    /// Keep the position inside the list after an edit shortened it: a position
+    /// past the new end moves to the last step; an emptied list has none.
+    pub fn clamp_position(&mut self) {
+        let len = self.length();
+        self.position = match self.position {
+            Some(_) if len == 0 => None,
+            Some(position) if position >= len => Some(len - 1),
+            other => other,
+        };
     }
 
     /// How many steps the list holds: everything before the first `END`. A slot we
@@ -220,5 +269,47 @@ mod tests {
         assert_eq!(s.swap(0, 1), None);
         assert_eq!(s.remove(1), None);
         assert_eq!(s.kit_at(1), None);
+    }
+
+    #[test]
+    fn stepping_starts_at_the_first_step_and_never_wraps() {
+        let mut list = SetlistState::new(0, 32);
+        list.steps[0] = Some(4);
+        list.steps[1] = Some(0);
+        list.steps[2] = Some(END);
+
+        assert_eq!(list.target(-1), Err(StepEdge::AtFirst));
+        assert_eq!(list.target(1), Ok(0));
+        list.position = Some(0);
+        assert_eq!(list.target(1), Ok(1));
+        assert_eq!(list.target(-1), Err(StepEdge::AtFirst));
+        list.position = Some(1);
+        assert_eq!(list.target(1), Err(StepEdge::AtLast));
+        assert_eq!(list.target(-1), Ok(0));
+    }
+
+    #[test]
+    fn an_empty_list_has_no_steps_to_take() {
+        let mut list = SetlistState::new(0, 32);
+        list.steps[0] = Some(END);
+        assert_eq!(list.target(1), Err(StepEdge::Empty));
+        assert_eq!(list.target(-1), Err(StepEdge::Empty));
+    }
+
+    #[test]
+    fn the_position_follows_the_list_when_it_shrinks() {
+        let mut list = SetlistState::new(0, 32);
+        list.steps[0] = Some(4);
+        list.steps[1] = Some(0);
+        list.steps[2] = Some(END);
+        list.position = Some(1);
+
+        list.steps[1] = Some(END); // step 2 removed on the module
+        list.clamp_position();
+        assert_eq!(list.position, Some(0));
+
+        list.steps[0] = Some(END); // and the last one
+        list.clamp_position();
+        assert_eq!(list.position, None);
     }
 }

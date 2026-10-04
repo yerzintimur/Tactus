@@ -6,6 +6,10 @@ kit-label = Kit { $number }: { $name }
 # The answer to "next/previous kit" at the end of the module's kit list.
 kit-at-first = First kit.
 kit-at-last = Last kit.
+setlist-step-kit = Step { $step }, Kit { $number }: { $name }
+setlist-at-first = First step of the set list.
+setlist-at-last = Last step of the set list.
+setlist-empty = The set list is empty.
 
 param-tempo = { $value } BPM
 param-kit-name = { $name }
@@ -75,6 +79,9 @@ ui-button-move-step-down = Move down
 ui-button-remove-step = Remove
 ui-button-rename-setlist = Rename set list…
 ui-title-rename-setlist = Rename set list
+ui-button-previous-step = Previous step
+ui-button-next-step = Next step
+ui-value-setlist-current-step = { $value }, current step
 
 ui-section-tempo = Tempo
 ui-label-tempo = Tempo

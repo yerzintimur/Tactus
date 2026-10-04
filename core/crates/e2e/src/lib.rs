@@ -238,6 +238,14 @@ impl Harness {
         self.act(move |s| s.rename_setlist(name))
     }
 
+    pub fn next_setlist_step(&mut self) -> &mut Self {
+        self.act(Session::next_setlist_step)
+    }
+
+    pub fn previous_setlist_step(&mut self) -> &mut Self {
+        self.act(Session::previous_setlist_step)
+    }
+
     /// Simulate a kit selected on the module's own panel (unsolicited push).
     pub fn hardware_select_kit(&mut self, index: u32) -> &mut Self {
         let push = self.device.hardware_select_kit(index);

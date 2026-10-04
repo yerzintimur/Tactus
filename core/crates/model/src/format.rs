@@ -65,6 +65,16 @@ pub fn format_kit(display_number: u32, name: &str) -> Message {
         .device_arg("name", name)
 }
 
+/// A set-list step as the drummer hears it when they step onto it: the position
+/// in the list first, then the kit as it reads everywhere else. Both numbers are
+/// 1-based display numbers.
+pub fn format_setlist_step(display_step: u32, display_number: u32, name: &str) -> Message {
+    Message::new("setlist.step_kit")
+        .arg("step", display_step)
+        .arg("number", display_number)
+        .device_arg("name", name)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -112,6 +122,19 @@ mod tests {
         let loc = Localizer::new();
         assert_eq!(loc.format(&format_kit(5, "Jazz"), "en"), "Kit 5: Jazz");
         assert_eq!(loc.format(&format_kit(5, "Jazz"), "ru"), "Кит 5: Jazz");
+    }
+
+    #[test]
+    fn setlist_step_label_leads_with_the_position() {
+        let loc = Localizer::new();
+        assert_eq!(
+            loc.format(&format_setlist_step(2, 5, "Jazz"), "en"),
+            "Step 2, Kit 5: Jazz"
+        );
+        assert_eq!(
+            loc.format(&format_setlist_step(2, 5, "Jazz"), "ru"),
+            "Шаг 2, кит 5: Jazz"
+        );
     }
 
     /// The guard that keeps a blind user from being read raw identifiers: every

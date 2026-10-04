@@ -40,10 +40,22 @@ struct SetlistScreen: View {
                     .disabled(session.setlist == nil)
             }
 
+            // Playing the set: the module keeps no list position of its own, so
+            // these drive it — each press is a verified kit selection, announced
+            // as "Step 2, Kit 5: Jazz" once the module confirms.
+            Section {
+                Button(session.text(.buttonPreviousStep)) { session.previousSetlistStep() }
+                    .disabled(session.setlist == nil)
+                Button(session.text(.buttonNextStep)) { session.nextSetlistStep() }
+                    .disabled(session.setlist == nil)
+            }
+
             Section {
                 if let setlist = session.setlist, !setlist.steps.isEmpty {
                     ForEach(Array(setlist.steps.enumerated()), id: \.offset) { position, kit in
-                        stepRow(position: position, kit: kit, count: setlist.steps.count)
+                        stepRow(
+                            position: position, kit: kit, count: setlist.steps.count,
+                            isCurrent: setlist.position.map(Int.init) == position)
                     }
                 } else {
                     Text(session.text(.valueSetlistEmpty))
@@ -67,11 +79,18 @@ struct SetlistScreen: View {
     /// One step: a single element reading "Step 1: 5 · Jazz", carrying its own
     /// edits as custom actions. `.swipeActions` gives sighted users the gesture and
     /// VoiceOver the same three actions from the rotor — one definition, both.
-    @ViewBuilder private func stepRow(position: Int, kit: KitRef, count: Int) -> some View {
+    @ViewBuilder private func stepRow(
+        position: Int, kit: KitRef, count: Int, isCurrent: Bool
+    ) -> some View {
         let step = UInt32(position)
-        Text(label(position: position, kit: kit))
+        let text = label(position: position, kit: kit)
+        // The step being played reads "…, current step" — the one orientation a
+        // drummer needs mid-set, carried by the row itself rather than a marker.
+        let spoken = isCurrent ? session.text(.valueSetlistCurrentStep, text) : text
+        Text(spoken)
+            .fontWeight(isCurrent ? .bold : .regular)
             .accessibilityElement(children: .combine)
-            .accessibilityLabel(label(position: position, kit: kit))
+            .accessibilityLabel(spoken)
             .swipeActions(edge: .leading) {
                 if position > 0 {
                     Button(session.text(.buttonMoveStepUp)) {

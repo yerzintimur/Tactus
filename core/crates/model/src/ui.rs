@@ -57,6 +57,10 @@ pub enum UiString {
     ButtonRemoveStep,
     ButtonRenameSetlist,
     TitleRenameSetlist,
+    ButtonPreviousStep,
+    ButtonNextStep,
+    /// The step the drummer is on, e.g. "Step 2: 5 · Jazz, current step".
+    ValueSetlistCurrentStep,
     // Tempo
     SectionTempo,
     LabelTempo,
@@ -106,6 +110,9 @@ impl UiString {
         UiString::ButtonRemoveStep,
         UiString::ButtonRenameSetlist,
         UiString::TitleRenameSetlist,
+        UiString::ButtonPreviousStep,
+        UiString::ButtonNextStep,
+        UiString::ValueSetlistCurrentStep,
         UiString::SectionTempo,
         UiString::LabelTempo,
         UiString::ValueUpdating,
@@ -152,6 +159,9 @@ impl UiString {
             UiString::ButtonRemoveStep => "ui-button-remove-step",
             UiString::ButtonRenameSetlist => "ui-button-rename-setlist",
             UiString::TitleRenameSetlist => "ui-title-rename-setlist",
+            UiString::ButtonPreviousStep => "ui-button-previous-step",
+            UiString::ButtonNextStep => "ui-button-next-step",
+            UiString::ValueSetlistCurrentStep => "ui-value-setlist-current-step",
             UiString::SectionTempo => "ui-section-tempo",
             UiString::LabelTempo => "ui-label-tempo",
             UiString::ValueUpdating => "ui-value-updating",
@@ -164,7 +174,10 @@ impl UiString {
     pub fn takes_value(self) -> bool {
         matches!(
             self,
-            UiString::ValueCurrentKit | UiString::ValueSetlistNumber | UiString::ValueSetlistStep
+            UiString::ValueCurrentKit
+                | UiString::ValueSetlistNumber
+                | UiString::ValueSetlistStep
+                | UiString::ValueSetlistCurrentStep
         )
     }
 }

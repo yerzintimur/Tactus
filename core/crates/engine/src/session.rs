@@ -7,12 +7,12 @@ use crate::event::{
     ConnectionState, CoreEvent, DeviceInfo, Earcon, Effect, Speech, SpeechCategory, SpeechPriority,
     SpeechSource,
 };
-use crate::setlist::{END, SetlistState, StepWrite};
+use crate::setlist::{END, SetlistState, StepEdge, StepWrite};
 use crate::viewmodel::{self, KitRef, ParamKind, ParamValue, ParameterView, SetlistView, Snapshot};
 use device::{DeviceProfile, FirmwareSupport, FirmwareVersion, ProfileRegistry};
 use model::{
     LocalizedText, Localizer, Message, UiString, format_kit, format_parameter,
-    format_parameter_label,
+    format_parameter_label, format_setlist_step,
 };
 use std::collections::HashMap;
 use sysex::SysexMessage;
@@ -100,6 +100,9 @@ struct Edit {
 struct KitSelect {
     intended: u32,
     age: u32,
+    /// The set-list step this selection plays, when it came from stepping through
+    /// a list — announced as the step once the module confirms the kit.
+    step: Option<u32>,
 }
 
 /// The intended value of an edit (raw, pre-encoding).
@@ -138,6 +141,9 @@ pub struct Session {
     /// Polls since the current kit's name was last re-read (see
     /// [`KIT_NAME_REFRESH_POLLS`]).
     polls_since_name_check: u32,
+    /// A set-list step whose kit the module has just confirmed: the pending name
+    /// read announces "Step n, Kit m: name" instead of the bare kit.
+    step_announce: Option<u32>,
 }
 
 impl Session {
@@ -159,6 +165,7 @@ impl Session {
             setlist: None,
             kit_names: HashMap::new(),
             polls_since_name_check: 0,
+            step_announce: None,
         }
     }
 
@@ -415,7 +422,11 @@ impl Session {
                     "kit.common.name".to_string(),
                     ParamValue::Text(name.clone()),
                 );
-                let speech = self.render_spoken(&format_kit(number + 1, &name));
+                let message = match self.step_announce.take() {
+                    Some(step) => format_setlist_step(step + 1, number + 1, &name),
+                    None => format_kit(number + 1, &name),
+                };
+                let speech = self.render_spoken(&message);
                 let (category, source) = origin.tags();
                 vec![
                     Effect::Emit(CoreEvent::CurrentKitChanged { number, name }),
@@ -437,6 +448,7 @@ impl Session {
             Pending::EditVerify(edit) => self.handle_edit_verify(edit, data),
             Pending::Setlist(index) => {
                 if self.absorb_setlist(address, data) {
+                    self.settle_setlist_position();
                     vec![Effect::Emit(CoreEvent::SetlistChanged { number: index })]
                 } else {
                     Vec::new()
@@ -458,6 +470,7 @@ impl Session {
     fn handle_unsolicited(&mut self, address: [u8; 4], data: &[u8]) -> Vec<Effect> {
         // A set list edited on the module while the user has it open here.
         if self.absorb_setlist(address, data) {
+            self.settle_setlist_position();
             let number = self.setlist.as_ref().map(|s| s.index).unwrap_or_default();
             return vec![Effect::Emit(CoreEvent::SetlistChanged { number })];
         }
@@ -568,21 +581,61 @@ impl Session {
             } else {
                 KitOrigin::Device
             };
+            // A set-list step that landed where it meant to is announced as the
+            // step; a kit the module chose on its own is announced as a kit.
+            self.step_announce = self
+                .kit_select
+                .as_ref()
+                .filter(|ks| ks.intended == number)
+                .and_then(|ks| ks.step);
             return self.on_kit_changed(number, origin);
         }
         // Unchanged. A read matching an in-flight selection's target means we were
-        // already on that kit — settle silently. Any *other* unchanged read while a
-        // selection is in flight is a stale reply from before the write landed:
-        // ignore it and let the next `Current` read confirm. (This is what makes
-        // the shared-address race harmless — PROTOCOL §6.)
-        if self
+        // already on that kit — settle silently, unless the selection was a
+        // set-list step: the drummer asked where they are and gets told, same kit
+        // or not. Any *other* unchanged read while a selection is in flight is a
+        // stale reply from before the write landed: ignore it and let the next
+        // `Current` read confirm. (This is what makes the shared-address race
+        // harmless — PROTOCOL §6.)
+        if let Some(step) = self
             .kit_select
             .as_ref()
-            .is_some_and(|ks| ks.intended == number)
+            .filter(|ks| ks.intended == number)
+            .map(|ks| ks.step)
         {
             self.kit_select = None;
+            if let Some(step) = step {
+                return self.announce_step(step, number);
+            }
         }
         Vec::new()
+    }
+
+    /// The module confirmed the kit at `step` of the open set list: say where the
+    /// drummer is. From the cached name when we have it, otherwise after reading
+    /// it — the announcement waits for the module either way (ADR-0010).
+    fn announce_step(&mut self, step: u32, kit: u32) -> Vec<Effect> {
+        match self.text_value("kit.common.name") {
+            Some(name) => {
+                let speech = self.render_spoken(&format_setlist_step(step + 1, kit + 1, &name));
+                vec![self.speak(
+                    speech,
+                    SpeechPriority::Default,
+                    SpeechCategory::KitNav,
+                    SpeechSource::UserInitiated,
+                )]
+            }
+            None => {
+                self.step_announce = Some(step);
+                self.request_read(
+                    "kit.common.name",
+                    &[kit],
+                    Pending::KitName(kit, KitOrigin::User),
+                )
+                .into_iter()
+                .collect()
+            }
+        }
     }
 
     fn on_kit_changed(&mut self, number: u32, origin: KitOrigin) -> Vec<Effect> {
@@ -722,6 +775,12 @@ impl Session {
     /// still write → read back → verify, never a blind write; if the module never
     /// lands on a new kit, [`Session::age_edits`] reports a timeout.
     pub fn select_kit(&mut self, number: u32) -> Vec<Effect> {
+        self.start_kit_select(number, None)
+    }
+
+    /// Write the kit number and ask for `Current` back; `step` tags a selection
+    /// made by stepping through a set list (see [`Session::next_setlist_step`]).
+    fn start_kit_select(&mut self, number: u32, step: Option<u32>) -> Vec<Effect> {
         let (addr, len, encoding, model_id, max_kit) = {
             let Some(p) = self.profile.as_ref() else {
                 return self.fail_simple("edit.not_ready", "current.kit_num");
@@ -752,6 +811,7 @@ impl Session {
         self.kit_select = Some(KitSelect {
             intended: number,
             age: 0,
+            step,
         });
         self.pending.insert(addr, Pending::CurrentKitNum);
         let mut fx = vec![
@@ -790,14 +850,14 @@ impl Session {
         };
         let target = i64::from(current) + delta;
         if target < 0 {
-            return self.announce_kit_edge("kit.at_first");
+            return self.announce_edge("kit.at_first");
         }
         let max_kit = self
             .profile
             .as_ref()
             .and_then(DeviceProfile::max_kit_number);
         if max_kit.is_some_and(|max| target > i64::from(max)) {
-            return self.announce_kit_edge("kit.at_last");
+            return self.announce_edge("kit.at_last");
         }
         match u32::try_from(target) {
             Ok(number) => self.select_kit(number),
@@ -810,7 +870,7 @@ impl Session {
     /// module or on screen — so the screen reader has nothing of its own to voice:
     /// say where they are. Tagged `KitNav`, so it interrupts like any other kit
     /// announcement instead of queueing behind a scroll (ADR-0014).
-    fn announce_kit_edge(&mut self, message_id: &str) -> Vec<Effect> {
+    fn announce_edge(&mut self, message_id: &str) -> Vec<Effect> {
         let edge = self.render_spoken(&Message::new(message_id));
         vec![self.speak(
             edge,
@@ -821,6 +881,66 @@ impl Session {
     }
 
     // ── set lists ──
+
+    /// Play the next step of the open set list. The module keeps no list position
+    /// of its own and tells us nothing when its panel steps through one (PROTOCOL
+    /// §5), so the position lives here: the step's kit is selected through the
+    /// same verified path as any kit selection, and once the module confirms it
+    /// the drummer hears "Step 2, Kit 5: Jazz". At the last step nothing is
+    /// written and the edge is announced — a set never wraps round on stage.
+    pub fn next_setlist_step(&mut self) -> Vec<Effect> {
+        self.step_setlist(1)
+    }
+
+    /// Play the previous step; the first step is a boundary (see
+    /// [`Self::next_setlist_step`]).
+    pub fn previous_setlist_step(&mut self) -> Vec<Effect> {
+        self.step_setlist(-1)
+    }
+
+    fn step_setlist(&mut self, delta: i64) -> Vec<Effect> {
+        let (number, target) = {
+            let Some(state) = self.setlist.as_ref() else {
+                return self.fail_simple("edit.not_ready", "setlist.step");
+            };
+            (state.index, state.target(delta))
+        };
+        let target = match target {
+            Ok(target) => target,
+            Err(StepEdge::Empty) => return self.announce_edge("setlist.empty"),
+            Err(StepEdge::AtFirst) => return self.announce_edge("setlist.at_first"),
+            Err(StepEdge::AtLast) => return self.announce_edge("setlist.at_last"),
+        };
+        let kit = self
+            .setlist
+            .as_ref()
+            .and_then(|s| s.kit_at(target))
+            .and_then(|kit| u32::try_from(kit).ok());
+        let Some(kit) = kit else {
+            return self.fail_simple("edit.not_ready", "setlist.step");
+        };
+        let step = target as u32;
+        let mut fx = self.start_kit_select(kit, Some(step));
+        // Only a selection that actually went out moves the position.
+        if self
+            .kit_select
+            .as_ref()
+            .is_some_and(|ks| ks.step == Some(step))
+        {
+            if let Some(state) = self.setlist.as_mut() {
+                state.position = Some(target);
+            }
+            fx.push(Effect::Emit(CoreEvent::SetlistChanged { number }));
+        }
+        fx
+    }
+
+    /// After the module told us a list's content, keep the position inside it.
+    fn settle_setlist_position(&mut self) {
+        if let Some(state) = self.setlist.as_mut() {
+            state.clamp_position();
+        }
+    }
 
     /// Open a set list (0-based) for viewing and editing.
     ///
@@ -848,7 +968,16 @@ impl Session {
             (addr, size, capacity, p.model_id.clone())
         };
 
-        self.setlist = Some(SetlistState::new(index, capacity as usize));
+        // The position survives re-reading the same list: the screen re-reads on
+        // every visit, and a drummer mid-set must not lose their place.
+        let position = self
+            .setlist
+            .as_ref()
+            .filter(|s| s.index == index)
+            .and_then(|s| s.position);
+        let mut state = SetlistState::new(index, capacity as usize);
+        state.position = position;
+        self.setlist = Some(state);
         self.pending.insert(addr, Pending::Setlist(index));
         let mut fx = vec![Effect::SendMidi(sysex::build_rq1(
             self.device_id,
@@ -1143,6 +1272,7 @@ impl Session {
         if let Some(slot) = state.steps.get_mut(step as usize) {
             *slot = Some(actual);
         }
+        state.clamp_position();
         let mut fx = vec![Effect::Emit(CoreEvent::SetlistChanged { number: index })];
         fx.extend(self.send_next_step_write());
         fx
@@ -1219,6 +1349,7 @@ impl Session {
             ks.age += 1;
             if ks.age >= EDIT_TIMEOUT_TICKS {
                 self.kit_select = None;
+                self.step_announce = None;
                 fx.extend(self.fail_simple("edit.timeout", "current.kit_num"));
             }
         }
@@ -1279,6 +1410,7 @@ impl Session {
                     })
                     .collect(),
                 capacity: state.steps.len() as u32,
+                position: state.position.map(|p| p as u32),
             }),
             parameters,
         }

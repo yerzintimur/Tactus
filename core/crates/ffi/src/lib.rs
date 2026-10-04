@@ -99,6 +99,18 @@ impl TactusSession {
         self.run(engine::Session::previous_kit)
     }
 
+    /// Play the next step of the open set list: its kit is selected through the
+    /// verified kit-select path and announced as "Step n, Kit m: name" once the
+    /// module confirms. The last step is a boundary — a set never wraps.
+    pub fn next_setlist_step(&self) -> Vec<Effect> {
+        self.run(engine::Session::next_setlist_step)
+    }
+
+    /// Play the previous step of the open set list (see [`Self::next_setlist_step`]).
+    pub fn previous_setlist_step(&self) -> Vec<Effect> {
+        self.run(engine::Session::previous_setlist_step)
+    }
+
     /// Set a numeric parameter (raw value), verified by read-back.
     pub fn set_parameter(&self, param_id: String, indices: Vec<u32>, value: i64) -> Vec<Effect> {
         self.run(|s| s.set_parameter(param_id, indices, value))

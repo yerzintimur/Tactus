@@ -240,3 +240,120 @@ fn set_list_edits_speak_the_users_language() {
         "a step speaks the kit number the module shows, counted from 1"
     );
 }
+
+// ── stepping through a set list ──
+//
+// The module keeps no list position and sends nothing about one when its own
+// panel steps through a list (PROTOCOL §5), so the position is the app's. Each
+// step is an ordinary verified kit selection; the announcement names the step and
+// waits for the module to confirm the kit.
+
+fn sent_midi(fx: &[engine::Effect]) -> usize {
+    fx.iter()
+        .filter(|e| matches!(e, engine::Effect::SendMidi(_)))
+        .count()
+}
+
+#[test]
+fn the_first_step_is_announced_only_after_the_module_confirms_it() {
+    let mut h = opened("en");
+    h.take_events();
+    // The module is already on kit 5 — step 1 of the list.
+    h.next_setlist_step();
+    assert!(
+        h.spoken().is_empty(),
+        "nothing is said before the module answers"
+    );
+    h.run_to_idle();
+    assert_eq!(h.spoken(), vec!["Step 1, Kit 5: Jazz"]);
+    assert_eq!(setlist(&h).position, Some(0));
+}
+
+/// A step onto a *different* kit is a kit change like any other: the step is
+/// announced first, then the new kit's tempo follows as it always does.
+
+#[test]
+fn next_step_selects_the_kit_and_says_where_you_are() {
+    let mut h = opened("en");
+    h.next_setlist_step().run_to_idle();
+    h.take_events();
+
+    let fx = h.act_capturing(|s| s.next_setlist_step());
+    assert_eq!(sent_midi(&fx), 2, "a kit write and its Current read");
+    h.run_to_idle();
+
+    assert_eq!(h.snapshot().current_kit.map(|k| k.display_number), Some(1));
+    assert_eq!(h.spoken(), vec!["Step 2, Kit 1: Rock", "140.0 BPM"]);
+    assert_eq!(setlist(&h).position, Some(1));
+}
+
+#[test]
+fn previous_step_goes_back() {
+    let mut h = opened("en");
+    h.next_setlist_step().run_to_idle();
+    h.next_setlist_step().run_to_idle();
+    h.take_events();
+
+    h.previous_setlist_step().run_to_idle();
+
+    assert_eq!(h.spoken(), vec!["Step 1, Kit 5: Jazz", "120.0 BPM"]);
+    assert_eq!(setlist(&h).position, Some(0));
+}
+
+#[test]
+fn the_set_list_never_wraps() {
+    let mut h = opened("en");
+    h.take_events();
+
+    let fx = h.act_capturing(|s| s.previous_setlist_step());
+    assert_eq!(sent_midi(&fx), 0, "nothing to write before the first step");
+    assert_eq!(h.spoken(), vec!["First step of the set list."]);
+
+    h.next_setlist_step().run_to_idle();
+    h.next_setlist_step().run_to_idle();
+    h.take_events();
+    let fx = h.act_capturing(|s| s.next_setlist_step());
+    assert_eq!(sent_midi(&fx), 0, "nothing to write past the last step");
+    assert_eq!(h.spoken(), vec!["Last step of the set list."]);
+    assert_eq!(
+        setlist(&h).position,
+        Some(1),
+        "the position stays on the last step"
+    );
+}
+
+#[test]
+fn an_empty_set_list_has_nothing_to_step_through() {
+    let mut h = seeded("en");
+    h.device_mut().with_setlist(1, "Empty", &[]);
+    h.read_setlist(1).run_to_idle();
+    h.take_events();
+
+    let fx = h.act_capturing(|s| s.next_setlist_step());
+    assert_eq!(sent_midi(&fx), 0);
+    assert_eq!(h.spoken(), vec!["The set list is empty."]);
+}
+
+#[test]
+fn reopening_the_same_list_keeps_the_position() {
+    let mut h = opened("en");
+    h.next_setlist_step().run_to_idle();
+    h.next_setlist_step().run_to_idle();
+
+    // The screen re-reads the list every time it appears.
+    h.read_setlist(0).run_to_idle();
+    assert_eq!(setlist(&h).position, Some(1));
+
+    // Another list is another set — no position yet.
+    h.device_mut().with_setlist(1, "Second", &[11]);
+    h.read_setlist(1).run_to_idle();
+    assert_eq!(setlist(&h).position, None);
+}
+
+#[test]
+fn the_step_is_announced_in_the_users_language() {
+    let mut h = opened("ru");
+    h.take_events();
+    h.next_setlist_step().run_to_idle();
+    assert_eq!(h.spoken(), vec!["Шаг 1, кит 5: Jazz"]);
+}

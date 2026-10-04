@@ -12,7 +12,7 @@ mod intent;
 mod ui;
 
 pub use catalog::InstrumentCatalog;
-pub use format::{format_kit, format_parameter, format_parameter_label};
+pub use format::{format_kit, format_parameter, format_parameter_label, format_setlist_step};
 pub use i18n::{
     AVAILABLE_LOCALES, Arg, DEVICE_CONTENT_LANG, LocaleInfo, LocalizedText, Localizer, Message,
     TextSpan,
