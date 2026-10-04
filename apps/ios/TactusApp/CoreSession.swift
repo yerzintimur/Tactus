@@ -194,6 +194,9 @@ final class CoreSession: ObservableObject {
         refreshViewModel()
     }
 
+    /// The armed tick timer, if any (see `scheduleTick`).
+    private var tickTimer: Task<Void, Never>?
+
     /// The parameter id of the tempo control (also used by `refreshViewModel`).
     private static let tempoParamId = "kit.common.tempo"
 
@@ -241,9 +244,13 @@ final class CoreSession: ObservableObject {
     }
 
     /// The core asks us to call `tick` again after a delay (polling, retries).
+    /// One timer only: the core never asks while a tick is outstanding, and a
+    /// second timer here would be a second polling chain for the whole session.
     private func scheduleTick(afterMs: UInt64) {
-        Task { [weak self] in
+        tickTimer?.cancel()
+        tickTimer = Task { [weak self] in
             try? await Task.sleep(nanoseconds: afterMs * 1_000_000)
+            guard !Task.isCancelled else { return }
             self?.tick()
         }
     }

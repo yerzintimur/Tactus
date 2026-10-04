@@ -235,3 +235,33 @@ fn the_name_refresh_says_nothing_while_the_kit_is_unchanged() {
         "an unchanged kit must produce no speech; got {spoken:?}"
     );
 }
+
+/// Is this outbound message the poller's `Current` read — an RQ1 at `00 00 00 00`?
+fn is_current_read(msg: &[u8]) -> bool {
+    msg.len() > 11 && msg[6] == 0x11 && msg[7..11] == [0, 0, 0, 0]
+}
+
+/// User actions ask for a tick of their own (an edit needs ageing, a selection a
+/// confirmation read). Each request re-arms the *one* tick timer rather than adding
+/// another — a platform that kept every request as its own timer ran one polling
+/// chain per action for the rest of the connection (seen on hardware as nine
+/// `Current` reads a second after three actions). Three actions later, the rate
+/// must still be one read per interval.
+#[test]
+fn actions_do_not_multiply_the_polling_chain() {
+    let mut h = Harness::v31("en");
+    h.connect().run_to_idle();
+    h.select_kit(0).run_to_idle();
+    h.read_setlist(0).run_to_idle();
+    h.set_parameter("kit.common.tempo", vec![0], 1300)
+        .run_to_idle();
+    h.take_sent();
+
+    h.advance(3_000); // ten poll intervals
+
+    let polls = h.sent().iter().filter(|m| is_current_read(m)).count();
+    assert!(
+        (9..=11).contains(&polls),
+        "expected one Current read per 300 ms over 3 s, got {polls}"
+    );
+}

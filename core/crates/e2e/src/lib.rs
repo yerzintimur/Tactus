@@ -69,6 +69,9 @@ pub struct Harness {
     queue: BinaryHeap<Due>,
     seq: u64,
     events: Vec<CoreEvent>,
+    /// Every message the host sent, in order — what a MIDI monitor on the cable
+    /// would show.
+    sent: Vec<Vec<u8>>,
 }
 
 impl Harness {
@@ -82,6 +85,7 @@ impl Harness {
             queue: BinaryHeap::new(),
             seq: 0,
             events: Vec::new(),
+            sent: Vec::new(),
         }
     }
 
@@ -116,6 +120,16 @@ impl Harness {
     /// Take and clear the events emitted so far.
     pub fn take_events(&mut self) -> Vec<CoreEvent> {
         std::mem::take(&mut self.events)
+    }
+
+    /// All MIDI messages the host has sent so far, in order.
+    pub fn sent(&self) -> &[Vec<u8>] {
+        &self.sent
+    }
+
+    /// Take and clear the sent-message log.
+    pub fn take_sent(&mut self) -> Vec<Vec<u8>> {
+        std::mem::take(&mut self.sent)
     }
 
     /// The spoken texts emitted so far, in order.
@@ -299,8 +313,8 @@ impl Harness {
 
     /// Drain a batch of effects onto the timeline. `SendMidi` is answered by the
     /// device **now** (a snapshot — see [`VirtualDevice::respond`]) and the reply is
-    /// enqueued at `now + latency`; `ScheduleTick` becomes a future tick; `Emit` is
-    /// recorded.
+    /// enqueued at `now + latency`; `ScheduleTick` re-arms the single future tick;
+    /// `Emit` is recorded.
     fn ingest(&mut self, effects: Vec<Effect>) {
         for effect in effects {
             match effect {
@@ -309,8 +323,13 @@ impl Harness {
                     for reply in self.device.respond(&bytes) {
                         self.push(at, DueKind::DeviceReply(reply));
                     }
+                    self.sent.push(bytes);
                 }
                 Effect::ScheduleTick { after_ms } => {
+                    // One tick timer, re-armed by the latest request — the contract
+                    // every platform implements (`Effect::ScheduleTick`). Keeping
+                    // the earlier tick too would be a second polling chain.
+                    self.queue.retain(|d| !matches!(d.kind, DueKind::Tick));
                     let at = self.clock.now() + after_ms;
                     self.push(at, DueKind::Tick);
                 }

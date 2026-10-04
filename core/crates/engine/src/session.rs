@@ -197,13 +197,12 @@ impl Session {
         self.kit_select = None;
         self.setlist = None;
         self.kit_names.clear();
-        vec![
+        let mut fx = vec![
             Effect::Emit(CoreEvent::ConnectionChanged(ConnectionState::Identifying)),
             Effect::SendMidi(sysex::build_identity_request(IDENTITY_DEVICE_ID)),
-            Effect::ScheduleTick {
-                after_ms: POLL_INTERVAL_MS * 3,
-            },
-        ]
+        ];
+        fx.push(Self::schedule_tick(POLL_INTERVAL_MS * 3));
+        fx
     }
 
     /// The transport closed — reset to disconnected.
@@ -228,22 +227,26 @@ impl Session {
     pub fn tick(&mut self, now_ms: u64) -> Vec<Effect> {
         let _ = now_ms;
         match self.state {
-            ConnectionState::Identifying => vec![
-                Effect::SendMidi(sysex::build_identity_request(IDENTITY_DEVICE_ID)),
-                Effect::ScheduleTick {
-                    after_ms: POLL_INTERVAL_MS * 3,
-                },
-            ],
+            ConnectionState::Identifying => {
+                let mut fx = vec![Effect::SendMidi(sysex::build_identity_request(
+                    IDENTITY_DEVICE_ID,
+                ))];
+                fx.push(Self::schedule_tick(POLL_INTERVAL_MS * 3));
+                fx
+            }
             ConnectionState::Ready => {
                 let mut fx = self.age_edits();
                 fx.extend(self.poll_current());
-                fx.push(Effect::ScheduleTick {
-                    after_ms: POLL_INTERVAL_MS,
-                });
+                fx.push(Self::schedule_tick(POLL_INTERVAL_MS));
                 fx
             }
             ConnectionState::Disconnected => vec![],
         }
+    }
+
+    /// Re-arm the platform's tick timer (see [`Effect::ScheduleTick`]).
+    fn schedule_tick(after_ms: u64) -> Effect {
+        Effect::ScheduleTick { after_ms }
     }
 
     /// Feed inbound MIDI bytes (may be fragmented across calls).
@@ -342,9 +345,7 @@ impl Session {
                     ),
                 ];
                 fx.extend(self.poll_current());
-                fx.push(Effect::ScheduleTick {
-                    after_ms: POLL_INTERVAL_MS,
-                });
+                fx.push(Self::schedule_tick(POLL_INTERVAL_MS));
                 fx
             }
             None => {
@@ -753,7 +754,7 @@ impl Session {
             age: 0,
         });
         self.pending.insert(addr, Pending::CurrentKitNum);
-        vec![
+        let mut fx = vec![
             Effect::SendMidi(sysex::build_dt1(self.device_id, &model_id, addr, &data)),
             Effect::SendMidi(sysex::build_rq1(
                 self.device_id,
@@ -761,10 +762,9 @@ impl Session {
                 addr,
                 rq_size(len),
             )),
-            Effect::ScheduleTick {
-                after_ms: POLL_INTERVAL_MS,
-            },
-        ]
+        ];
+        fx.push(Self::schedule_tick(POLL_INTERVAL_MS));
+        fx
     }
 
     /// Step to the next kit, stopping at the module's last slot.
@@ -850,17 +850,14 @@ impl Session {
 
         self.setlist = Some(SetlistState::new(index, capacity as usize));
         self.pending.insert(addr, Pending::Setlist(index));
-        vec![
-            Effect::SendMidi(sysex::build_rq1(
-                self.device_id,
-                &model_id,
-                addr,
-                sysex::address::from_linear(size as u32),
-            )),
-            Effect::ScheduleTick {
-                after_ms: POLL_INTERVAL_MS,
-            },
-        ]
+        let mut fx = vec![Effect::SendMidi(sysex::build_rq1(
+            self.device_id,
+            &model_id,
+            addr,
+            sysex::address::from_linear(size as u32),
+        ))];
+        fx.push(Self::schedule_tick(POLL_INTERVAL_MS));
+        fx
     }
 
     /// Point a step at a kit, or at `None` for the list's `END` terminator.
@@ -986,9 +983,18 @@ impl Session {
     /// a 12-step list fills in over a few ticks instead of firing a dozen requests
     /// at once — same reason [`Session::read_setlist`] reads in bulk.
     fn request_missing_step_name(&mut self) -> Option<Effect> {
+        let profile = self.profile.as_ref()?;
         let wanted = self.setlist.as_ref()?.steps.iter().find_map(|slot| {
             let kit = u32::try_from((*slot)?).ok()?;
-            (!self.kit_names.contains_key(&kit)).then_some(kit)
+            if self.kit_names.contains_key(&kit) {
+                return None;
+            }
+            // Already asked and the module hasn't answered yet (a slow reply
+            // straddling two polls): asking again only doubles the traffic.
+            let in_flight = profile
+                .address_of("kit.common.name", &[kit])
+                .is_some_and(|addr| self.pending.contains_key(&addr));
+            (!in_flight).then_some(kit)
         })?;
         // The current kit's name is already read by the kit flow, and its address
         // is the one the poller uses — don't race it, just copy what we have.
@@ -1054,7 +1060,7 @@ impl Session {
                 age: 0,
             }),
         );
-        vec![
+        let mut fx = vec![
             Effect::SendMidi(sysex::build_dt1(self.device_id, &model_id, addr, &data)),
             Effect::SendMidi(sysex::build_rq1(
                 self.device_id,
@@ -1062,10 +1068,9 @@ impl Session {
                 addr,
                 rq_size(len),
             )),
-            Effect::ScheduleTick {
-                after_ms: POLL_INTERVAL_MS,
-            },
-        ]
+        ];
+        fx.push(Self::schedule_tick(POLL_INTERVAL_MS));
+        fx
     }
 
     fn handle_edit_verify(&mut self, edit: Edit, data: &[u8]) -> Vec<Effect> {

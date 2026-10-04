@@ -42,6 +42,30 @@ final class CoreSessionTests: XCTestCase {
         XCTAssertNil(session.currentKitNumber)
     }
 
+    /// `ScheduleTick` re-arms the one tick timer; it never adds a second one. Every
+    /// action asks the core for a tick of its own, so a timer per request would
+    /// multiply the poll with each action for the rest of the connection (seen on
+    /// hardware: nine `Current` reads a second after three actions).
+    func testTickRequestsReplaceTheTimerInsteadOfStackingUp() async throws {
+        let session = CoreSession(locale: "en")
+        session.connected()
+        session.receive(CoreSession.sampleV31IdentityReply)
+        // Three actions, three tick requests on top of the poll's own.
+        session.readSetlist(0)
+        session.readSetlist(1)
+        session.readSetlist(2)
+
+        try await Task.sleep(nanoseconds: 1_500_000_000)
+
+        // No transport in this harness: outbound MIDI lands in the log instead.
+        let currentReads = session.log.filter {
+            $0.hasPrefix("→ MIDI F0 41 10 01 06 01 11 00 00 00 00")
+        }.count
+        // Five intervals of 300 ms fit in 1.5 s; four chains would make ~20.
+        XCTAssertGreaterThanOrEqual(currentReads, 3)
+        XCTAssertLessThanOrEqual(currentReads, 7, "the poll must not multiply with actions")
+    }
+
     func testTempoIsProjectedFromTheSnapshot() {
         let session = CoreSession(locale: "en")
         session.connected()

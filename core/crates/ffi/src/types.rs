@@ -282,7 +282,8 @@ pub enum CoreEvent {
 pub enum Effect {
     /// Send these raw MIDI bytes to the module.
     SendMidi { bytes: Vec<u8> },
-    /// Call `tick` again after roughly this many milliseconds.
+    /// Call `tick` again after roughly this many milliseconds, replacing any
+    /// earlier request: one tick timer, set by the latest request.
     ScheduleTick { after_ms: u64 },
     /// Forward this event to the UI / listener.
     Emit { event: CoreEvent },

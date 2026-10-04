@@ -124,7 +124,12 @@ pub enum CoreEvent {
 pub enum Effect {
     /// Send these raw MIDI bytes to the module.
     SendMidi(Vec<u8>),
-    /// Call `tick` again after roughly this many milliseconds.
+    /// Call `tick` again after roughly this many milliseconds — **replacing** any
+    /// earlier request. There is one tick timer and the latest request sets it:
+    /// the engine re-arms it from every action as well as from the tick itself,
+    /// so a platform that kept each request as a timer of its own would run one
+    /// polling chain per action for the rest of the connection (seen on hardware:
+    /// nine `Current` reads a second after three actions).
     ScheduleTick { after_ms: u64 },
     /// Forward this event to the UI / listener.
     Emit(CoreEvent),
