@@ -301,7 +301,8 @@ and verified; keep this file honest about real state.
   speaks the catalogued name as device content — `kit.fx.type` 13 is "PHASER"
   end to end, read-back confirmation included. Instruments need both numbers:
   reading the module showed bank 0 = presets, bank 1 = SYNTH WAVE, bank 2006+n =
-  pack EXVnnn (PROTOCOL §5), so `format_parameter_in_bank(def, bank, number)`
+  pack EXVnnn, confirmed on all three documented packs and independent of the
+  slot a pack is loaded in (PROTOCOL §5), so `format_parameter_in_bank(def, bank, number)`
   names "TR-808 Kick 1", and an uncatalogued pack says "Instrument #3 in bank
   2032 (unknown)" rather than guessing a preset. *Remaining for the kit editor:*
   read `inst_bank` alongside the instrument (same indices) and announce through

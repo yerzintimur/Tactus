@@ -64,9 +64,10 @@ REMARK_FLAGS = {
 # banks and instrument numbers"; which bank is which was read from a V31
 # (fw 0.2.1.0, 2026-10-04): bank 0 selects a preset by its list number, bank 1 is
 # SYNTH WAVE (the built-in synth, number 0), and expansion pack EXVnnn is bank
-# 2006 + nnn — EXV001 → 2007 and EXV002 → 2008 confirmed by the kits built on
-# them ("UK Wet Booth" kick = EXV001 #1 "Cm Vintage K", "TR-808" kick = EXV002
-# #97 "TR-808 Kick 1"). See docs/PROTOCOL.md §5.
+# 2006 + nnn — confirmed for all three packs by the kits built on them ("UK Wet
+# Booth" kick = EXV001 #1 "Cm Vintage K", "TR-808" kick = EXV002 #97 "TR-808
+# Kick 1", "Jazz Brushes" snare = EXV003 #1 "Pl MapleBrush S"); the bank is the
+# pack's identity, not the slot it is loaded in. See docs/PROTOCOL.md §5.
 PRESET_BANK = 0
 EXPANSION_BANK_BASE = 2006
 BUILTIN_BANKS = [{"bank": 1, "name": "SYNTH WAVE"}]

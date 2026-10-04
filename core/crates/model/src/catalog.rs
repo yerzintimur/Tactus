@@ -164,6 +164,8 @@ mod tests {
         // Kit 46 "UK Wet Booth" and kit 49 "TR-808", as read from the module.
         assert_eq!(loc.format(&cat.label(2007, 1), "en"), "Cm Vintage K");
         assert_eq!(loc.format(&cat.label(2008, 97), "en"), "TR-808 Kick 1");
+        // Kit 69 "Jazz Brushes": the pack in slot 2 is still bank 2006 + 3.
+        assert_eq!(loc.format(&cat.label(2009, 1), "en"), "Pl MapleBrush S");
         // The same number in another bank is another instrument.
         assert_ne!(cat.name(0, 97), cat.name(2008, 97));
         // Kit 9 "Pure Analog": every unit is SYNTH WAVE, number 0.

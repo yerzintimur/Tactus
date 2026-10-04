@@ -221,8 +221,15 @@ of kits 1 and 9.
 |---|---|---|
 | `0` | the **preset** list; number = Data List number | kit 1 "Studio A": 21 (kick), 35/36 (snare head/rim), 114–121 (toms), 147/148 (hi-hat), 158–160 (ride), 188–193 (crashes) — every unit in the right group |
 | `1` | **SYNTH WAVE**, the built-in synth; the number is `0` | kits 9 "Pure Analog" and 45 "Electro Synth": every unit `0 @ 1`, the sound lives in the forty V-EDIT parameters |
-| `2006 + n` | expansion pack **EXV<nnn>**; number = its own 1-based list | `2007`: kit 46 "UK Wet Booth" kick = EXV001 #1 "Cm Vintage K". `2008`: "TR-808" kick = EXV002 #97 "TR-808 Kick 1", "TR-909" #109 "TR-909 Low Kick", "TR-707" #111 "TR-707 Kick", "CR-78" #96 "CR-78 Kick", "Orchestral" #450 "Concert BD" |
-| `2024`, `2032` | packs installed on this unit that the Data List does not list (EXV018 / EXV026 by the formula — the pack identity is unconfirmed) | user kits 79–91 ("Gumwood Forge", "DP Standard Kit", …), numbers 1–4 |
+| `2006 + n` | expansion pack **EXV<nnn>**; number = its own 1-based list | `2007`: kit 46 "UK Wet Booth" kick = EXV001 #1 "Cm Vintage K". `2008`: "TR-808" kick = EXV002 #97 "TR-808 Kick 1", snare #220 "TR-808 Snare 1"; "TR-909" #109 "TR-909 Low Kick"; "CR-78" #96 "CR-78 Kick"; "Orchestral" #450 "Concert BD". `2009`: kits 69 "Jazz Brushes" and 70 "Modern Brushes" snare = EXV003 #1 "Pl MapleBrush S" |
+| `2024`, `2032` | packs the Data List does not list — loaded on this unit while a Roland Cloud subscription ran and since removed; the kits built on them keep the bank | user kits 79–91 ("Gumwood Forge", "DP Standard Kit", …), numbers 1–7 |
+
+The bank is the pack's **identity, not its slot**: the EXPANSION screen of this
+unit holds EXV001 in slot 1, EXV003 in slot 2 and EXV002 in slot 3 (slots 4–6
+empty), and EXV002 is still bank 2008. No SysEx area lists the loaded packs (the
+map's top level is Current / Setup / Trigger / SetList / Kit only), so the app
+cannot tell a removed pack from one we have not catalogued — it says the bank
+number either way.
 
 Consequences: **a number alone names nothing** — speak an instrument only with
 its bank (`format_parameter_in_bank`), never assume preset; 97 is a tom in bank 0
