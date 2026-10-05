@@ -387,6 +387,7 @@ impl Session {
                 // The version as the module's own screen shows it (profile
                 // `version_format`), so the app and the manual agree on it.
                 let firmware = profile.firmware.display(fw);
+                let verified = profile.allows_writes();
                 let info = DeviceInfo {
                     model_id: profile.model_id.clone(),
                     device_id,
@@ -395,6 +396,7 @@ impl Session {
                     firmware_support: support,
                     profile_id: profile.profile_id.clone(),
                     recognized: true,
+                    verified,
                 };
                 self.catalogs = Catalogs::for_profile(&profile);
                 self.profile = Some(profile);
@@ -416,7 +418,14 @@ impl Session {
                         .device_arg("device", name.as_str())
                         .arg("firmware", firmware),
                 );
-                if !support.is_tested() {
+                // A profile no module has run is the bigger caveat, and it
+                // implies the firmware one: say it instead, not as well.
+                if !verified {
+                    speech.push_str(" ");
+                    speech.push(&self.render_spoken(
+                        &Message::new("device.unverified").device_arg("device", name.as_str()),
+                    ));
+                } else if !support.is_tested() {
                     speech.push_str(" ");
                     speech.push(&self.render_spoken(&Message::new("device.firmware_untested")));
                 }
@@ -457,6 +466,7 @@ impl Session {
                     firmware_support: FirmwareSupport::Unknown,
                     profile_id: String::new(),
                     recognized: false,
+                    verified: false,
                 };
                 self.device_info = Some(info.clone());
                 let speech = self.render_spoken(&Message::new("device.unrecognized"));
@@ -977,6 +987,9 @@ impl Session {
     /// Write the kit number and ask for `Current` back; `step` tags a selection
     /// made by stepping through a set list (see [`Session::next_setlist_step`]).
     fn start_kit_select(&mut self, number: u32, step: Option<u32>) -> Vec<Effect> {
+        if let Some(refused) = self.refuse_unverified_write("current.kit_num") {
+            return refused;
+        }
         let (addr, len, encoding, model_id, max_kit) = {
             let Some(p) = self.profile.as_ref() else {
                 return self.fail_simple("edit.not_ready", "current.kit_num");
@@ -1355,6 +1368,9 @@ impl Session {
     }
 
     fn set_value(&mut self, param_id: &str, indices: &[u32], intended: EditValue) -> Vec<Effect> {
+        if let Some(refused) = self.refuse_unverified_write(param_id) {
+            return refused;
+        }
         let (addr, len, encoding, model_id) = {
             let Some(p) = self.profile.as_ref() else {
                 return self.fail_simple("edit.not_ready", param_id);
@@ -1511,6 +1527,21 @@ impl Session {
         let reason =
             self.render_spoken(&Message::new("edit.mismatch").arg("value", actual_display));
         self.emit_failure(&edit.param_id, reason)
+    }
+
+    /// The one gate every DT1 passes: a profile that has not run on a real module
+    /// is read-only (ADR-0016). Our own read-back cannot catch a wrong offset —
+    /// it reads the address it wrote — so until a bench session has confirmed
+    /// the map, the honest answer to an edit is a refusal that says why.
+    fn refuse_unverified_write(&self, param_id: &str) -> Option<Vec<Effect>> {
+        let profile = self.profile.as_ref()?;
+        if profile.allows_writes() {
+            return None;
+        }
+        let reason = self.render_spoken(
+            &Message::new("edit.unverified").device_arg("device", profile.display_name.as_str()),
+        );
+        Some(self.emit_failure(param_id, reason))
     }
 
     fn fail_simple(&self, msg_id: &str, param_id: &str) -> Vec<Effect> {

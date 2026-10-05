@@ -10,9 +10,13 @@
 > see [vendor/README.md](../vendor/README.md) and
 > [ADR-0004](../adr/0004-vendor-docs-not-committed.md).
 
-**Status:** documentation and a parsed address map only. There is **no TD-17
-profile yet** and nothing has been confirmed on hardware *by us* — §8 collects
-what two projects that do have the module found, and our map agrees with theirs.
+**Status:** a built-in profile ([profiles/roland-td-17.json](../../profiles/roland-td-17.json))
+written from the documents and cross-checked against the parsed map and against
+two other projects' hardware-tested maps (§8) — but **never run on a TD-17 by
+us**. Its `verification.on_hardware` is therefore `false`: Tactus recognises the
+module, reads and announces everything the profile describes, and **writes
+nothing** until a bench session confirms the map
+([ADR-0016](../adr/0016-unverified-profiles-are-read-only.md)).
 
 ---
 
@@ -243,24 +247,29 @@ To be answered with the module in hand (see
 
 Ordered by dependency; the estimate is deliberately conservative.
 
-1. **`profiles/roland-td-17.json`** — identity (`41 / 4B 03 / 00 00`), model ID
-   `00 00 00 4B`, capabilities (100 kits, 20 pads, 2 layers, MFX), and the
-   parameters we surface, each citing a `doc` reference into the parsed map.
-   *Data only.*
-2. **Firmware `version_format`** — one new variant for coded revisions, plus the
-   TD-17's three-entry table. *Small schema + enum change.*
+1. ~~**`profiles/roland-td-17.json`**~~ — **done (2026-10-05):** identity
+   (`41 / 4B 03 / 00 00`), model ID `00 00 00 4B`, 100 kits, 20 units × 2 layers
+   (Main/Sub, named), kit common, unit sends, instrument + bank, multi-FX,
+   ambience and reverb — 20 parameters, each citing a `doc` reference into the
+   parsed map, all pinned by the same cross-check test as the V31's. Read-only
+   until verified (ADR-0016).
+2. ~~**Firmware `version_format`**~~ — **done:** `firmware.version_names` maps
+   the coded revision to the version the module shows (`0.0.0.2` → "2.00"); an
+   unlisted code shows its bytes.
 3. **Catalogs** — kit list, instrument list and MFX parameter tables come from the
    Data List PDF. `tools/parse_datalist.py` is written against the *V31's* page
    geometry (column boundaries from header glyphs), so this is the one piece
    that needs real parser work rather than a new data file.
-4. **Cross-check test** — the same shape as
-   `core/crates/device/tests/map_crosscheck.rs`, pinning every profile parameter
-   to the parsed map. Cheap, and it is what caught the V31 name-length bug. A
-   second cross-check against V-Drum Explorer's hardware-tested block sizes (§8)
-   costs one table and buys most of what a bench session would.
-5. **Nothing expected in `sysex`, `engine`, or the apps.** The framing, checksum,
-   address arithmetic, 256-byte packet rule, poll/verify loop, and speech layer
-   are all module-independent.
+4. ~~**Cross-check test**~~ — **done:** `map_crosscheck.rs` now runs every
+   check for every built-in profile. The block sizes also agree with V-Drum
+   Explorer's hardware-tested schema (§8).
+5. **Nothing in `sysex` or the apps.** The framing, checksum, address
+   arithmetic, 256-byte packet rule, poll/verify loop and speech layer were all
+   module-independent, as claimed. The engine gained one thing, and not for the
+   TD-17 specifically: the write gate for unverified profiles (ADR-0016).
+6. **A bench session** — the only step left that needs the module: the open
+   questions in §6, then a write with read-back and a power cycle. Then
+   `verification.on_hardware` flips to `true` and the profile edits.
 
 The realistic risk is not the protocol — it is that we would be shipping a
 profile we cannot test until someone with a TD-17 runs it, which is why the

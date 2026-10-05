@@ -34,6 +34,8 @@ pub enum UiString {
     /// Shown until the module reports a panel edit: the setting the app cannot
     /// switch on itself. The value is the module's menu path, from its profile.
     HintTransmitEditData,
+    /// The connected module's profile has not run on real hardware: read-only.
+    ProfileUnverified,
     // Kit
     SectionKit,
     LabelCurrentKit,
@@ -94,6 +96,7 @@ impl UiString {
         UiString::FirmwareUnknown,
         UiString::SectionSetup,
         UiString::HintTransmitEditData,
+        UiString::ProfileUnverified,
         UiString::SectionKit,
         UiString::LabelCurrentKit,
         UiString::ValueCurrentKit,
@@ -145,6 +148,7 @@ impl UiString {
             UiString::FirmwareUnknown => "ui-firmware-unknown",
             UiString::SectionSetup => "ui-section-setup",
             UiString::HintTransmitEditData => "ui-hint-transmit-edit-data",
+            UiString::ProfileUnverified => "ui-profile-unverified",
             UiString::SectionKit => "ui-section-kit",
             UiString::LabelCurrentKit => "ui-label-current-kit",
             UiString::ValueCurrentKit => "ui-value-current-kit",

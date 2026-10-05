@@ -365,11 +365,24 @@ and verified; keep this file honest about real state.
   derived and committed (`profiles/maps/roland-td-17-address-map.json`, 4 areas /
   17 blocks / 163 params + 482 in variant tables) by the *same* parser, which
   needed five generic robustness fixes and no module-specific code.
-- [ ] **`P3` TD-17 device profile** — `profiles/roland-td-17.json` + a cross-check
-  test; data only, except one `version_format` variant: the TD-17's Identity Reply
-  carries a *coded* software revision (`00 00 00 02` = v2.00), not raw digits.
+- [x] **`P3` TD-17 device profile** — `profiles/roland-td-17.json`: 20
+  parameters, named units and layers, the coded firmware revision
+  (`firmware.version_names`), pinned by the cross-check test that now runs for
+  every built-in profile. Written without the module, so it ships **read-only**:
+  `verification.on_hardware = false` makes the core refuse every write with a
+  spoken reason ([ADR-0016](docs/adr/0016-unverified-profiles-are-read-only.md));
+  reads, kit names and panel edits work in the simulator end to end
+  ([td17.rs](core/crates/e2e/tests/td17.rs)). The iOS connection section shows
+  the read-only note.
+- [ ] **`P3` TD-17 bench session** — the one step that needs the module: the
+  open questions in [docs/devices/roland-td-17.md §6](docs/devices/roland-td-17.md),
+  a write with read-back and a power cycle; then flip `verification.on_hardware`.
 - [ ] **`P3` TD-17 catalogs** — kit/instrument lists from its Data List; needs real
-  work in `parse_datalist.py`, which is tuned to the V31's page geometry.
+  work in `parse_datalist.py`, which is tuned to the V31's page geometry. Until
+  then instruments and multi-FX types are spoken as numbers.
+- [ ] **`P3` Read-only profiles in the UI** — present editors as read-only when
+  `DeviceInfo.verified` is false (today every edit is refused with speech, which
+  is honest but noisy), and show `verification.basis` somewhere reachable.
 - ~~BLE-MIDI transport~~ — **deferred, not planned**
   ([ADR-0015](docs/adr/0015-usb-midi-only.md)). USB is the only supported
   transport on both platforms and both modules. Consequence to keep in view: the

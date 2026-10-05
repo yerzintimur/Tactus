@@ -222,6 +222,7 @@ See full rationale, alternatives, and exact build commands in
 - [0013](docs/adr/0013-data-driven-ui-renderer.md) Per-device UI = downloadable declarative description + generic native renderer (deferred).
 - [0014](docs/adr/0014-screen-reader-is-the-only-voice.md) The screen reader is the only voice — app exposes the a11y tree, announces only screen-reader-invisible changes (interrupting for nav), no double-speech.
 - [0015](docs/adr/0015-usb-midi-only.md) USB MIDI is the only supported transport; BLE-MIDI deferred (no Bluetooth code or permissions on either platform).
+- [0016](docs/adr/0016-unverified-profiles-are-read-only.md) A profile that has not run on a real module is read-only: the core reads and announces, never writes.
 
 ## Deep design
 

@@ -112,7 +112,16 @@ Roland; различаются данные.** Поэтому:
   "firmware": {
     "tested": [],                      // 4-byte Identity-Reply versions we've verified (fill after HW)
     "version_format": "{0}.{1}.{2}{3}", // the 4 version bytes as the module's screen shows them (verified on HW)
+    "version_names": { "0.0.0.2": "2.00" }, // для модулей, где Identity Reply несёт код, а не версию (TD-17)
     "notes": "policy: never block; announce when untested — ADR-0009"
+  },
+
+  // Прогонялась ли карта на живом модуле. Нет (или поле отсутствует) — ядро
+  // читает и озвучивает, но не шлёт ни одного DT1: наш read-back читает тот же
+  // адрес, что писал, и неверное смещение он не поймает (ADR-0016).
+  "verification": {
+    "on_hardware": true,
+    "basis": "что подтверждает карту: сессии у модуля с датами или источники, по которым сверяли"
   },
 
   "capabilities": {

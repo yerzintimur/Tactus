@@ -1,0 +1,657 @@
+{
+  "schema_version": 1,
+  "profile_id": "roland-td-17",
+  "display_name": "Roland TD-17",
+  "family": "roland-vdrums",
+  "model_id": [
+    0,
+    0,
+    0,
+    75
+  ],
+  "device_id_default": 16,
+  "identity": {
+    "manufacturer": 65,
+    "family": [
+      75,
+      3
+    ],
+    "member": [
+      0,
+      0
+    ]
+  },
+  "source": "Derived from Roland 'TD-17 (TD-17-L) MIDI Implementation' (eng04, Version 2.00, Sep. 1. 2022) and 'TD-17 Data List' (eng03), (c) Roland. Facts only; see docs/devices/roland-td-17.md. The map describes firmware 2.00: a module on 1.x has a shorter KitUnitCommon block and no Reverb block (docs/devices/roland-td-17.md §8). Every parameter's `doc` field points into profiles/maps/roland-td-17-address-map.json (cross-checked by tests). NOT YET RUN ON A TD-17 — see `verification`.",
+  "firmware": {
+    "tested": [],
+    "version_names": {
+      "0.0.0.0": "1.01 or earlier",
+      "0.0.0.1": "1.02",
+      "0.0.0.2": "2.00"
+    }
+  },
+  "verification": {
+    "on_hardware": false,
+    "basis": "Built from the documents without the module. The map agrees block for block with V-Drum Explorer's hardware-tested TD-17 schema (docs/devices/roland-td-17.md §8), so reads should be right; no write has ever been attempted on a TD-17, so Tactus makes none (ADR-0016). Flip `on_hardware` only after a bench session confirms write, read-back and persistence."
+  },
+  "capabilities": {
+    "kit_count": 100,
+    "fx_slots": 1,
+    "features": [
+      "transmit_edit_data",
+      "ambience",
+      "multi_fx"
+    ],
+    "menus": {
+      "transmit_edit_data": "SETUP, MIDI"
+    }
+  },
+  "areas": {
+    "current": {
+      "address": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "setup": {
+      "address": [
+        1,
+        0,
+        0,
+        0
+      ]
+    },
+    "trigger": {
+      "address": [
+        2,
+        0,
+        0,
+        0
+      ]
+    },
+    "kit": {
+      "address": [
+        3,
+        0,
+        0,
+        0
+      ],
+      "stride": [
+        0,
+        2,
+        0,
+        0
+      ],
+      "count": 100
+    }
+  },
+  "dimensions": {
+    "unit": {
+      "doc": "MIDI Implementation, 'Pad assignments': KitUnitCommon / KitUnitInst index 1-20. The doc says RIDE RIM for the zone the V31 doc calls RIDE EDGE; same zone, same key.",
+      "labels": [
+        "pad.kick",
+        "pad.snare.head",
+        "pad.snare.rim",
+        "pad.tom1.head",
+        "pad.tom1.rim",
+        "pad.tom2.head",
+        "pad.tom2.rim",
+        "pad.tom3.head",
+        "pad.tom3.rim",
+        "pad.hihat.head",
+        "pad.hihat.rim",
+        "pad.crash1.head",
+        "pad.crash1.rim",
+        "pad.crash2.head",
+        "pad.crash2.rim",
+        "pad.ride.head",
+        "pad.ride.edge",
+        "pad.ride.bell",
+        "pad.aux.head",
+        "pad.aux.rim"
+      ]
+    },
+    "layer": {
+      "doc": "Kit Unit Main / Kit Unit Sub blocks (Data List address map).",
+      "labels": [
+        "layer.main",
+        "layer.sub"
+      ]
+    }
+  },
+  "parameters": [
+    {
+      "id": "current.kit_num",
+      "area": "current",
+      "offset": [
+        0,
+        0
+      ],
+      "len": 1,
+      "encoding": "plain7",
+      "range": {
+        "min": 0,
+        "max": 99
+      },
+      "display_offset": 1,
+      "i18n_key": "param.kit_num",
+      "doc": "Current/Drum Kit Number"
+    },
+    {
+      "id": "kit.common.name",
+      "area": "kit",
+      "offset": [
+        0,
+        0,
+        0
+      ],
+      "len": 12,
+      "encoding": "ascii",
+      "i18n_key": "param.kit_name",
+      "doc": "KitCommon/Kit Name"
+    },
+    {
+      "id": "kit.common.sub_name",
+      "area": "kit",
+      "offset": [
+        0,
+        0,
+        12
+      ],
+      "len": 16,
+      "encoding": "ascii",
+      "i18n_key": "param.kit_sub_name",
+      "doc": "KitCommon/Kit Sub Name"
+    },
+    {
+      "id": "kit.common.volume",
+      "area": "kit",
+      "offset": [
+        0,
+        0,
+        28
+      ],
+      "len": 4,
+      "encoding": "signed_nibble",
+      "range": {
+        "min": -601,
+        "max": 60
+      },
+      "scale": 10,
+      "unit": "db",
+      "sentinel": {
+        "raw": -601,
+        "i18n_key": "value.level_silent"
+      },
+      "i18n_key": "param.kit_volume",
+      "doc": "KitCommon/Kit Volume"
+    },
+    {
+      "id": "kit.unit.common.pan",
+      "area": "kit",
+      "offset": [
+        0,
+        32,
+        0
+      ],
+      "len": 2,
+      "encoding": "signed_nibble",
+      "dims": [
+        {
+          "name": "unit",
+          "count": 20,
+          "stride": [
+            0,
+            1,
+            0
+          ]
+        }
+      ],
+      "range": {
+        "min": -30,
+        "max": 30
+      },
+      "i18n_key": "param.pad_pan",
+      "doc": "KitUnitCommon/Pan"
+    },
+    {
+      "id": "kit.unit.common.ambience_send",
+      "area": "kit",
+      "offset": [
+        0,
+        32,
+        16
+      ],
+      "len": 4,
+      "encoding": "signed_nibble",
+      "dims": [
+        {
+          "name": "unit",
+          "count": 20,
+          "stride": [
+            0,
+            1,
+            0
+          ]
+        }
+      ],
+      "range": {
+        "min": -601,
+        "max": 60
+      },
+      "scale": 10,
+      "unit": "db",
+      "sentinel": {
+        "raw": -601,
+        "i18n_key": "value.level_silent"
+      },
+      "i18n_key": "param.unit_ambience_send",
+      "doc": "KitUnitCommon/Ambience Send Level"
+    },
+    {
+      "id": "kit.unit.common.mfx_send",
+      "area": "kit",
+      "offset": [
+        0,
+        32,
+        20
+      ],
+      "len": 4,
+      "encoding": "signed_nibble",
+      "dims": [
+        {
+          "name": "unit",
+          "count": 20,
+          "stride": [
+            0,
+            1,
+            0
+          ]
+        }
+      ],
+      "range": {
+        "min": -601,
+        "max": 60
+      },
+      "scale": 10,
+      "unit": "db",
+      "sentinel": {
+        "raw": -601,
+        "i18n_key": "value.level_silent"
+      },
+      "i18n_key": "param.unit_mfx_send",
+      "doc": "KitUnitCommon/Multi FX Send Level"
+    },
+    {
+      "id": "kit.unit.common.reverb_send",
+      "area": "kit",
+      "offset": [
+        0,
+        32,
+        24
+      ],
+      "len": 4,
+      "encoding": "signed_nibble",
+      "dims": [
+        {
+          "name": "unit",
+          "count": 20,
+          "stride": [
+            0,
+            1,
+            0
+          ]
+        }
+      ],
+      "range": {
+        "min": -601,
+        "max": 60
+      },
+      "scale": 10,
+      "unit": "db",
+      "sentinel": {
+        "raw": -601,
+        "i18n_key": "value.level_silent"
+      },
+      "i18n_key": "param.unit_reverb_send",
+      "doc": "KitUnitCommon/RevSendLevel"
+    },
+    {
+      "id": "kit.unit.layer.instrument",
+      "area": "kit",
+      "offset": [
+        0,
+        64,
+        0
+      ],
+      "len": 4,
+      "encoding": "nibble",
+      "dims": [
+        {
+          "name": "layer",
+          "count": 2,
+          "stride": [
+            0,
+            32,
+            0
+          ]
+        },
+        {
+          "name": "unit",
+          "count": 20,
+          "stride": [
+            0,
+            1,
+            0
+          ]
+        }
+      ],
+      "i18n_key": "param.layer_instrument",
+      "doc": "KitUnitInst/Instrument"
+    },
+    {
+      "id": "kit.unit.layer.volume",
+      "area": "kit",
+      "offset": [
+        0,
+        64,
+        4
+      ],
+      "len": 4,
+      "encoding": "signed_nibble",
+      "dims": [
+        {
+          "name": "layer",
+          "count": 2,
+          "stride": [
+            0,
+            32,
+            0
+          ]
+        },
+        {
+          "name": "unit",
+          "count": 20,
+          "stride": [
+            0,
+            1,
+            0
+          ]
+        }
+      ],
+      "range": {
+        "min": -601,
+        "max": 60
+      },
+      "scale": 10,
+      "unit": "db",
+      "sentinel": {
+        "raw": -601,
+        "i18n_key": "value.level_silent"
+      },
+      "i18n_key": "param.layer_volume",
+      "doc": "KitUnitInst/Volume"
+    },
+    {
+      "id": "kit.unit.layer.inst_bank",
+      "area": "kit",
+      "offset": [
+        0,
+        64,
+        8
+      ],
+      "len": 1,
+      "encoding": "plain7",
+      "dims": [
+        {
+          "name": "layer",
+          "count": 2,
+          "stride": [
+            0,
+            32,
+            0
+          ]
+        },
+        {
+          "name": "unit",
+          "count": 20,
+          "stride": [
+            0,
+            1,
+            0
+          ]
+        }
+      ],
+      "range": {
+        "min": 0,
+        "max": 1
+      },
+      "labels": [
+        "PRESET",
+        "USER"
+      ],
+      "i18n_key": "param.layer_inst_bank",
+      "doc": "KitUnitInst/InstBank"
+    },
+    {
+      "id": "kit.mfx.type",
+      "area": "kit",
+      "offset": [
+        0,
+        16,
+        0
+      ],
+      "len": 1,
+      "encoding": "plain7",
+      "range": {
+        "min": 0,
+        "max": 40
+      },
+      "i18n_key": "param.fx_type",
+      "doc": "KitMfx/Type"
+    },
+    {
+      "id": "kit.mfx.switch",
+      "area": "kit",
+      "offset": [
+        0,
+        16,
+        1
+      ],
+      "len": 1,
+      "encoding": "plain7",
+      "range": {
+        "min": 0,
+        "max": 1
+      },
+      "labels": [
+        "OFF",
+        "ON"
+      ],
+      "i18n_key": "param.fx_switch",
+      "doc": "KitMfx/Switch"
+    },
+    {
+      "id": "kit.mfx.level",
+      "area": "kit",
+      "offset": [
+        0,
+        16,
+        2
+      ],
+      "len": 4,
+      "encoding": "signed_nibble",
+      "range": {
+        "min": -601,
+        "max": 60
+      },
+      "scale": 10,
+      "unit": "db",
+      "sentinel": {
+        "raw": -601,
+        "i18n_key": "value.level_silent"
+      },
+      "i18n_key": "param.fx_level",
+      "doc": "KitMfx/Level"
+    },
+    {
+      "id": "kit.ambience.switch",
+      "area": "kit",
+      "offset": [
+        0,
+        3,
+        0
+      ],
+      "len": 1,
+      "encoding": "plain7",
+      "range": {
+        "min": 0,
+        "max": 1
+      },
+      "labels": [
+        "OFF",
+        "ON"
+      ],
+      "i18n_key": "param.ambience_switch",
+      "doc": "KitAmbience/Switch"
+    },
+    {
+      "id": "kit.ambience.type",
+      "area": "kit",
+      "offset": [
+        0,
+        3,
+        1
+      ],
+      "len": 1,
+      "encoding": "plain7",
+      "range": {
+        "min": 0,
+        "max": 24
+      },
+      "labels": [
+        "BEACH",
+        "LIVING ROOM",
+        "BATH ROOM",
+        "STUDIO",
+        "GARAGE",
+        "LOCKER ROOM",
+        "THEATER",
+        "CAVE",
+        "GYMNASIUM",
+        "DOME STADIUM",
+        "BOOTH A",
+        "BOOTH B",
+        "STUDIO A",
+        "STUDIO B",
+        "BASEMENT",
+        "JAZZ CLUB",
+        "ROCK CLUB",
+        "BALLROOM",
+        "GATE",
+        "CONCERT HALL",
+        "SPORTS ARENA",
+        "EXPO HALL",
+        "BOTTLE",
+        "CITY",
+        "SPIRAL"
+      ],
+      "i18n_key": "param.ambience_type",
+      "doc": "KitAmbience/Room Type"
+    },
+    {
+      "id": "kit.ambience.level",
+      "area": "kit",
+      "offset": [
+        0,
+        3,
+        6
+      ],
+      "len": 4,
+      "encoding": "signed_nibble",
+      "range": {
+        "min": -601,
+        "max": 60
+      },
+      "scale": 10,
+      "unit": "db",
+      "sentinel": {
+        "raw": -601,
+        "i18n_key": "value.level_silent"
+      },
+      "i18n_key": "param.ambience_level",
+      "doc": "KitAmbience/Level"
+    },
+    {
+      "id": "kit.reverb.switch",
+      "area": "kit",
+      "offset": [
+        0,
+        4,
+        0
+      ],
+      "len": 1,
+      "encoding": "plain7",
+      "range": {
+        "min": 0,
+        "max": 1
+      },
+      "labels": [
+        "OFF",
+        "ON"
+      ],
+      "i18n_key": "param.reverb_switch",
+      "doc": "KitReverb/Switch"
+    },
+    {
+      "id": "kit.reverb.type",
+      "area": "kit",
+      "offset": [
+        0,
+        4,
+        1
+      ],
+      "len": 1,
+      "encoding": "plain7",
+      "range": {
+        "min": 0,
+        "max": 4
+      },
+      "labels": [
+        "ROOM1",
+        "ROOM2",
+        "HALL1",
+        "HALL2",
+        "PLATE"
+      ],
+      "i18n_key": "param.reverb_type",
+      "doc": "KitReverb/Type"
+    },
+    {
+      "id": "kit.reverb.level",
+      "area": "kit",
+      "offset": [
+        0,
+        4,
+        10
+      ],
+      "len": 4,
+      "encoding": "signed_nibble",
+      "range": {
+        "min": -601,
+        "max": 60
+      },
+      "scale": 10,
+      "unit": "db",
+      "sentinel": {
+        "raw": -601,
+        "i18n_key": "value.level_silent"
+      },
+      "i18n_key": "param.reverb_level",
+      "doc": "KitReverb/Level"
+    }
+  ],
+  "catalogs": {}
+}

@@ -11,6 +11,10 @@
     "tested": [[0, 2, 1, 0]],
     "version_format": "{0}.{1}.{2}{3}"
   },
+  "verification": {
+    "on_hardware": true,
+    "basis": "Reads, writes with read-back, persistence across a power cycle, kit navigation and panel edits (Transmit Edit Data) confirmed on a V31, firmware 0.2.10, on 2026-06-15 and 2026-10-04 (docs/PROTOCOL.md §6-7)."
+  },
   "capabilities": {
     "kit_count": 200,
     "fx_slots": 8,

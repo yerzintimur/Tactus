@@ -24,6 +24,9 @@ pub struct DeviceInfo {
     pub profile_id: String,
     /// `false` => unknown module, running in degraded mode.
     pub recognized: bool,
+    /// `false` => the profile has not been checked on a real module: the engine
+    /// reads and announces, but refuses every write (ADR-0016).
+    pub verified: bool,
 }
 
 /// How important a spoken message is (maps to platform announcement priorities).

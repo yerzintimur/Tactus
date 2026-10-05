@@ -45,6 +45,9 @@ edit-not-ready = Not connected to a device.
 device-connected = Connected to { $device }, firmware { $firmware }.
 device-firmware-untested = This firmware isn't in Tactus's tested list — it should work; please report any problems.
 device-unrecognized = Connected to an unrecognised module. Some features may be unavailable.
+# A profile built from the documents alone (ADR-0016): reads, no writes.
+device-unverified = The { $device } profile hasn't been checked on a real module yet: Tactus will read and announce, but change nothing.
+edit-unverified = Not changed: the { $device } profile hasn't been checked on a real module, so Tactus writes nothing to it.
 
 # ── The app's own interface (ADR-0008: one source of phrasing per platform) ──
 ui-section-connection = Connection
@@ -64,6 +67,7 @@ ui-firmware-unknown = This firmware hasn't been tested. Everything should still 
 # path, as the profile gives it.
 ui-section-setup = Module setup
 ui-hint-transmit-edit-data = Turn on Transmit Edit Data on the module ({ $value }) to hear what you change on its panel.
+ui-profile-unverified = Read-only: this profile hasn't been checked on a real module.
 
 ui-section-kit = Kit
 ui-label-current-kit = Current kit
@@ -119,6 +123,10 @@ param-unit-room-send = { $value } dB
 param-unit-room-send-label = Room send
 param-unit-reverb-send = { $value } dB
 param-unit-reverb-send-label = Reverb send
+param-unit-ambience-send = { $value } dB
+param-unit-ambience-send-label = Ambience send
+param-unit-mfx-send = { $value } dB
+param-unit-mfx-send-label = Multi-effects send
 
 param-layer-switch-label = Layer
 param-layer-instrument = { $value }
@@ -138,6 +146,13 @@ param-pad-pan-label = Pan
 param-fx-type = { $value }
 param-fx-type-label = Effect type
 param-fx-switch-label = Effect
+param-fx-level = { $value } dB
+param-fx-level-label = Effect level
+
+param-ambience-switch-label = Ambience
+param-ambience-type-label = Ambience type
+param-ambience-level = { $value } dB
+param-ambience-level-label = Ambience level
 
 param-overhead-switch-label = Overhead mics
 param-overhead-mic-type-label = Overhead mic type
@@ -205,6 +220,9 @@ pad-aux4-rim = Aux 4 rim
 layer-a = Layer A
 layer-b = Layer B
 layer-c = Layer C
+# The TD-17 has two layers per pad, Main and Sub.
+layer-main = Main layer
+layer-sub = Sub layer
 
 # Kit FX slots: two per bus, four buses (BUS-A FX1 … BUS-D FX2).
 fx-bus-a-1 = Bus A effect 1

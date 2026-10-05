@@ -51,6 +51,32 @@
 - Log raw SysEx as hex and compare against the golden vectors in
   [PROTOCOL.md](PROTOCOL.md).
 
+## Verifying a profile written without the module
+
+A profile built from the documents alone ships **read-only**: `verification.on_hardware`
+is `false` and the core refuses every write
+([ADR-0016](adr/0016-unverified-profiles-are-read-only.md)). The TD-17 is the
+first such profile ([docs/devices/roland-td-17.md](devices/roland-td-17.md)).
+To lift the flag, one session with the module, in this order — reads first, so
+a wrong map is caught before anything is written:
+
+1. **Identity.** Connect; the app must name the module and its firmware as the
+   module's own screen does. Note the Identity Reply bytes in the log.
+2. **Reads against the screen.** For kit 1 and one user kit: the kit name, the
+   kit volume, a pad's instrument and layer volume, the reverb type — every one
+   read by the app must match what the module shows. A mismatch is a map error:
+   stop, fix the profile, re-read.
+3. **Panel edits.** Turn Transmit Edit Data on; turn one knob; the app must name
+   the pad, the layer and the parameter and speak the new value.
+4. **One write.** Flip `on_hardware` to `true` locally, change one value on a
+   user kit (kit volume by one step), read it back, confirm it on the module's
+   screen, power-cycle, confirm it survived. Restore the original value.
+5. **Record it.** Put the date, firmware and what was checked into
+   `verification.basis`; commit the flag with the evidence.
+
+If step 4 cannot be done — no user kit to spare, no time — the profile stays
+read-only. That is a feature missing, not a module at risk.
+
 ## Sources
 
 - Roland — *V31 MIDI Implementation* v2.00 (System Reset `x/x`; SysEx = RQ1/DT1 +

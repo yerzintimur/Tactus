@@ -7,6 +7,12 @@ use crate::profile::DeviceProfile;
 /// `profiles/` dir. `WORKSPACE_DIR` is defined in `.cargo/config.toml`.
 const ROLAND_V31_JSON: &str =
     include_str!(concat!(env!("WORKSPACE_DIR"), "/profiles/roland-v31.json"));
+/// The TD-17: built from the documents, not yet run on the module, so its
+/// `verification` leaves it read-only (ADR-0016; docs/devices/roland-td-17.md).
+const ROLAND_TD17_JSON: &str = include_str!(concat!(
+    env!("WORKSPACE_DIR"),
+    "/profiles/roland-td-17.json"
+));
 
 /// Embedded catalog JSON for built-in profiles: (profile id, catalog name in
 /// the profile's `catalogs` map) → file contents. Downloadable profile packs
@@ -61,7 +67,8 @@ impl ProfileRegistry {
         Self::default()
     }
 
-    /// A registry preloaded with all built-in profiles (currently the V31).
+    /// A registry preloaded with all built-in profiles: the V31 (verified on
+    /// hardware) and the TD-17 (documents only, read-only).
     ///
     /// Panics only if a compiled-in profile is malformed — a build-time bug caught
     /// by tests, not a runtime condition.
@@ -70,7 +77,17 @@ impl ProfileRegistry {
         reg.register(
             DeviceProfile::from_json(ROLAND_V31_JSON).expect("built-in V31 profile must be valid"),
         );
+        reg.register(
+            DeviceProfile::from_json(ROLAND_TD17_JSON)
+                .expect("built-in TD-17 profile must be valid"),
+        );
         reg
+    }
+
+    /// Every registered profile, in registration order — for tests and tools
+    /// that check all of them, not one by Model ID.
+    pub fn profiles(&self) -> impl Iterator<Item = &DeviceProfile> {
+        self.profiles.iter()
     }
 
     /// Add a profile (built-in or downloaded).
@@ -129,16 +146,33 @@ mod tests {
 
     #[test]
     fn every_declared_catalog_is_embedded() {
-        // The profile's catalogs map and the embedded table must not drift.
+        // A profile's catalogs map and the embedded table must not drift.
         let reg = ProfileRegistry::with_builtin();
         let v31 = reg.match_model(&[1, 6, 1]).unwrap();
         assert!(!v31.catalogs.is_empty());
-        for name in v31.catalogs.keys() {
-            assert!(
-                builtin_catalog_json(&v31.profile_id, name).is_some(),
-                "catalog {name:?} declared in the profile but not embedded"
-            );
+        for profile in reg.profiles() {
+            for name in profile.catalogs.keys() {
+                assert!(
+                    builtin_catalog_json(&profile.profile_id, name).is_some(),
+                    "{}: catalog {name:?} declared in the profile but not embedded",
+                    profile.profile_id
+                );
+            }
         }
+    }
+
+    /// Two modules, two Model IDs of different lengths, two identities — and
+    /// only the one that has run on hardware may be written to.
+    #[test]
+    fn builtin_profiles_are_distinct_and_only_the_verified_one_writes() {
+        let reg = ProfileRegistry::with_builtin();
+        assert_eq!(reg.len(), 2);
+        let v31 = reg.match_model(&[1, 6, 1]).expect("V31");
+        let td17 = reg.match_model(&[0, 0, 0, 0x4B]).expect("TD-17");
+        assert_ne!(v31.profile_id, td17.profile_id);
+        assert!(v31.allows_writes());
+        assert!(!td17.allows_writes());
+        assert!(reg.match_identity(0x41, [0x4B, 0x03], [0, 0]).is_some());
     }
 
     #[test]

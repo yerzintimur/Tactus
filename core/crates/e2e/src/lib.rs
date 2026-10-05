@@ -98,6 +98,16 @@ impl Harness {
         )
     }
 
+    /// A TD-17 device + a session in `locale`, with synthetic latencies. The
+    /// profile is unverified, so the session reads and refuses to write.
+    pub fn td17(locale: &str) -> Self {
+        Self::new(
+            Session::new(locale),
+            VirtualDevice::td17(),
+            TimingProfile::synthetic(),
+        )
+    }
+
     // ── observation ──
 
     pub fn now(&self) -> u64 {

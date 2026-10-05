@@ -17,26 +17,30 @@ fn v31() -> device::DeviceProfile {
 /// cannot name would otherwise be spoken as nothing at all.
 #[test]
 fn every_dimension_names_every_position() {
-    let p = v31();
-    for param in &p.parameters {
-        for dim in &param.dims {
-            let def = p
-                .dimensions
-                .get(&dim.name)
-                .unwrap_or_else(|| panic!("{}: dimension {:?} has no names", param.id, dim.name));
-            if def.i18n_key.is_none() {
-                assert_eq!(
-                    def.labels.len() as u32,
-                    dim.count,
-                    "{}: dimension {:?} names {} of {} positions",
-                    param.id,
-                    dim.name,
-                    def.labels.len(),
-                    dim.count
-                );
+    for p in ProfileRegistry::with_builtin().profiles() {
+        for param in &p.parameters {
+            for dim in &param.dims {
+                let def = p.dimensions.get(&dim.name).unwrap_or_else(|| {
+                    panic!(
+                        "{}: {}: dimension {:?} has no names",
+                        p.profile_id, param.id, dim.name
+                    )
+                });
+                if def.i18n_key.is_none() {
+                    assert_eq!(
+                        def.labels.len() as u32,
+                        dim.count,
+                        "{}: {}: dimension {:?} names {} of {} positions",
+                        p.profile_id,
+                        param.id,
+                        dim.name,
+                        def.labels.len(),
+                        dim.count
+                    );
+                }
+                assert!(p.dim_label(dim, 0).is_some());
+                assert!(p.dim_label(dim, dim.count - 1).is_some());
             }
-            assert!(p.dim_label(dim, 0).is_some());
-            assert!(p.dim_label(dim, dim.count - 1).is_some());
         }
     }
 }

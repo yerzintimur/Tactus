@@ -77,7 +77,32 @@ impl VirtualDevice {
         dev
     }
 
+    /// A TD-17 as we expect to meet one: firmware 2.00 (revision code 2), kit 1
+    /// "Studio" selected, kit 2 "Rock". Its profile has not run on hardware, so
+    /// the engine will read it and refuse to write (ADR-0016).
+    pub fn td17() -> Self {
+        let profile = ProfileRegistry::with_builtin()
+            .match_model(&[0, 0, 0, 0x4B])
+            .expect("built-in TD-17 profile")
+            .clone();
+        let mut dev = Self::from_profile(profile);
+        dev.with_firmware([0, 0, 0, 2])
+            .set_current_kit(0)
+            .with_kit_name(0, "Studio")
+            .with_kit_name(1, "Rock");
+        dev
+    }
+
     // ── builders / seeding ──
+
+    /// Seed a kit's name alone — for a module whose kits carry no tempo.
+    pub fn with_kit_name(&mut self, index: u32, name: &str) -> &mut Self {
+        self.write_param(
+            "kit.common.name",
+            &[index],
+            EditValue::Text(name.to_string()),
+        )
+    }
 
     /// Seed a kit's name and tempo (raw, e.g. 1200 = 120.0 BPM).
     pub fn with_kit(&mut self, index: u32, name: &str, tempo_raw: i64) -> &mut Self {

@@ -221,9 +221,13 @@ mod tests {
     #[test]
     fn every_profile_parameter_speaks_in_every_locale() {
         let registry = device::ProfileRegistry::with_builtin();
-        let profile = registry.match_model(&[1, 6, 1]).expect("built-in V31");
         let loc = Localizer::new();
+        for profile in registry.profiles() {
+            check_profile_speaks(profile, &loc);
+        }
+    }
 
+    fn check_profile_speaks(profile: &DeviceProfile, loc: &Localizer) {
         for param in &profile.parameters {
             let key = param
                 .i18n_key
@@ -269,7 +273,8 @@ mod tests {
                     let text = loc.format(&message, locale);
                     assert_ne!(
                         text, unresolved,
-                        "dimension {name}: {key} has no {locale} text"
+                        "{}: dimension {name}: {key} has no {locale} text",
+                        profile.profile_id
                     );
                     assert!(!text.is_empty());
                 }

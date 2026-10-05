@@ -34,6 +34,10 @@ pub struct DeviceInfo {
     pub firmware_support: FirmwareSupport,
     pub profile_id: String,
     pub recognized: bool,
+    /// `false`: the profile has not been checked on a real module, so the core
+    /// reads and announces but refuses every write (ADR-0016). A UI should say
+    /// so and present its editors as read-only.
+    pub verified: bool,
 }
 
 /// Announcement priority (maps to platform announcement priorities).
@@ -107,6 +111,7 @@ pub enum UiString {
     FirmwareUnknown,
     SectionSetup,
     HintTransmitEditData,
+    ProfileUnverified,
     SectionKit,
     LabelCurrentKit,
     ValueCurrentKit,
@@ -158,6 +163,7 @@ impl From<UiString> for engine::UiString {
             UiString::FirmwareUnknown => engine::UiString::FirmwareUnknown,
             UiString::SectionSetup => engine::UiString::SectionSetup,
             UiString::HintTransmitEditData => engine::UiString::HintTransmitEditData,
+            UiString::ProfileUnverified => engine::UiString::ProfileUnverified,
             UiString::SectionKit => engine::UiString::SectionKit,
             UiString::LabelCurrentKit => engine::UiString::LabelCurrentKit,
             UiString::ValueCurrentKit => engine::UiString::ValueCurrentKit,
@@ -211,6 +217,7 @@ impl From<engine::UiString> for UiString {
             engine::UiString::FirmwareUnknown => Self::FirmwareUnknown,
             engine::UiString::SectionSetup => Self::SectionSetup,
             engine::UiString::HintTransmitEditData => Self::HintTransmitEditData,
+            engine::UiString::ProfileUnverified => Self::ProfileUnverified,
             engine::UiString::SectionKit => Self::SectionKit,
             engine::UiString::LabelCurrentKit => Self::LabelCurrentKit,
             engine::UiString::ValueCurrentKit => Self::ValueCurrentKit,
@@ -465,6 +472,7 @@ impl From<engine::DeviceInfo> for DeviceInfo {
             firmware_support: d.firmware_support.into(),
             profile_id: d.profile_id,
             recognized: d.recognized,
+            verified: d.verified,
         }
     }
 }

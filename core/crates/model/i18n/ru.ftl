@@ -44,6 +44,9 @@ edit-not-ready = Нет подключения к устройству.
 device-connected = Подключено: { $device }, прошивка { $firmware }.
 device-firmware-untested = Эта прошивка не в списке протестированных Tactus — должно работать; сообщите о проблемах.
 device-unrecognized = Подключён нераспознанный модуль. Часть функций может быть недоступна.
+# Профиль, собранный только по документам (ADR-0016): чтение есть, записи нет.
+device-unverified = Профиль { $device } ещё не проверен на реальном модуле: Tactus будет читать и озвучивать, но ничего не менять.
+edit-unverified = Не изменено: профиль { $device } не проверен на реальном модуле, поэтому Tactus в него не пишет.
 
 # ── Интерфейс самого приложения (ADR-0008: единый источник формулировок) ──
 ui-section-connection = Подключение
@@ -63,6 +66,7 @@ ui-firmware-unknown = Эта прошивка не тестировалась. �
 # меню модуля, как его даёт профиль.
 ui-section-setup = Настройка модуля
 ui-hint-transmit-edit-data = Включите на модуле Transmit Edit Data ({ $value }), чтобы слышать, что вы меняете на его панели.
+ui-profile-unverified = Только чтение: профиль не проверен на реальном модуле.
 
 ui-section-kit = Кит
 ui-label-current-kit = Текущий кит
@@ -118,6 +122,10 @@ param-unit-room-send = { $value } дБ
 param-unit-room-send-label = Посыл на комнату
 param-unit-reverb-send = { $value } дБ
 param-unit-reverb-send-label = Посыл на реверберацию
+param-unit-ambience-send = { $value } дБ
+param-unit-ambience-send-label = Посыл на амбиенс
+param-unit-mfx-send = { $value } дБ
+param-unit-mfx-send-label = Посыл на мультиэффект
 
 param-layer-switch-label = Слой
 param-layer-instrument = { $value }
@@ -137,6 +145,13 @@ param-pad-pan-label = Панорама
 param-fx-type = { $value }
 param-fx-type-label = Тип эффекта
 param-fx-switch-label = Эффект
+param-fx-level = { $value } дБ
+param-fx-level-label = Уровень эффекта
+
+param-ambience-switch-label = Амбиенс
+param-ambience-type-label = Тип амбиенса
+param-ambience-level = { $value } дБ
+param-ambience-level-label = Уровень амбиенса
 
 param-overhead-switch-label = Оверхеды
 param-overhead-mic-type-label = Тип микрофонов оверхед
@@ -203,6 +218,9 @@ pad-aux4-rim = Обод Aux 4
 layer-a = Слой A
 layer-b = Слой B
 layer-c = Слой C
+# У TD-17 два слоя на пэд, Main и Sub.
+layer-main = Основной слой
+layer-sub = Дополнительный слой
 
 # Слоты эффектов кита: по два на шину, четыре шины (BUS-A FX1 … BUS-D FX2).
 fx-bus-a-1 = Шина A, эффект 1

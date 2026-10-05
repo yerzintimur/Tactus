@@ -29,6 +29,10 @@ pub struct DeviceProfile {
     pub source: Option<String>,
     #[serde(default)]
     pub firmware: FirmwareConfig,
+    /// Whether this map has been exercised on a real module. Absent means it has
+    /// not: the engine then reads and announces, but never writes (ADR-0016).
+    #[serde(default)]
+    pub verification: Verification,
     #[serde(default)]
     pub capabilities: Capabilities,
     /// Named parameter areas (Current, Setup, Kit, …) keyed by name.
@@ -46,6 +50,22 @@ pub struct DeviceProfile {
     pub catalogs: BTreeMap<String, String>,
 }
 
+/// What stands behind a profile's address map: a module that has run it, or
+/// only the documents it was derived from.
+#[derive(Debug, Clone, Default, Deserialize)]
+pub struct Verification {
+    /// `true` once writes, read-backs and persistence have been confirmed on the
+    /// module itself. Until then the profile is read-only: a wrong offset would
+    /// pass our own read-back (it reads the address it wrote) while changing a
+    /// neighbouring parameter on someone's instrument (ADR-0016).
+    #[serde(default)]
+    pub on_hardware: bool,
+    /// The evidence: bench sessions with dates, or the sources a profile built
+    /// without the module was checked against.
+    #[serde(default)]
+    pub basis: Option<String>,
+}
+
 /// Firmware the profile was tested against + the version-byte format.
 #[derive(Debug, Clone, Default, Deserialize)]
 pub struct FirmwareConfig {
@@ -55,12 +75,21 @@ pub struct FirmwareConfig {
     /// [`FirmwareVersion::display_as`], verified on hardware. Absent: dotted bytes.
     #[serde(default)]
     pub version_format: Option<String>,
+    /// For a module whose Identity Reply carries a *code* rather than the version
+    /// itself: the version each code stands for, keyed by the dotted bytes
+    /// (`"0.0.0.2"` → `"2.00"` on the TD-17). A code not listed falls through to
+    /// `version_format`, so a newer firmware still shows something true.
+    #[serde(default)]
+    pub version_names: BTreeMap<String, String>,
 }
 
 impl FirmwareConfig {
     /// `version` as this module shows it on its own screen, so the app and the
     /// module's manual agree on what to call the firmware.
     pub fn display(&self, version: FirmwareVersion) -> String {
+        if let Some(name) = self.version_names.get(&version.display()) {
+            return name.clone();
+        }
         match self.version_format.as_deref() {
             Some(format) => version.display_as(format),
             None => version.display(),
@@ -337,6 +366,13 @@ impl DeviceProfile {
             key,
             number: index + 1,
         })
+    }
+
+    /// Whether the engine may send a DT1 to a module running this profile: only
+    /// once the map has been confirmed on hardware (ADR-0016). Reads and
+    /// announcements are always allowed.
+    pub fn allows_writes(&self) -> bool {
+        self.verification.on_hardware
     }
 
     /// The highest kit number the module accepts (0-based), if the profile says.

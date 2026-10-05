@@ -95,7 +95,12 @@ struct ContentView: View {
             if let device = session.device {
                 LabeledContent(session.text(.labelDevice), value: device.name)
                 LabeledContent(session.text(.labelFirmware), value: device.firmware)
-                if let warning = firmwareWarning(device.firmwareSupport) {
+                if !device.verified {
+                    // The core refuses every write to an unverified profile
+                    // (ADR-0016); say so where the device is named.
+                    Label(session.text(.profileUnverified), systemImage: "lock")
+                        .accessibilityLabel(session.text(.profileUnverified))
+                } else if let warning = firmwareWarning(device.firmwareSupport) {
                     Label(warning, systemImage: "exclamationmark.triangle")
                         .accessibilityLabel(warning)
                 }
