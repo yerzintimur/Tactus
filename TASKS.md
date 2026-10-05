@@ -247,10 +247,11 @@ and verified; keep this file honest about real state.
   module (or the Phase-4 `SimulatedTransport`) so read-backs actually flow.
   AX/assistive-access for driving the app via the a11y tree is set up (Claude.app
   granted Accessibility).
-- [ ] **`P3` Firmware `version_format`-aware display.** `FirmwareVersion::display`
-  shows raw dotted `0.2.1.0`; the V31 renders `00 02 01 00` as **"0.2.10"** (last
-  two bytes = one component). Make the display honour the profile's
-  `version_format`. (Build suffix "(0031)" isn't in the Identity Reply.)
+- [x] **`P3` Firmware `version_format`-aware display.** The profile's
+  `version_format` is a template over the four Identity Reply bytes
+  (`"{0}.{1}.{2}{3}"`); the V31 now reads **"0.2.10"** in the connect line and
+  the Firmware field, as on its own screen. (Build suffix "(0031)" isn't in the
+  Identity Reply.)
 - [x] **`P2` Full Transmit Edit Data handling.** With the setting on, the module
   sends a DT1 to the parameter's own address for every panel edit (one per knob
   step; a snare edit sends head and rim as two). `DeviceProfile::locate` turns the

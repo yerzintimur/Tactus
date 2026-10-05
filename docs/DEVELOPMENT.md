@@ -111,7 +111,7 @@ Roland; различаются данные.** Поэтому:
   "source": "V31 MIDI Implementation v2.00 (2025-11-11); V31 Data List eng02",
   "firmware": {
     "tested": [],                      // 4-byte Identity-Reply versions we've verified (fill after HW)
-    "version_format": "raw4",          // how to render the 4 version bytes (verify on HW)
+    "version_format": "{0}.{1}.{2}{3}", // the 4 version bytes as the module's screen shows them (verified on HW)
     "notes": "policy: never block; announce when untested — ADR-0009"
   },
 

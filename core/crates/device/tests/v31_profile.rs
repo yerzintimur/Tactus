@@ -78,3 +78,20 @@ fn firmware_support_reflects_the_tested_baseline() {
         FirmwareSupport::UntestedOlder
     );
 }
+
+/// The module's screen says "0.2.10" for the Identity Reply bytes `00 02 01 00`
+/// (verified 2026-06-15): the profile's `version_format` reproduces it, so the
+/// app names the firmware the way the module and its manual do.
+#[test]
+fn firmware_reads_as_the_module_shows_it() {
+    let reg = ProfileRegistry::with_builtin();
+    let p = reg.match_model(&[1, 6, 1]).unwrap();
+    assert_eq!(
+        p.firmware.display(FirmwareVersion::new([0, 2, 1, 0])),
+        "0.2.10"
+    );
+    assert_eq!(
+        p.firmware.display(FirmwareVersion::new([1, 0, 0, 3])),
+        "1.0.03"
+    );
+}

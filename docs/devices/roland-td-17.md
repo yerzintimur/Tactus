@@ -101,10 +101,11 @@ F0  7E  dev  06 02  41  4B 03  00 00  ss ss ss ss  F7
   | 1.02 | `00 00 00 01` |
   | 2.00 | `00 00 00 02` |
 
-  This is worth noting: the V31 profile declares `version_format: "raw4"`, which
-  assumes the reply carries the version itself. The TD-17 needs a second format —
-  a lookup from revision code to a spoken version string. That is a **profile
-  schema addition (data + one enum arm), not new protocol logic**, and it is
+  This is worth noting: the V31 profile's `version_format` is a template over
+  the four bytes (`"{0}.{1}.{2}{3}"` → "0.2.10"), which assumes the reply carries
+  the version itself. The TD-17 needs a second format — a lookup from revision
+  code to a spoken version string. That is a **profile schema addition (data +
+  one enum arm), not new protocol logic**, and it is
   exactly the kind of per-device difference
   [ADR-0009](../adr/0009-firmware-compatibility-policy.md) expects: detect,
   announce, never block.

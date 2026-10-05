@@ -529,3 +529,25 @@ fn a_catalogued_value_is_confirmed_by_name() {
     assert!(h.events().iter().any(|e| matches!(e,
         CoreEvent::EditConfirmed { display, .. } if display == "PHASER")));
 }
+
+/// The connect line names the firmware the way the module's own screen does —
+/// "0.2.10" for the bytes `00 02 01 00` — so the drummer and the manual agree
+/// on which firmware this is.
+#[test]
+fn the_connect_line_names_the_firmware_as_the_module_shows_it() {
+    let mut h = Harness::v31("en");
+    h.device_mut().with_firmware([0, 2, 1, 0]);
+    h.connect().run_to_idle();
+
+    assert!(
+        h.spoken()
+            .iter()
+            .any(|line| line == "Connected to Roland V31, firmware 0.2.10."),
+        "got {:?}",
+        h.spoken()
+    );
+    assert_eq!(
+        h.snapshot().device.map(|d| d.firmware),
+        Some("0.2.10".to_string())
+    );
+}

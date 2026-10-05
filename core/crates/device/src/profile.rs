@@ -51,9 +51,21 @@ pub struct DeviceProfile {
 pub struct FirmwareConfig {
     #[serde(default)]
     pub tested: Vec<FirmwareVersion>,
-    /// How to render the 4 version bytes (verified on hardware).
+    /// How the module's own screen renders the 4 version bytes — a template for
+    /// [`FirmwareVersion::display_as`], verified on hardware. Absent: dotted bytes.
     #[serde(default)]
     pub version_format: Option<String>,
+}
+
+impl FirmwareConfig {
+    /// `version` as this module shows it on its own screen, so the app and the
+    /// module's manual agree on what to call the firmware.
+    pub fn display(&self, version: FirmwareVersion) -> String {
+        match self.version_format.as_deref() {
+            Some(format) => version.display_as(format),
+            None => version.display(),
+        }
+    }
 }
 
 /// The Universal Identity Reply fingerprint that identifies this module

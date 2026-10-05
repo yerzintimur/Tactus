@@ -308,10 +308,12 @@ parameter-map JSON, §13 of SPEC, cross-checked against the Data List.)
     module's own display **"0.2.10 (0031)"** — i.e. the last two bytes `01 00`
     render as the single component **"10"** (so `[a,b,c,d] → "a.b.(cd)"`, *not*
     `"a.b.c.d"`). The build suffix **"(0031)" is NOT in the Identity Reply** —
-    it's internal to the module, unavailable over MIDI. Our `FirmwareVersion::
-    display` still shows the raw dotted `"0.2.1.0"`; a `version_format`-aware
-    renderer is a follow-up. The profile's `firmware.tested` now lists
-    `[0,2,1,0]` (so this unit reads as *Tested*, not *Untested*).
+    it's internal to the module, unavailable over MIDI. The profile carries the
+    mapping as data: `firmware.version_format` is a template over the four
+    bytes (`"{0}.{1}.{2}{3}"`), and the connect line and the Firmware field say
+    **"0.2.10"**, what the module and its manual say. The profile's
+    `firmware.tested` lists `[0,2,1,0]` (so this unit reads as *Tested*, not
+    *Untested*).
     Policy: [ADR-0009](adr/0009-firmware-compatibility-policy.md).
 
 ### Kit navigation — observed behaviour (2026-06-15)

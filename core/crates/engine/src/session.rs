@@ -346,11 +346,14 @@ impl Session {
             Some(profile) => {
                 let support = profile.firmware_support(fw);
                 let name = profile.display_name.clone();
+                // The version as the module's own screen shows it (profile
+                // `version_format`), so the app and the manual agree on it.
+                let firmware = profile.firmware.display(fw);
                 let info = DeviceInfo {
                     model_id: profile.model_id.clone(),
                     device_id,
                     name: name.clone(),
-                    firmware: fw.display(),
+                    firmware: firmware.clone(),
                     firmware_support: support,
                     profile_id: profile.profile_id.clone(),
                     recognized: true,
@@ -370,7 +373,7 @@ impl Session {
                 let mut speech = self.render_spoken(
                     &Message::new("device.connected")
                         .device_arg("device", name.as_str())
-                        .arg("firmware", fw.display()),
+                        .arg("firmware", firmware),
                 );
                 if !support.is_tested() {
                     speech.push_str(" ");
