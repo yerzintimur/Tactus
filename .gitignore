@@ -71,3 +71,6 @@ dist/
 *.swp
 *~
 __pycache__/
+
+# Per-session git worktrees the Claude desktop app creates for forked sessions.
+.claude/worktrees/
