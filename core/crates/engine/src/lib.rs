@@ -19,7 +19,8 @@ pub use model::{LocaleInfo, UiString};
 pub use session::Session;
 pub use timings::Timings;
 pub use viewmodel::{
-    KitRef, NumericInfo, NumericRange, ParamKind, ParamValue, ParameterView, SetlistView, Snapshot,
+    KitRef, NumericInfo, NumericRange, ParamKind, ParamValue, ParameterView, SetlistView,
+    SetupHint, Snapshot,
 };
 
 /// Crate version, exposed so the FFI layer can sanity-check linkage.

@@ -11,6 +11,7 @@
 
 use crate::event::{ConnectionState, DeviceInfo};
 use device::ParameterDef;
+use model::UiString;
 
 /// A complete snapshot of the session's observable state.
 #[derive(Debug, Clone, PartialEq)]
@@ -22,6 +23,10 @@ pub struct Snapshot {
     pub current_kit: Option<KitRef>,
     /// The set list currently open for viewing/editing, if one has been read.
     pub setlist: Option<SetlistView>,
+    /// What the drummer still has to do on the module itself before the app can
+    /// do its whole job — only the switches the app cannot flip for them, and
+    /// only until it sees them flipped. Empty once there is nothing left to say.
+    pub setup_hints: Vec<SetupHint>,
     /// The active device's parameters with their last-known values + metadata.
     /// Empty until a profile is matched.
     pub parameters: Vec<ParameterView>,
@@ -52,6 +57,14 @@ pub struct KitRef {
     pub number: u32,
     pub display_number: u32,
     pub name: String,
+}
+
+/// One thing to do on the module, as interface text: the string and, when the
+/// profile supplies it, the module's own menu path to put in it.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SetupHint {
+    pub text: UiString,
+    pub value: Option<String>,
 }
 
 /// How a parameter is presented/edited.

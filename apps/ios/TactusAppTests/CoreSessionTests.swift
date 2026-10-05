@@ -22,6 +22,26 @@ final class CoreSessionTests: XCTestCase {
         XCTAssertEqual(session.connection, .ready)
     }
 
+    /// Transmit Edit Data is off out of the box and not in the address map, so
+    /// the app asks the drummer to switch it on — until the module's first panel
+    /// edit proves it is on.
+    func testSetupHintStandsUntilThePanelReportsAnEdit() {
+        let session = CoreSession(locale: "en")
+        session.connected()
+        session.receive(CoreSession.sampleV31IdentityReply)
+
+        XCTAssertEqual(session.setupHints.map(\.text), [.hintTransmitEditData])
+        let text = session.text(.hintTransmitEditData, session.setupHints.first?.value)
+        XCTAssertTrue(text.contains("SYSTEM, MIDI, BASIC"), text)
+
+        // The kit-volume knob, as the V31 sends it with the setting on.
+        session.receive(Data([
+            0xF0, 0x41, 0x10, 0x01, 0x06, 0x01, 0x12,
+            0x04, 0x24, 0x00, 0x50, 0x00, 0x00, 0x00, 0x05, 0x03, 0xF7,
+        ]))
+        XCTAssertTrue(session.setupHints.isEmpty)
+    }
+
     func testDisconnectClearsConnection() {
         let session = CoreSession(locale: "en")
         session.connected()

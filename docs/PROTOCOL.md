@@ -284,7 +284,9 @@ parameter-map JSON, §13 of SPEC, cross-checked against the Data List.)
   (`DeviceProfile::locate`) and announces "Label: value" as a device-initiated
   edit; an address the profile does not describe is ignored, never guessed. The
   setting itself is **not in the address map**, so the app cannot switch it on —
-  the user has to, and the app must say so. **Kit selection is not one of these
+  nor read whether it is on. The user has to, and the app says so: a hint in the
+  Connection section (menu path from the profile's `capabilities.menus`) until
+  the first panel edit proves the setting on. **Kit selection is not one of these
   pushes:** panel kit changes produce the Program Change above and **no DT1** for
   `Current` — polling `Current` is the signal, not a push.
 - The module also pushes DT1 in response to RQ1 (normal read), and sends Identity

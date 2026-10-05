@@ -14,7 +14,8 @@
   "capabilities": {
     "kit_count": 200,
     "fx_slots": 8,
-    "features": ["transmit_edit_data", "ambience", "bus_fx", "set_lists"]
+    "features": ["transmit_edit_data", "ambience", "bus_fx", "set_lists"],
+    "menus": { "transmit_edit_data": "SYSTEM, MIDI, BASIC" }
   },
   "areas": {
     "current": { "address": [0, 0, 0, 0] },

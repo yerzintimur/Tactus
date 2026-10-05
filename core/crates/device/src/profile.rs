@@ -86,6 +86,12 @@ pub struct Capabilities {
     pub fx_slots: u32,
     #[serde(default)]
     pub features: Vec<String>,
+    /// Where on the module's own screen a feature is switched, by feature name
+    /// — the path the app tells the drummer when it cannot flip the switch
+    /// itself (Transmit Edit Data is not in the address map). Written for
+    /// speech: the menu names in order, comma-separated.
+    #[serde(default)]
+    pub menus: BTreeMap<String, String>,
 }
 
 /// A top-level parameter area: a base address, plus an optional repeat (stride +

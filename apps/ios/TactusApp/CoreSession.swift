@@ -24,6 +24,10 @@ final class CoreSession: ObservableObject {
     /// The set list currently open, as the module reports it: the kits in playing
     /// order, ending at the module's own terminator. `nil` until one is opened.
     @Published private(set) var setlist: SetlistView?
+    /// What the drummer still has to switch on the module itself — the core
+    /// says which, and drops each once it sees it done (Transmit Edit Data: gone
+    /// after the first panel edit arrives).
+    @Published private(set) var setupHints: [SetupHint] = []
     /// True while a tempo edit is in flight (written, not yet device-confirmed).
     /// The UI presents the edit as *in-progress* so the screen reader never voices
     /// the stale value as current (ADR-0014 edge case); the displayed number stays
@@ -209,6 +213,7 @@ final class CoreSession: ObservableObject {
         let snapshot = core.snapshot()
         tempo = snapshot.parameters.first { $0.paramId == Self.tempoParamId }
         setlist = snapshot.setlist
+        setupHints = snapshot.setupHints
     }
 
     private func apply(_ event: CoreEvent) {

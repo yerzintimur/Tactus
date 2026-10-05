@@ -93,6 +93,14 @@ struct ContentView: View {
                     Label(warning, systemImage: "exclamationmark.triangle")
                         .accessibilityLabel(warning)
                 }
+                // Switches only the drummer can flip on the module (the app
+                // cannot): shown until the core sees each one flipped.
+                ForEach(Array(session.setupHints.enumerated()), id: \.offset) { _, hint in
+                    let text = session.text(hint.text, hint.value)
+                    Label(text, systemImage: "info.circle")
+                        .accessibilityLabel(text)
+                        .accessibilityIdentifier("setup-hint")
+                }
             } else if session.connection != .ready {
                 Text(session.text(.connectPrompt))
             }

@@ -29,6 +29,9 @@ pub enum UiString {
     FirmwareNewer,
     FirmwareOlder,
     FirmwareUnknown,
+    /// Shown until the module reports a panel edit: the setting the app cannot
+    /// switch on itself. The value is the module's menu path, from its profile.
+    HintTransmitEditData,
     // Kit
     SectionKit,
     LabelCurrentKit,
@@ -87,6 +90,7 @@ impl UiString {
         UiString::FirmwareNewer,
         UiString::FirmwareOlder,
         UiString::FirmwareUnknown,
+        UiString::HintTransmitEditData,
         UiString::SectionKit,
         UiString::LabelCurrentKit,
         UiString::ValueCurrentKit,
@@ -136,6 +140,7 @@ impl UiString {
             UiString::FirmwareNewer => "ui-firmware-newer",
             UiString::FirmwareOlder => "ui-firmware-older",
             UiString::FirmwareUnknown => "ui-firmware-unknown",
+            UiString::HintTransmitEditData => "ui-hint-transmit-edit-data",
             UiString::SectionKit => "ui-section-kit",
             UiString::LabelCurrentKit => "ui-label-current-kit",
             UiString::ValueCurrentKit => "ui-value-current-kit",

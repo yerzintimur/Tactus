@@ -95,3 +95,24 @@ fn firmware_reads_as_the_module_shows_it() {
         "1.0.03"
     );
 }
+
+/// A feature the drummer has to switch on themselves comes with where to do it
+/// on the module — the hint is only as good as the path it gives.
+#[test]
+fn the_switch_the_app_cannot_flip_has_a_menu_path() {
+    let reg = ProfileRegistry::with_builtin();
+    let p = reg.match_model(&[1, 6, 1]).unwrap();
+    assert!(
+        p.capabilities
+            .features
+            .iter()
+            .any(|f| f == "transmit_edit_data")
+    );
+    assert_eq!(
+        p.capabilities
+            .menus
+            .get("transmit_edit_data")
+            .map(String::as_str),
+        Some("SYSTEM, MIDI, BASIC")
+    );
+}

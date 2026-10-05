@@ -105,6 +105,7 @@ pub enum UiString {
     FirmwareNewer,
     FirmwareOlder,
     FirmwareUnknown,
+    HintTransmitEditData,
     SectionKit,
     LabelCurrentKit,
     ValueCurrentKit,
@@ -154,6 +155,7 @@ impl From<UiString> for engine::UiString {
             UiString::FirmwareNewer => engine::UiString::FirmwareNewer,
             UiString::FirmwareOlder => engine::UiString::FirmwareOlder,
             UiString::FirmwareUnknown => engine::UiString::FirmwareUnknown,
+            UiString::HintTransmitEditData => engine::UiString::HintTransmitEditData,
             UiString::SectionKit => engine::UiString::SectionKit,
             UiString::LabelCurrentKit => engine::UiString::LabelCurrentKit,
             UiString::ValueCurrentKit => engine::UiString::ValueCurrentKit,
@@ -205,6 +207,7 @@ impl From<engine::UiString> for UiString {
             engine::UiString::FirmwareNewer => Self::FirmwareNewer,
             engine::UiString::FirmwareOlder => Self::FirmwareOlder,
             engine::UiString::FirmwareUnknown => Self::FirmwareUnknown,
+            engine::UiString::HintTransmitEditData => Self::HintTransmitEditData,
             engine::UiString::SectionKit => Self::SectionKit,
             engine::UiString::LabelCurrentKit => Self::LabelCurrentKit,
             engine::UiString::ValueCurrentKit => Self::ValueCurrentKit,
@@ -308,7 +311,27 @@ pub struct Snapshot {
     pub device: Option<DeviceInfo>,
     pub current_kit: Option<KitRef>,
     pub setlist: Option<SetlistView>,
+    /// What the drummer still has to switch on the module itself (the app cannot),
+    /// each as interface text plus the module's menu path to put in it. Empty
+    /// once there is nothing left to say.
+    pub setup_hints: Vec<SetupHint>,
     pub parameters: Vec<ParameterView>,
+}
+
+/// One thing to do on the module: `text` is the string, `value` its argument.
+#[derive(Debug, Clone, PartialEq, Eq, uniffi::Record)]
+pub struct SetupHint {
+    pub text: UiString,
+    pub value: Option<String>,
+}
+
+impl From<engine::SetupHint> for SetupHint {
+    fn from(h: engine::SetupHint) -> Self {
+        Self {
+            text: h.text.into(),
+            value: h.value,
+        }
+    }
 }
 
 /// A set list as the drummer arranged it: the kits, in playing order, ending at
@@ -534,6 +557,7 @@ impl From<engine::Snapshot> for Snapshot {
             device: s.device.map(Into::into),
             current_kit: s.current_kit.map(Into::into),
             setlist: s.setlist.map(Into::into),
+            setup_hints: s.setup_hints.into_iter().map(Into::into).collect(),
             parameters: s.parameters.into_iter().map(Into::into).collect(),
         }
     }

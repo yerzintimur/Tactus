@@ -9,7 +9,9 @@ use crate::event::{
 };
 use crate::setlist::{END, SetlistState, StepEdge, StepWrite};
 use crate::timings::Timings;
-use crate::viewmodel::{self, KitRef, ParamKind, ParamValue, ParameterView, SetlistView, Snapshot};
+use crate::viewmodel::{
+    self, KitRef, ParamKind, ParamValue, ParameterView, SetlistView, SetupHint, Snapshot,
+};
 use device::{DeviceProfile, FirmwareSupport, FirmwareVersion, ProfileRegistry};
 use model::{
     Catalogs, LocalizedText, Localizer, Message, UiString, format_kit, format_located_label,
@@ -135,6 +137,10 @@ pub struct Session {
     polls_since_name_check: u32,
     /// The clock-facing numbers: poll interval, retry, timeouts.
     timings: Timings,
+    /// Whether the module has reported a panel edit this connection — the only
+    /// way to know Transmit Edit Data is on, since the setting itself is not in
+    /// the address map. Decides whether the hint to turn it on is still shown.
+    panel_edit_seen: bool,
     /// A set-list step whose kit the module has just confirmed: the pending name
     /// read announces "Step n, Kit m: name" instead of the bare kit.
     step_announce: Option<u32>,
@@ -168,6 +174,7 @@ impl Session {
             kit_names: HashMap::new(),
             polls_since_name_check: 0,
             timings,
+            panel_edit_seen: false,
             step_announce: None,
         }
     }
@@ -207,6 +214,7 @@ impl Session {
         self.kit_select = None;
         self.setlist = None;
         self.kit_names.clear();
+        self.panel_edit_seen = false;
         let mut fx = vec![
             Effect::Emit(CoreEvent::ConnectionChanged(ConnectionState::Identifying)),
             Effect::SendMidi(sysex::build_identity_request(IDENTITY_DEVICE_ID)),
@@ -226,6 +234,7 @@ impl Session {
         self.kit_select = None;
         self.setlist = None;
         self.kit_names.clear();
+        self.panel_edit_seen = false;
         vec![
             Effect::Emit(CoreEvent::Earcon(Earcon::Disconnected)),
             Effect::Emit(CoreEvent::ConnectionChanged(ConnectionState::Disconnected)),
@@ -368,6 +377,7 @@ impl Session {
                 self.kit_select = None;
                 self.setlist = None;
                 self.kit_names.clear();
+                self.panel_edit_seen = false;
 
                 let mut speech = self.render_spoken(
                     &Message::new("device.connected")
@@ -404,6 +414,7 @@ impl Session {
                 self.kit_select = None;
                 self.setlist = None;
                 self.kit_names.clear();
+                self.panel_edit_seen = false;
                 let info = DeviceInfo {
                     model_id: Vec::new(),
                     device_id,
@@ -570,6 +581,7 @@ impl Session {
         let Some(located) = profile.locate(address) else {
             return Vec::new();
         };
+        self.panel_edit_seen = true;
         let def = located.param;
         let value = if def.encoding.is_text() {
             ParamValue::Text(
@@ -1515,8 +1527,28 @@ impl Session {
                 capacity: state.steps.len() as u32,
                 position: state.position.map(|p| p as u32),
             }),
+            setup_hints: self.setup_hints(),
             parameters,
         }
+    }
+
+    /// The switches on the module the app cannot flip itself, while they still
+    /// need flipping. Transmit Edit Data: the module tells the app about panel
+    /// edits only with it on, and nothing in the address map says whether it is
+    /// — so the hint stands until the first panel edit arrives.
+    fn setup_hints(&self) -> Vec<SetupHint> {
+        let Some(profile) = self.profile.as_ref() else {
+            return Vec::new();
+        };
+        let mut hints = Vec::new();
+        let caps = &profile.capabilities;
+        if caps.features.iter().any(|f| f == "transmit_edit_data") && !self.panel_edit_seen {
+            hints.push(SetupHint {
+                text: UiString::HintTransmitEditData,
+                value: caps.menus.get("transmit_edit_data").cloned(),
+            });
+        }
+        hints
     }
 
     fn build_parameter_views(&self, profile: &DeviceProfile) -> Vec<ParameterView> {

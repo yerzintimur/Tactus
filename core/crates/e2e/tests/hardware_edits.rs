@@ -5,7 +5,7 @@
 //! it. Addresses the profile does not describe are ignored, never guessed.
 
 use e2e::Harness;
-use engine::{CoreEvent, SpeechCategory, SpeechSource};
+use engine::{CoreEvent, SetupHint, SpeechCategory, SpeechSource, UiString};
 
 /// The `(category, source)` tags of the announcement with exactly `text`.
 fn tags_of(events: &[CoreEvent], text: &str) -> Option<(SpeechCategory, SpeechSource)> {
@@ -189,4 +189,35 @@ fn a_write_the_profile_does_not_describe_is_ignored() {
 
     assert!(h.spoken().is_empty(), "got {:?}", h.spoken());
     assert!(h.events().is_empty(), "got {:?}", h.events());
+}
+
+/// Transmit Edit Data is off out of the box and not in the address map, so the
+/// app cannot switch it on and cannot read whether it is on. It asks the
+/// drummer — with the module's own menu path, from the profile — until the
+/// first panel edit proves the setting is on; a reconnect starts over.
+#[test]
+fn the_app_asks_for_transmit_edit_data_until_a_panel_edit_proves_it_on() {
+    let mut h = Harness::v31("en");
+    assert!(
+        h.snapshot().setup_hints.is_empty(),
+        "nothing to say before a device"
+    );
+
+    h.connect().run_to_idle();
+    assert_eq!(
+        h.snapshot().setup_hints,
+        vec![SetupHint {
+            text: UiString::HintTransmitEditData,
+            value: Some("SYSTEM, MIDI, BASIC".to_string()),
+        }]
+    );
+
+    h.hardware_edit("kit.common.volume", &[4], 5).run_to_idle();
+    assert!(
+        h.snapshot().setup_hints.is_empty(),
+        "the panel edit proves it on"
+    );
+
+    h.disconnect().connect().run_to_idle();
+    assert_eq!(h.snapshot().setup_hints.len(), 1, "a reconnect starts over");
 }

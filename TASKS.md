@@ -269,10 +269,12 @@ and verified; keep this file honest about real state.
   in the profile yet, so a pad edit says "Layer volume" without which pad; the
   value cache is per parameter id, so only grid-free parameters of the current
   kit land in the snapshot.
-- [ ] **`P3` Transmit Edit Data is OFF out of the box** and not in the address
-  map, so the app cannot switch it on. Onboarding and the connect summary should
-  tell the user to enable it (SYSTEM → MIDI → BASIC); without it the app only
-  learns of kit changes.
+- [x] **`P3` Transmit Edit Data is OFF out of the box** and not in the address
+  map, so the app cannot switch it on — nor read whether it is on. The core's
+  snapshot carries `setup_hints`: the Connection section asks the drummer to
+  turn it on, with the module's menu path from the profile (`capabilities.menus`),
+  until the first panel edit proves it on. In the a11y tree, not spoken at
+  connect (ADR-0014).
 - [x] **`P3` Name the pads.** The profile's `dimensions` name every position a
   parameter repeats over (`unit` 1–28, `pad` 1–14, `layer` A–C, `fx` 1–8 by bus;
   set-list steps by number), from the MIDI Implementation's index tables; a
