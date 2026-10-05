@@ -2,8 +2,9 @@
 //! is expressible with an immediate, synchronous request→response loop: each turns
 //! on *when* a reply lands relative to a tick or another reply.
 
+use devicesim::{TimingProfile, VirtualDevice};
 use e2e::Harness;
-use engine::CoreEvent;
+use engine::{CoreEvent, Session, Timings};
 
 /// **Bug B (PROTOCOL §6).** A poll's read-back for `current.kit_num` (address
 /// `00 00 00 00`) is in flight when `select_kit` fires. The kit number lives at the
@@ -331,5 +332,103 @@ fn a_program_change_does_not_interrupt_an_edit_in_flight() {
     assert!(
         !fx.iter().any(|e| matches!(e, engine::Effect::SendMidi(_))),
         "no read goes out over an in-flight edit"
+    );
+}
+
+/// A harness whose session runs on `timings` instead of the defaults.
+fn harness_with(timings: Timings) -> Harness {
+    Harness::new(
+        Session::with_timings("en", timings),
+        VirtualDevice::v31(),
+        TimingProfile::synthetic(),
+    )
+}
+
+/// The poll cadence is a number the engine is handed, not one it owns: a session
+/// told to poll every 100 ms reads `Current` three times as often as the
+/// default, and a silent panel kit change is noticed within that interval.
+#[test]
+fn the_poll_interval_is_tunable() {
+    let mut h = harness_with(Timings {
+        poll_interval_ms: 100,
+        ..Timings::default()
+    });
+    h.connect().run_to_idle();
+    h.take_sent();
+    h.take_events();
+
+    h.advance(1_000);
+    let polls = h.sent().iter().filter(|m| is_current_read(m)).count();
+    assert!(
+        (9..=11).contains(&polls),
+        "expected one Current read per 100 ms over 1 s, got {polls}"
+    );
+
+    h.device_mut().set_current_kit(0); // silent change
+    h.advance(150);
+    assert!(
+        h.events().iter().any(|e| matches!(e,
+            CoreEvent::CurrentKitChanged { number, .. } if *number == 0)),
+        "a 100 ms poll should notice the change within 150 ms"
+    );
+}
+
+/// An edit's patience is counted in polls, and that count is tunable: two polls
+/// without a read-back is a failure here, where the default five would still be
+/// waiting.
+#[test]
+fn the_edit_timeout_is_tunable() {
+    let edit_failed = |h: &Harness| {
+        h.events()
+            .iter()
+            .any(|e| matches!(e, CoreEvent::EditFailed { .. }))
+    };
+
+    let mut quick = harness_with(Timings {
+        edit_timeout_ticks: 2,
+        ..Timings::default()
+    });
+    quick.connect().run_to_idle();
+    quick.take_events();
+    quick.device_mut().set_responsive(false);
+    quick.set_parameter("kit.common.tempo", vec![4], 1300);
+    quick.advance(700);
+    assert!(
+        edit_failed(&quick),
+        "two polls without a read-back is a timeout"
+    );
+
+    let mut patient = Harness::v31("en");
+    patient.connect().run_to_idle();
+    patient.take_events();
+    patient.device_mut().set_responsive(false);
+    patient.set_parameter("kit.common.tempo", vec![4], 1300);
+    patient.advance(700);
+    assert!(
+        !edit_failed(&patient),
+        "the default five polls are still waiting at 700 ms"
+    );
+}
+
+/// While identifying, the retry cadence is its own number — a session told to
+/// retry every 200 ms asks a silent module again that often.
+#[test]
+fn the_identity_retry_is_tunable() {
+    let mut h = harness_with(Timings {
+        identity_retry_ms: 200,
+        ..Timings::default()
+    });
+    h.device_mut().set_responsive(false); // no Identity Reply will come
+    h.connect();
+    h.advance(1_000);
+
+    let requests = h
+        .sent()
+        .iter()
+        .filter(|m| m.starts_with(&[0xF0, 0x7E]))
+        .count();
+    assert!(
+        (5..=7).contains(&requests),
+        "expected an Identity Request every 200 ms over 1 s, got {requests}"
     );
 }

@@ -8,6 +8,7 @@
 mod event;
 mod session;
 mod setlist;
+mod timings;
 mod viewmodel;
 
 pub use event::{
@@ -16,6 +17,7 @@ pub use event::{
 };
 pub use model::{LocaleInfo, UiString};
 pub use session::Session;
+pub use timings::Timings;
 pub use viewmodel::{
     KitRef, NumericInfo, NumericRange, ParamKind, ParamValue, ParameterView, SetlistView, Snapshot,
 };

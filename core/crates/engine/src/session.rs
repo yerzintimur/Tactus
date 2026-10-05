@@ -8,6 +8,7 @@ use crate::event::{
     SpeechSource,
 };
 use crate::setlist::{END, SetlistState, StepEdge, StepWrite};
+use crate::timings::Timings;
 use crate::viewmodel::{self, KitRef, ParamKind, ParamValue, ParameterView, SetlistView, Snapshot};
 use device::{DeviceProfile, FirmwareSupport, FirmwareVersion, ProfileRegistry};
 use model::{
@@ -20,18 +21,6 @@ use sysex::encoding::decode_ascii;
 
 /// Device ID used to broadcast the Identity Request (any unit responds).
 const IDENTITY_DEVICE_ID: u8 = 0x7F;
-/// How often to poll the active kit (`Current`).
-const POLL_INTERVAL_MS: u64 = 300;
-
-/// An edit times out after this many ticks without a confirming read-back.
-const EDIT_TIMEOUT_TICKS: u32 = 5;
-
-/// Re-read the current kit's name every this many polls (~3 s), to notice its
-/// slot's contents being replaced on the module — a kit copied or imported over
-/// it changes everything about the kit while its *number* stays put, so the poll
-/// on the number alone would never see it. Every poll would be twice the traffic
-/// for an event that happens between songs, not during one.
-const KIT_NAME_REFRESH_POLLS: u32 = 10;
 
 /// What an outstanding RQ1 reply means when its DT1 comes back.
 #[derive(Debug, Clone)]
@@ -142,16 +131,25 @@ pub struct Session {
     /// *number*; a name is the only part of it a blind user can act on.
     kit_names: HashMap<u32, String>,
     /// Polls since the current kit's name was last re-read (see
-    /// [`KIT_NAME_REFRESH_POLLS`]).
+    /// [`Timings::kit_name_refresh_polls`]).
     polls_since_name_check: u32,
+    /// The clock-facing numbers: poll interval, retry, timeouts.
+    timings: Timings,
     /// A set-list step whose kit the module has just confirmed: the pending name
     /// read announces "Step n, Kit m: name" instead of the bare kit.
     step_announce: Option<u32>,
 }
 
 impl Session {
-    /// Create a session for the given UI/speech locale (e.g. "en" or "ru").
+    /// Create a session for the given UI/speech locale (e.g. "en" or "ru"), with
+    /// the default [`Timings`].
     pub fn new(locale: impl Into<String>) -> Self {
+        Self::with_timings(locale, Timings::default())
+    }
+
+    /// Create a session with explicit [`Timings`] — a platform that wants a
+    /// different poll cadence, or a test that cannot wait for the real one.
+    pub fn with_timings(locale: impl Into<String>, timings: Timings) -> Self {
         Self {
             registry: ProfileRegistry::with_builtin(),
             localizer: Localizer::new(),
@@ -169,6 +167,7 @@ impl Session {
             setlist: None,
             kit_names: HashMap::new(),
             polls_since_name_check: 0,
+            timings,
             step_announce: None,
         }
     }
@@ -212,7 +211,7 @@ impl Session {
             Effect::Emit(CoreEvent::ConnectionChanged(ConnectionState::Identifying)),
             Effect::SendMidi(sysex::build_identity_request(IDENTITY_DEVICE_ID)),
         ];
-        fx.push(Self::schedule_tick(POLL_INTERVAL_MS * 3));
+        fx.push(Self::schedule_tick(self.timings.identity_retry_ms));
         fx
     }
 
@@ -242,13 +241,13 @@ impl Session {
                 let mut fx = vec![Effect::SendMidi(sysex::build_identity_request(
                     IDENTITY_DEVICE_ID,
                 ))];
-                fx.push(Self::schedule_tick(POLL_INTERVAL_MS * 3));
+                fx.push(Self::schedule_tick(self.timings.identity_retry_ms));
                 fx
             }
             ConnectionState::Ready => {
                 let mut fx = self.age_edits();
                 fx.extend(self.poll_current());
-                fx.push(Self::schedule_tick(POLL_INTERVAL_MS));
+                fx.push(Self::schedule_tick(self.timings.poll_interval_ms));
                 fx
             }
             ConnectionState::Disconnected => vec![],
@@ -392,7 +391,7 @@ impl Session {
                     ),
                 ];
                 fx.extend(self.poll_current());
-                fx.push(Self::schedule_tick(POLL_INTERVAL_MS));
+                fx.push(Self::schedule_tick(self.timings.poll_interval_ms));
                 fx
             }
             None => {
@@ -791,7 +790,7 @@ impl Session {
             .collect();
         self.polls_since_name_check += 1;
         let mut refreshed = false;
-        if self.polls_since_name_check >= KIT_NAME_REFRESH_POLLS {
+        if self.polls_since_name_check >= self.timings.kit_name_refresh_polls {
             self.polls_since_name_check = 0;
             if let Some(effect) = self.refresh_kit_name() {
                 fx.push(effect);
@@ -927,7 +926,7 @@ impl Session {
                 rq_size(len),
             )),
         ];
-        fx.push(Self::schedule_tick(POLL_INTERVAL_MS));
+        fx.push(Self::schedule_tick(self.timings.poll_interval_ms));
         fx
     }
 
@@ -1089,7 +1088,7 @@ impl Session {
             addr,
             sysex::address::from_linear(size as u32),
         ))];
-        fx.push(Self::schedule_tick(POLL_INTERVAL_MS));
+        fx.push(Self::schedule_tick(self.timings.poll_interval_ms));
         fx
     }
 
@@ -1302,7 +1301,7 @@ impl Session {
                 rq_size(len),
             )),
         ];
-        fx.push(Self::schedule_tick(POLL_INTERVAL_MS));
+        fx.push(Self::schedule_tick(self.timings.poll_interval_ms));
         fx
     }
 
@@ -1436,7 +1435,7 @@ impl Session {
         for (addr, pending) in self.pending.iter_mut() {
             if let Pending::EditVerify(edit) = pending {
                 edit.age += 1;
-                if edit.age >= EDIT_TIMEOUT_TICKS {
+                if edit.age >= self.timings.edit_timeout_ticks {
                     expired.push(*addr);
                 }
             }
@@ -1451,7 +1450,7 @@ impl Session {
         // new kit) times out the same way — a failed select is audible, not silent.
         if let Some(ks) = self.kit_select.as_mut() {
             ks.age += 1;
-            if ks.age >= EDIT_TIMEOUT_TICKS {
+            if ks.age >= self.timings.edit_timeout_ticks {
                 self.kit_select = None;
                 self.step_announce = None;
                 fx.extend(self.fail_simple("edit.timeout", "current.kit_num"));

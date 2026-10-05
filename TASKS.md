@@ -64,8 +64,10 @@ and verified; keep this file honest about real state.
   dev) and the Apple leg (`just build-ios` → `just ios-gen` → simulator tests
   incl. the a11y audit) on a pinned `macos-26` runner. Same `just` recipes as
   local dev; README badge; docs/CI.md walkthrough. Add Android later (M5).
-- [ ] **`P3` Make engine timings tunable** (poll 300 ms, identity-retry 900 ms,
-  edit-timeout) — currently hardcoded in `engine/src/session.rs`.
+- [x] **`P3` Make engine timings tunable.** `engine::Timings` (poll 300 ms,
+  identity retry 900 ms, edit timeout 5 polls, name refresh every 10 polls) with
+  `Session::with_timings`; the defaults are what the V31 was measured against.
+  Not on the FFI yet — a one-record addition when a platform needs to tune it.
 - [x] **`P1` Device-mock e2e foundation (Phases 1–2).** A profile-driven
   `VirtualDevice` (a dumb, address-keyed byte store that answers Identity/RQ1/DT1,
   persists writes, and emits unsolicited hardware pushes — works for any profile by
