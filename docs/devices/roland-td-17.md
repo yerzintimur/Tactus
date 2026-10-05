@@ -11,7 +11,8 @@
 > [ADR-0004](../adr/0004-vendor-docs-not-committed.md).
 
 **Status:** documentation and a parsed address map only. There is **no TD-17
-profile yet** and nothing has been confirmed on hardware.
+profile yet** and nothing has been confirmed on hardware *by us* — §8 collects
+what two projects that do have the module found, and our map agrees with theirs.
 
 ---
 
@@ -223,14 +224,18 @@ To be answered with the module in hand (see
 [HARDWARE_TESTING.md](../HARDWARE_TESTING.md)):
 
 1. What is the round-trip latency of an RQ1 → DT1 exchange over USB? (Feeds a
-   recorded `TimingProfile`.)
+   recorded `TimingProfile`.) *Partly answered by proxy (§8): "a few tens of
+   milliseconds"; a 240 ms per-block timeout is enough in practice.*
 2. Does the module actually push DT1 on front-panel edits with **Transmit Edit
-   Data** on, and at what granularity?
+   Data** on, and at what granularity? *Still open — neither project in §8
+   listens for unsolicited DT1.*
 3. Which **firmware** is on the teacher's unit (2.00 expected on a Gen 2 kit) and
-   does the Identity Reply match the coded revision table above?
+   does the Identity Reply match the coded revision table above? *The table is
+   confirmed by proxy (§8); which code 2.01 and 2.10 report is not.*
 4. How do the **user kit slots** (71–100) behave versus the 70 presets?
 5. Fragmentation: how does the module split replies larger than 256 bytes in
-   practice?
+   practice? *Never exercised by either project in §8 — both keep every request
+   under one packet.*
 
 ---
 
@@ -250,7 +255,9 @@ Ordered by dependency; the estimate is deliberately conservative.
    that needs real parser work rather than a new data file.
 4. **Cross-check test** — the same shape as
    `core/crates/device/tests/map_crosscheck.rs`, pinning every profile parameter
-   to the parsed map. Cheap, and it is what caught the V31 name-length bug.
+   to the parsed map. Cheap, and it is what caught the V31 name-length bug. A
+   second cross-check against V-Drum Explorer's hardware-tested block sizes (§8)
+   costs one table and buys most of what a bench session would.
 5. **Nothing expected in `sysex`, `engine`, or the apps.** The framing, checksum,
    address arithmetic, 256-byte packet rule, poll/verify loop, and speech layer
    are all module-independent.
@@ -258,3 +265,113 @@ Ordered by dependency; the estimate is deliberately conservative.
 The realistic risk is not the protocol — it is that we would be shipping a
 profile we cannot test until someone with a TD-17 runs it, which is why the
 teacher matters more than the document.
+
+---
+
+## 8. Field notes from other implementations (read 2026-10-05)
+
+We will not have a TD-17 in hand before release. Two open-source editors have,
+and both are built the way Tactus is — the same RQ1/DT1 mechanics driven by a
+per-module map — so their code and changelogs stand in for a bench session.
+Nothing below is copied; these are the facts we checked against our own map
+and notes, with where each one comes from.
+
+- **V-Drum Explorer** — Jon Skeet, C#, Apache-2.0,
+  [github.com/jskeet/DemoCode/tree/main/Drums](https://github.com/jskeet/DemoCode/tree/main/Drums)
+  (read at commit `f885f88`, 2026-09-03). Data-driven: one JSON schema per
+  module (TD-07, TD-17 v1 and v2, TD-27, TD-50, TD-50X, AE-01/10), the TD-17
+  one developed against the author's own module. Blog series:
+  [codeblog.jonskeet.uk/category/v-drums](https://codeblog.jonskeet.uk/category/v-drums/).
+- **PulsoKit** — arkus1972, Swift + CoreMIDI on macOS, TD-17 kit editor,
+  [github.com/arkus1972/PulsoKit](https://github.com/arkus1972/PulsoKit)
+  (read at commit `7e11f56`, 2026-08-31). Developed against a real TD-17; the
+  TD-27 is recognised but read-only until its map is confirmed — the same rule
+  we propose below. Its changelog (`ZMIANY.md`) records what the hardware
+  actually did.
+
+### Our derived map agrees with a hardware-tested schema
+Block for block, V-Drum Explorer's TD-17 schema (its author's module, firmware
+1.0x through 2) says what
+[our parsed map](../../profiles/maps/roland-td-17-address-map.json) says:
+
+| Block | V-Drum Explorer | Our map |
+|---|---|---|
+| Areas | Current `00`, Setup `01`, Triggers `02`, Kit `03` ×100, gap `00 02 00 00` | same |
+| Kit sub-blocks | Common `00 00`, MIDI `01 00`, Ambience `03 00`, Reverb `04 00` (fw 2), Master Comp `05 00` (fw 2), MFX `10 00`, Unit Common `20 00` ×20, Unit Main `40 00` ×20, Unit Sub `60 00` ×20 | same |
+| KitCommon | size `0x2B`: name 12, sub-name 16, 3 × volume, XStick switch, HH balance −5..5 | same, 43 bytes |
+| KitUnitCommon | size `0x1C` on fw 2, `0x18` on fw 1.x | 28 bytes (fw 2 doc) |
+| KitUnitInst | size 9: instrument (4), volume (4), bank (1) at offset 8 | same |
+| KitUnitVEdit | size `0x41`: placeholder + 16 × 4-byte params, meaning overlaid by instrument group | same, 65 bytes |
+| Current | 1 byte, 0–99; **writing it switches the kit** (`SetCurrentKitAsync`) | same |
+
+Two conclusions. The parser that reads Roland's PDF is producing the truth for
+this module, not just for the V31. And a TD-17 on firmware **1.x** has a
+different `KitUnitCommon` size (and no Reverb / Master Comp blocks) — the coded
+revision in the Identity Reply (`00 00 00 02` = 2.00) is what tells us which
+layout we are talking to.
+
+### Encodings are family-wide
+- **Volume** is `volume32` in V-Drum Explorer: −601..60, tenths of a dB,
+  **−601 = −INF** — exactly the V31's sentinel. Our profile `sentinel` mechanism
+  carries over unchanged.
+- **Instrument bank** is one byte, `0` PRESET / `1` USER — simpler than the V31's
+  bank numbers, but still "number + bank", so `catalog_bank` applies.
+- **Identity Reply**: V-Drum Explorer matches family code `0x034B` (bytes
+  `4B 03`), family number `00 00`, software revision `0`, `1` or `2` — our table
+  in §3, confirmed on hardware by a tool that refuses to talk unless they match.
+
+### Transport behaviour both projects saw
+- **Reply latency**: "a few tens of milliseconds" (PulsoKit). PulsoKit times out
+  a block after **240 ms**; V-Drum Explorer after 1 s. V-Drum Explorer reads
+  containers strictly one at a time with **no delay between requests** and waits
+  **40 ms after every write**; a whole TD-17 (every container) takes about three
+  minutes, a kit a few seconds.
+- **Unknown addresses do not answer** at all — no error message. A timeout is the
+  only signal (PulsoKit's probe relies on it). Same as the V31.
+- **Request sizes**: V-Drum Explorer caps a request at `0x17F` bytes to avoid
+  reassembling a fragmented reply; PulsoKit never asks for more than `0x106`.
+  Neither has ever seen a split reply. Our per-block reads stay well under one
+  packet, so the 256-byte rule in §3 is a ceiling we do not approach.
+- **Active Sensing inside SysEx**: the TD-17 sends `0xFE` (System Real-Time),
+  and it can land in the middle of a DT1 frame. PulsoKit's reader took it as data,
+  the checksum failed, and a read hung until a 60 s watchdog (fixed in its latest release).
+  Our reassembler already drops `0xF8`–`0xFF` inside a frame
+  ([reassembly.rs](../../core/crates/sysex/src/reassembly.rs)); worth a cassette
+  that interleaves one, so it stays that way.
+- **Soft Thru** on the module echoes notes back into the SysEx stream and breaks
+  a read in progress (PulsoKit manual, troubleshooting). One more setting to name
+  at onboarding: **[SETUP] – [MIDI] – Soft Thru: OFF**.
+- **First request after connect**: CoreMIDI needs a moment after the port opens —
+  an RQ1 sent at once "can vanish without a reply"; PulsoKit waits 700 ms, and
+  900 ms for an Identity Reply. Our identity retry already covers this.
+- **Program Change on a kit change**: the TD-17 sends one, like the V31 (PulsoKit
+  follows the kit through it). PulsoKit handles **running status** — a second
+  Program Change may arrive as a lone data byte. Our hint in
+  `handle_midi_input` looks for a `Cn` status byte and would miss that form;
+  harmless (the poll still catches up), but a cheap fix for both modules.
+- **Device ID**: PulsoKit does not assume `10H`; it learns the ID from the first
+  checksum-valid DT1 and then ignores others. A good robustness idea for us.
+- **USB driver mode**: V-Drum Explorer (Windows) documents that the module must
+  be in **VENDOR** mode to be detected, without saying why. PulsoKit, on macOS
+  through CoreMIDI, needs no setting at all and never mentions it, which means
+  the factory-default **GENERIC** (the OS class driver) carries SysEx on Apple's
+  stack. A phone has no other option, so our §5 stands; the Windows requirement
+  is a Windows-driver matter.
+
+### A precedent for our "unverified profile" rule
+PulsoKit ships the TD-27 behind one flag, `hasVerifiedMap = false`: the module
+is recognised, raw dumps are allowed, **no DT1 leaves the app** and no
+structured values are shown ("a write to a guessed address lands somewhere in
+someone else's instrument; garbage shown as values is worse than an honest
+'don't know'"). Its path to verification is a dump plus a photo of the
+module's screen plus one changed value, diffed. That is the rule we should adopt
+for a TD-17 profile built without the module: recognise, read, announce;
+write only once the map is confirmed on hardware.
+
+### Firmware since the documents
+2.00 (Dec 2022) added reverb, kit comp and Roland Cloud packs; 2.01 (May 2023)
+and 2.10 (Oct 2024, new pad models, Auto Off default) are listed as fixes and
+pad support only. Neither project records a map change after 2.00, and
+neither records which revision code 2.01/2.10 report — so a Gen 2 kit updated
+today may answer with a code our table does not list. ADR-0009 already says what
+to do: announce it, never block.
