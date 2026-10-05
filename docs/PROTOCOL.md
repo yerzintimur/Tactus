@@ -298,6 +298,10 @@ parameter-map JSON, §13 of SPEC, cross-checked against the Data List.)
   sends the next write only once the module has confirmed the previous. Neither is
   merely tidier — a dropped request is a value silently missing from a list a
   blind user is reading, and a dropped write is a reorder left half-applied.
+  The set-list names the picker shows are read the same way: one list per poll
+  after connect (the 32 lists over 32 polls, ~10 s), at most two messages per
+  poll and never alongside the kit-name refresh. *Live pacing of the sweep not
+  yet checked on the module.*
 - **Identity Reply** identifies the module *and* carries its firmware. **Captured
   live (2026-06-15):**
   `F0 7E 10 06 02 41 01 06 03 00 00 02 01 00 F7` —

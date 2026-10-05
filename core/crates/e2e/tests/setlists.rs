@@ -394,3 +394,108 @@ fn rapid_steps_still_announce_the_step_you_land_on() {
     assert_eq!(setlist(&h).position, Some(2));
     assert_eq!(h.snapshot().current_kit.map(|k| k.display_number), Some(12));
 }
+
+/// An RQ1 for a set list's name alone (the background sweep's): a read into
+/// the set-list area whose size is under 128 bytes — a whole list is 160.
+fn is_setlist_name_read(msg: &[u8]) -> bool {
+    msg.len() == 17 && msg[6] == 0x11 && msg[7] == 0x03 && msg[13] == 0x00
+}
+
+fn is_rq1(msg: &[u8]) -> bool {
+    msg.len() > 6 && msg[6] == 0x11
+}
+
+/// The picker names every list without the drummer opening each: after
+/// connect the names are read in the background, one list per poll — the
+/// module's 32 lists over 32 polls, never two name reads in a row (PROTOCOL
+/// §6: a burst is what a module drops).
+#[test]
+fn set_list_names_are_swept_in_the_background_one_per_poll() {
+    let mut h = Harness::v31("en");
+    h.device_mut()
+        .with_setlist(0, "Concert", &[4])
+        .with_setlist(2, "Rock Night", &[0])
+        .with_setlist(31, "Encore", &[4]);
+    h.connect().run_to_idle();
+    assert_eq!(
+        h.snapshot().setlists.len(),
+        32,
+        "one row per list, from the profile"
+    );
+
+    h.advance(12_000); // 32 polls of 300 ms, with margin
+
+    let named: Vec<(u32, String)> = h
+        .snapshot()
+        .setlists
+        .into_iter()
+        .filter(|l| !l.name.is_empty())
+        .map(|l| (l.display_number, l.name))
+        .collect();
+    assert_eq!(
+        named,
+        vec![
+            (1, "Concert".to_string()),
+            (3, "Rock Night".to_string()),
+            (32, "Encore".to_string())
+        ]
+    );
+
+    let reads: Vec<bool> = h
+        .sent()
+        .iter()
+        .filter(|m| is_rq1(m))
+        .map(|m| is_setlist_name_read(m))
+        .collect();
+    assert_eq!(
+        reads.iter().filter(|r| **r).count(),
+        32,
+        "each list asked once"
+    );
+    assert!(
+        !reads.windows(2).any(|w| w == [true, true]),
+        "two name reads back to back"
+    );
+}
+
+/// Opening a list while the sweep's read of its name is still in flight must
+/// not lose the open read: the name-only reply lands first and the whole
+/// block is still expected, so the steps arrive intact.
+#[test]
+fn opening_a_list_mid_sweep_keeps_its_read_whole() {
+    let mut h = Harness::v31("en");
+    h.device_mut()
+        .with_kit(4, "Jazz", 1200)
+        .with_setlist(5, "Club", &[4, 4]);
+    h.connect().run_to_idle();
+
+    // Step until the sweep has just asked for list 6's name (index 5: the
+    // set-list stride is 16 in the address's third byte, so `03 00 50 00`)…
+    let name_read_of = |m: &[u8]| is_setlist_name_read(m) && m[9] == 5 * 16;
+    let mut guard = 0;
+    while !h.sent().iter().any(|m| name_read_of(m)) {
+        h.step().expect("the sweep reaches list 6");
+        guard += 1;
+        assert!(guard < 200);
+    }
+    // …and open it before the module has answered.
+    h.read_setlist(5).run_to_idle();
+    h.advance(2_000);
+
+    let view = setlist(&h);
+    assert_eq!(view.name, "Club");
+    assert_eq!(steps(&view), vec!["5 Jazz", "5 Jazz"]);
+    assert_eq!(h.snapshot().setlists[5].name, "Club");
+}
+
+/// Whatever brings a name in — the sweep, opening the list, renaming it — the
+/// picker shows it; a rename shows the name the module kept.
+#[test]
+fn an_opened_or_renamed_list_names_its_picker_row() {
+    let mut h = opened("en"); // list 1 "Concert" open; the sweep is still running
+    assert_eq!(h.snapshot().setlists[0].name, "Concert");
+
+    h.rename_setlist("Rehearsal").run_to_idle();
+    assert_eq!(h.snapshot().setlists[0].name, "Rehearsal");
+    assert_eq!(setlist(&h).name, "Rehearsal");
+}

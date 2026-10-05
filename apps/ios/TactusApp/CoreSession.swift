@@ -24,10 +24,16 @@ final class CoreSession: ObservableObject {
     /// The set list currently open, as the module reports it: the kits in playing
     /// order, ending at the module's own terminator. `nil` until one is opened.
     @Published private(set) var setlist: SetlistView?
+    /// Every set list the module holds, named once the core has read the name
+    /// (in the background after connect, one list per poll) — the picker's rows.
+    @Published private(set) var setlists: [SetlistRef] = []
     /// What the drummer still has to switch on the module itself — the core
     /// says which, and drops each once it sees it done (Transmit Edit Data: gone
-    /// after the first panel edit arrives).
+    /// after the first panel edit arrives); the app remembers a done one per
+    /// module across launches (see `projectSetupHints`).
     @Published private(set) var setupHints: [SetupHint] = []
+    /// The hints the core listed at the last refresh, to notice one dropping.
+    private var shownHints: [SetupHint] = []
     /// True while a tempo edit is in flight (written, not yet device-confirmed).
     /// The UI presents the edit as *in-progress* so the screen reader never voices
     /// the stale value as current (ADR-0014 edge case); the displayed number stays
@@ -213,7 +219,47 @@ final class CoreSession: ObservableObject {
         let snapshot = core.snapshot()
         tempo = snapshot.parameters.first { $0.paramId == Self.tempoParamId }
         setlist = snapshot.setlist
-        setupHints = snapshot.setupHints
+        setlists = snapshot.setlists
+        projectSetupHints(snapshot.setupHints)
+    }
+
+    /// The core lists a hint until it sees the switch flipped *this* connection;
+    /// the app remembers a flipped one per module, so a drummer who has set the
+    /// module up once is not asked again every launch. (The core is sans-I/O
+    /// and keeps nothing between sessions — persistence is the platform's,
+    /// ADR-0008.) A hint shown a moment ago and gone while still connected to
+    /// the same module was seen flipped.
+    private func projectSetupHints(_ hints: [SetupHint]) {
+        guard connection == .ready, let profileId = device?.profileId else {
+            shownHints = []
+            setupHints = []
+            return
+        }
+        for shown in shownHints where !hints.contains(shown) {
+            Self.rememberSetupDone(shown.text, for: profileId)
+        }
+        shownHints = hints
+        setupHints = hints.filter { !Self.isSetupDone($0.text, for: profileId) }
+    }
+
+    private static let setupDoneKeyPrefix = "setupDone."
+
+    static func isSetupDone(_ hint: UiString, for profileId: String) -> Bool {
+        UserDefaults.standard.bool(forKey: "\(setupDoneKeyPrefix)\(profileId).\(hint)")
+    }
+
+    private static func rememberSetupDone(_ hint: UiString, for profileId: String) {
+        UserDefaults.standard.set(true, forKey: "\(setupDoneKeyPrefix)\(profileId).\(hint)")
+    }
+
+    /// Forget every remembered module setup — tests start from a module the
+    /// drummer has never set up.
+    static func clearSetupMemory() {
+        let defaults = UserDefaults.standard
+        for key in defaults.dictionaryRepresentation().keys
+        where key.hasPrefix(setupDoneKeyPrefix) {
+            defaults.removeObject(forKey: key)
+        }
     }
 
     private func apply(_ event: CoreEvent) {

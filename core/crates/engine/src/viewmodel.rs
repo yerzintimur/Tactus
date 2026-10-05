@@ -23,6 +23,9 @@ pub struct Snapshot {
     pub current_kit: Option<KitRef>,
     /// The set list currently open for viewing/editing, if one has been read.
     pub setlist: Option<SetlistView>,
+    /// Every set list the module holds, named where the name is known (read in
+    /// the background after connect). Empty until a profile is matched.
+    pub setlists: Vec<SetlistRef>,
     /// What the drummer still has to do on the module itself before the app can
     /// do its whole job — only the switches the app cannot flip for them, and
     /// only until it sees them flipped. Empty once there is nothing left to say.
@@ -30,6 +33,16 @@ pub struct Snapshot {
     /// The active device's parameters with their last-known values + metadata.
     /// Empty until a profile is matched.
     pub parameters: Vec<ParameterView>,
+}
+
+/// One of the module's set lists as the picker lists it: its number and, once
+/// read, its name — empty until then.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SetlistRef {
+    /// 0-based wire number, and the 1-based one to show.
+    pub number: u32,
+    pub display_number: u32,
+    pub name: String,
 }
 
 /// A set list as the drummer arranged it: the kits, in order. Only the steps the

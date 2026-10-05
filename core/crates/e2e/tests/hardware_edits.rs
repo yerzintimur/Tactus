@@ -221,3 +221,28 @@ fn the_app_asks_for_transmit_edit_data_until_a_panel_edit_proves_it_on() {
     h.disconnect().connect().run_to_idle();
     assert_eq!(h.snapshot().setup_hints.len(), 1, "a reconnect starts over");
 }
+
+/// A knob turned in the first instant after connect — before the module has
+/// answered the first `Current` read — is still a panel edit: announced, and
+/// proof that Transmit Edit Data is on.
+#[test]
+fn a_panel_edit_before_the_first_current_read_is_still_announced() {
+    let mut h = Harness::v31("en");
+    h.connect();
+    h.step(); // the Identity Reply lands: Ready, the Current read is out
+    assert!(h.snapshot().current_kit.is_none(), "no kit known yet");
+
+    // The push (4 ms) lands before the Current reply (8 ms).
+    h.hardware_edit("kit.common.volume", &[4], 5).run_to_idle();
+
+    assert!(
+        h.spoken().contains(&"Kit volume: 0.5 dB".to_string()),
+        "got {:?}",
+        h.spoken()
+    );
+    assert!(h.snapshot().setup_hints.is_empty());
+    assert_eq!(
+        h.snapshot().current_kit.map(|k| k.name),
+        Some("Jazz".into())
+    );
+}

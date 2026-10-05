@@ -211,9 +211,11 @@ and verified; keep this file honest about real state.
   but the module answers ~416 ms later together with the regular poll's reply:
   it is silent for ~400 ms after a kit change, so the gain over the 300 ms poll
   is marginal on this firmware (PROTOCOL §6). Kept as a cheap, harmless guard.
-- [ ] **`P3` Set-list names without opening each list** — the picker offers
-  "Set list 1…32" because the names live in the module and reading all 32 would be
-  32 requests. Worth a background sweep (paced) once the hardware answers above.
+- [x] **`P3` Set-list names without opening each list.** A background sweep
+  after connect reads one list's name per poll (32 over ~10 s, never two in one
+  tick, never alongside the kit-name refresh); the snapshot's `setlists` names
+  every row of the picker ("Set list 3 · Rock Night"), and an open or renamed
+  list updates its row. *Live pacing on the module not yet checked.*
 - [ ] **`P1` Speech model → "the screen reader is the only voice"**
   ([ADR-0014](docs/adr/0014-screen-reader-is-the-only-voice.md)). Live testing
   reframed two bugs (speech flood on hardware kit-scroll; double-speech on a UI
@@ -271,10 +273,12 @@ and verified; keep this file honest about real state.
   kit land in the snapshot.
 - [x] **`P3` Transmit Edit Data is OFF out of the box** and not in the address
   map, so the app cannot switch it on — nor read whether it is on. The core's
-  snapshot carries `setup_hints`: the Connection section asks the drummer to
-  turn it on, with the module's menu path from the profile (`capabilities.menus`),
-  until the first panel edit proves it on. In the a11y tree, not spoken at
-  connect (ADR-0014).
+  snapshot carries `setup_hints`: a "Module setup" section at the foot of the
+  main screen asks the drummer to turn it on, with the module's menu path from
+  the profile (`capabilities.menus`), until the first panel edit proves it on —
+  and the app remembers that per module across launches (platform-side
+  persistence; the core is sans-I/O). In the a11y tree, not spoken at connect
+  (ADR-0014).
 - [x] **`P3` Name the pads.** The profile's `dimensions` name every position a
   parameter repeats over (`unit` 1–28, `pad` 1–14, `layer` A–C, `fx` 1–8 by bus;
   set-list steps by number), from the MIDI Implementation's index tables; a

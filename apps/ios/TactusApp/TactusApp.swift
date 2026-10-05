@@ -16,6 +16,7 @@ struct TactusApp: App {
         // each `--uitest` launch starts from the device language.
         if ProcessInfo.processInfo.arguments.contains("--uitest") {
             CoreSession.clearLanguageOverride()
+            CoreSession.clearSetupMemory()
         }
         // `--language ru` starts in a given language, so a UI test can assert the
         // whole interface in it without driving the system picker widget.

@@ -10,7 +10,8 @@ use crate::event::{
 use crate::setlist::{END, SetlistState, StepEdge, StepWrite};
 use crate::timings::Timings;
 use crate::viewmodel::{
-    self, KitRef, ParamKind, ParamValue, ParameterView, SetlistView, SetupHint, Snapshot,
+    self, KitRef, ParamKind, ParamValue, ParameterView, SetlistRef, SetlistView, SetupHint,
+    Snapshot,
 };
 use device::{DeviceProfile, FirmwareSupport, FirmwareVersion, ProfileRegistry};
 use model::{
@@ -42,6 +43,9 @@ enum Pending {
     Setlist(u32),
     /// A kit's name, requested to label a set-list step.
     SetlistKitName(u32),
+    /// A set list's name alone, read by the background sweep so the picker can
+    /// name a list the drummer has not opened.
+    SetlistName(u32),
 }
 
 /// Why the current kit changed — decides how the resulting announcements are
@@ -80,6 +84,19 @@ struct Edit {
     indices: Vec<u32>,
     intended: EditValue,
     age: u32,
+}
+
+/// What a set-list reply filled in: the name, the steps, both, or nothing.
+#[derive(Debug, Clone, Copy, Default)]
+struct Landed {
+    name: bool,
+    steps: bool,
+}
+
+impl Landed {
+    fn any(self) -> bool {
+        self.name || self.steps
+    }
 }
 
 /// An in-flight kit selection. Deliberately *not* an [`Edit`]: the edit pipeline
@@ -132,6 +149,13 @@ pub struct Session {
     /// Kit number → name, filled in as read-backs land. A set-list step is a kit
     /// *number*; a name is the only part of it a blind user can act on.
     kit_names: HashMap<u32, String>,
+    /// Set-list number → name: filled in by the background sweep after connect,
+    /// and by every open-list read and rename since — the picker names a list
+    /// before the drummer opens it.
+    setlist_names: HashMap<u32, String>,
+    /// The next set list the sweep asks the name of; past the module's count
+    /// once every list has been asked for.
+    setlist_sweep: u32,
     /// Polls since the current kit's name was last re-read (see
     /// [`Timings::kit_name_refresh_polls`]).
     polls_since_name_check: u32,
@@ -172,6 +196,8 @@ impl Session {
             kit_select: None,
             setlist: None,
             kit_names: HashMap::new(),
+            setlist_names: HashMap::new(),
+            setlist_sweep: 0,
             polls_since_name_check: 0,
             timings,
             panel_edit_seen: false,
@@ -214,6 +240,8 @@ impl Session {
         self.kit_select = None;
         self.setlist = None;
         self.kit_names.clear();
+        self.setlist_names.clear();
+        self.setlist_sweep = 0;
         self.panel_edit_seen = false;
         let mut fx = vec![
             Effect::Emit(CoreEvent::ConnectionChanged(ConnectionState::Identifying)),
@@ -234,6 +262,8 @@ impl Session {
         self.kit_select = None;
         self.setlist = None;
         self.kit_names.clear();
+        self.setlist_names.clear();
+        self.setlist_sweep = 0;
         self.panel_edit_seen = false;
         vec![
             Effect::Emit(CoreEvent::Earcon(Earcon::Disconnected)),
@@ -377,6 +407,8 @@ impl Session {
                 self.kit_select = None;
                 self.setlist = None;
                 self.kit_names.clear();
+                self.setlist_names.clear();
+                self.setlist_sweep = 0;
                 self.panel_edit_seen = false;
 
                 let mut speech = self.render_spoken(
@@ -414,6 +446,8 @@ impl Session {
                 self.kit_select = None;
                 self.setlist = None;
                 self.kit_names.clear();
+                self.setlist_names.clear();
+                self.setlist_sweep = 0;
                 self.panel_edit_seen = false;
                 let info = DeviceInfo {
                     model_id: Vec::new(),
@@ -497,12 +531,24 @@ impl Session {
             }
             Pending::EditVerify(edit) => self.handle_edit_verify(edit, data),
             Pending::Setlist(index) => {
-                if self.absorb_setlist(address, data) {
+                let landed = self.absorb_setlist(address, data);
+                if landed.name && !landed.steps {
+                    // A name-only reply — the sweep's, answered after this read
+                    // went out, or a module that splits the block: the steps
+                    // are still on their way, keep expecting them here.
+                    self.pending.insert(address, Pending::Setlist(index));
+                }
+                if landed.any() {
                     self.settle_setlist_position();
                     vec![Effect::Emit(CoreEvent::SetlistChanged { number: index })]
                 } else {
                     Vec::new()
                 }
+            }
+            Pending::SetlistName(index) => {
+                let name = self.decode_text("setlist.name", data);
+                self.setlist_names.insert(index, name);
+                Vec::new()
             }
             Pending::SetlistKitName(kit) => {
                 let name = self.decode_text("kit.common.name", data);
@@ -519,23 +565,27 @@ impl Session {
     /// best-effort match against the active kit's known addresses.
     fn handle_unsolicited(&mut self, address: [u8; 4], data: &[u8]) -> Vec<Effect> {
         // A set list edited on the module while the user has it open here.
-        if self.absorb_setlist(address, data) {
+        if self.absorb_setlist(address, data).any() {
             self.settle_setlist_position();
             let number = self.setlist.as_ref().map(|s| s.index).unwrap_or_default();
             return vec![Effect::Emit(CoreEvent::SetlistChanged { number })];
         }
-        let Some(kit) = self.current_kit else {
-            return Vec::new();
-        };
         let (cur_addr, name_addr, tempo_addr) = {
             let Some(p) = self.profile.as_ref() else {
                 return Vec::new();
             };
+            let kit = self.current_kit;
             (
                 p.address_of("current.kit_num", &[]),
-                p.address_of("kit.common.name", &[kit]),
-                p.address_of("kit.common.tempo", &[kit]),
+                kit.and_then(|kit| p.address_of("kit.common.name", &[kit])),
+                kit.and_then(|kit| p.address_of("kit.common.tempo", &[kit])),
             )
+        };
+        // The current kit's own name and tempo are special-cased below; before
+        // the kit is known (a knob turned in the first instant after connect)
+        // every write is simply the panel edit it is.
+        let Some(kit) = self.current_kit else {
+            return self.on_hardware_edit(address, data);
         };
 
         if Some(address) == cur_addr {
@@ -809,13 +859,44 @@ impl Session {
                 refreshed = true;
             }
         }
-        // Two messages per poll at most: filling in a set-list step's name can
-        // wait a tick rather than share one with the refresh (PROTOCOL §6 — a
-        // burst is what a module drops).
+        // Two messages per poll at most: filling in a set-list step's name, or
+        // the background sweep of set-list names, waits a tick rather than share
+        // one with the refresh (PROTOCOL §6 — a burst is what a module drops).
+        // A step's name goes first: it is for the list open right now.
         if !refreshed {
-            fx.extend(self.request_missing_step_name());
+            match self.request_missing_step_name() {
+                Some(effect) => fx.push(effect),
+                None => fx.extend(self.request_next_setlist_name()),
+            }
         }
         fx
+    }
+
+    /// The background sweep of set-list names: one list per poll after connect,
+    /// so the picker can name every list without the drummer opening each —
+    /// the module's 32 lists cost 32 requests spread over 32 polls (~10 s),
+    /// never a burst. A list whose name is already known, or whose address has
+    /// a read in flight (an open-list read, a rename's read-back), is skipped:
+    /// that reply brings the name anyway, and a second request at the same
+    /// address would take its place in the pending map and mistake its reply.
+    fn request_next_setlist_name(&mut self) -> Option<Effect> {
+        let count = self.profile.as_ref()?.areas.get("setlist")?.count?;
+        while self.setlist_sweep < count {
+            let index = self.setlist_sweep;
+            self.setlist_sweep += 1;
+            if self.setlist_names.contains_key(&index) {
+                continue;
+            }
+            let addr = self
+                .profile
+                .as_ref()?
+                .address_of("setlist.name", &[index])?;
+            if self.pending.contains_key(&addr) {
+                continue;
+            }
+            return self.request_read("setlist.name", &[index], Pending::SetlistName(index));
+        }
+        None
     }
 
     /// Re-read the current kit's name, unless a read of it is already outstanding
@@ -1176,12 +1257,12 @@ impl Session {
     /// Absorb whatever part of the open set list a DT1 covers — the bulk read's
     /// reply, one slice of a reply the module chose to split, or an edit the user
     /// made on the module itself. Returns `true` if anything landed.
-    fn absorb_setlist(&mut self, address: [u8; 4], data: &[u8]) -> bool {
+    fn absorb_setlist(&mut self, address: [u8; 4], data: &[u8]) -> Landed {
         let Some(index) = self.setlist.as_ref().map(|s| s.index) else {
-            return false;
+            return Landed::default();
         };
         let Some(profile) = self.profile.as_ref() else {
-            return false;
+            return Landed::default();
         };
         let start = sysex::address::to_linear(address) as usize;
         let end = start + data.len();
@@ -1206,18 +1287,21 @@ impl Session {
             None => Vec::new(),
         };
 
+        if let Some(name) = &name {
+            self.setlist_names.insert(index, name.clone());
+        }
         let Some(state) = self.setlist.as_mut() else {
-            return false;
+            return Landed::default();
         };
-        let mut landed = false;
+        let mut landed = Landed::default();
         if let Some(name) = name {
             state.name = Some(name);
-            landed = true;
+            landed.name = true;
         }
         for (step, raw) in steps {
             if let Some(slot) = state.steps.get_mut(step) {
                 *slot = Some(raw);
-                landed = true;
+                landed.steps = true;
             }
         }
         landed
@@ -1396,6 +1480,16 @@ impl Session {
     fn confirm_text(&mut self, edit: &Edit, actual: String) -> Vec<Effect> {
         self.values
             .insert(edit.param_id.clone(), ParamValue::Text(actual.clone()));
+        // A renamed set list: the picker's name for it is the one the module
+        // kept, now confirmed — and so is the open list's, if it is the one.
+        if edit.param_id == "setlist.name"
+            && let Some(&index) = edit.indices.first()
+        {
+            self.setlist_names.insert(index, actual.clone());
+            if let Some(state) = self.setlist.as_mut().filter(|s| s.index == index) {
+                state.name = Some(actual.clone());
+            }
+        }
         vec![
             Effect::Emit(CoreEvent::EditConfirmed {
                 param_id: edit.param_id.clone(),
@@ -1527,9 +1621,28 @@ impl Session {
                 capacity: state.steps.len() as u32,
                 position: state.position.map(|p| p as u32),
             }),
+            setlists: self.setlist_refs(),
             setup_hints: self.setup_hints(),
             parameters,
         }
+    }
+
+    /// Every set list the module holds, numbered, and named where the name is
+    /// known — the picker's rows.
+    fn setlist_refs(&self) -> Vec<SetlistRef> {
+        let count = self
+            .profile
+            .as_ref()
+            .and_then(|p| p.areas.get("setlist"))
+            .and_then(|a| a.count)
+            .unwrap_or(0);
+        (0..count)
+            .map(|number| SetlistRef {
+                number,
+                display_number: number + 1,
+                name: self.setlist_names.get(&number).cloned().unwrap_or_default(),
+            })
+            .collect()
     }
 
     /// The switches on the module the app cannot flip itself, while they still

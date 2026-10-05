@@ -29,6 +29,12 @@ struct ContentView: View {
                     }
                     setlistSection
                 }
+                // One-time module setup sits after the controls used every
+                // session: a hint acted on once must not push the tempo and
+                // the kit out of the first swipes (or off the first screen).
+                if !session.setupHints.isEmpty {
+                    setupSection
+                }
                 // Last on purpose: a setting you touch once should not sit in
                 // front of the controls you use every session — a screen-reader
                 // user swipes past everything above the kit otherwise.
@@ -93,16 +99,24 @@ struct ContentView: View {
                     Label(warning, systemImage: "exclamationmark.triangle")
                         .accessibilityLabel(warning)
                 }
-                // Switches only the drummer can flip on the module (the app
-                // cannot): shown until the core sees each one flipped.
-                ForEach(Array(session.setupHints.enumerated()), id: \.offset) { _, hint in
-                    let text = session.text(hint.text, hint.value)
-                    Label(text, systemImage: "info.circle")
-                        .accessibilityLabel(text)
-                        .accessibilityIdentifier("setup-hint")
-                }
             } else if session.connection != .ready {
                 Text(session.text(.connectPrompt))
+            }
+        }
+    }
+
+    // MARK: - Module setup
+
+    /// The switches only the drummer can flip on the module itself (the app
+    /// cannot): the core lists each until it sees it flipped, and the app
+    /// remembers a flipped one per module so it is not asked again next launch.
+    @ViewBuilder private var setupSection: some View {
+        Section(session.text(.sectionSetup)) {
+            ForEach(Array(session.setupHints.enumerated()), id: \.offset) { _, hint in
+                let text = session.text(hint.text, hint.value)
+                Label(text, systemImage: "info.circle")
+                    .accessibilityLabel(text)
+                    .accessibilityIdentifier("setup-hint")
             }
         }
     }

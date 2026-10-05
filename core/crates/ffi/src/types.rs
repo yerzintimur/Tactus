@@ -105,6 +105,7 @@ pub enum UiString {
     FirmwareNewer,
     FirmwareOlder,
     FirmwareUnknown,
+    SectionSetup,
     HintTransmitEditData,
     SectionKit,
     LabelCurrentKit,
@@ -155,6 +156,7 @@ impl From<UiString> for engine::UiString {
             UiString::FirmwareNewer => engine::UiString::FirmwareNewer,
             UiString::FirmwareOlder => engine::UiString::FirmwareOlder,
             UiString::FirmwareUnknown => engine::UiString::FirmwareUnknown,
+            UiString::SectionSetup => engine::UiString::SectionSetup,
             UiString::HintTransmitEditData => engine::UiString::HintTransmitEditData,
             UiString::SectionKit => engine::UiString::SectionKit,
             UiString::LabelCurrentKit => engine::UiString::LabelCurrentKit,
@@ -207,6 +209,7 @@ impl From<engine::UiString> for UiString {
             engine::UiString::FirmwareNewer => Self::FirmwareNewer,
             engine::UiString::FirmwareOlder => Self::FirmwareOlder,
             engine::UiString::FirmwareUnknown => Self::FirmwareUnknown,
+            engine::UiString::SectionSetup => Self::SectionSetup,
             engine::UiString::HintTransmitEditData => Self::HintTransmitEditData,
             engine::UiString::SectionKit => Self::SectionKit,
             engine::UiString::LabelCurrentKit => Self::LabelCurrentKit,
@@ -311,11 +314,33 @@ pub struct Snapshot {
     pub device: Option<DeviceInfo>,
     pub current_kit: Option<KitRef>,
     pub setlist: Option<SetlistView>,
+    /// Every set list the module holds, named where the name is known (read in
+    /// the background after connect). Empty until a profile is matched.
+    pub setlists: Vec<SetlistRef>,
     /// What the drummer still has to switch on the module itself (the app cannot),
     /// each as interface text plus the module's menu path to put in it. Empty
     /// once there is nothing left to say.
     pub setup_hints: Vec<SetupHint>,
     pub parameters: Vec<ParameterView>,
+}
+
+/// One of the module's set lists as the picker lists it: number and, once read,
+/// name (empty until then).
+#[derive(Debug, Clone, PartialEq, Eq, uniffi::Record)]
+pub struct SetlistRef {
+    pub number: u32,
+    pub display_number: u32,
+    pub name: String,
+}
+
+impl From<engine::SetlistRef> for SetlistRef {
+    fn from(s: engine::SetlistRef) -> Self {
+        Self {
+            number: s.number,
+            display_number: s.display_number,
+            name: s.name,
+        }
+    }
 }
 
 /// One thing to do on the module: `text` is the string, `value` its argument.
@@ -557,6 +582,7 @@ impl From<engine::Snapshot> for Snapshot {
             device: s.device.map(Into::into),
             current_kit: s.current_kit.map(Into::into),
             setlist: s.setlist.map(Into::into),
+            setlists: s.setlists.into_iter().map(Into::into).collect(),
             setup_hints: s.setup_hints.into_iter().map(Into::into).collect(),
             parameters: s.parameters.into_iter().map(Into::into).collect(),
         }

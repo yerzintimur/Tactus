@@ -26,6 +26,7 @@ final class CoreSessionTests: XCTestCase {
     /// the app asks the drummer to switch it on — until the module's first panel
     /// edit proves it is on.
     func testSetupHintStandsUntilThePanelReportsAnEdit() {
+        CoreSession.clearSetupMemory()
         let session = CoreSession(locale: "en")
         session.connected()
         session.receive(CoreSession.sampleV31IdentityReply)
@@ -40,6 +41,21 @@ final class CoreSessionTests: XCTestCase {
             0x04, 0x24, 0x00, 0x50, 0x00, 0x00, 0x00, 0x05, 0x03, 0xF7,
         ]))
         XCTAssertTrue(session.setupHints.isEmpty)
+
+        // Once seen flipped, the module is not asked to be set up again — not
+        // on the next connection, nor in the next launch (persisted).
+        session.disconnected()
+        session.connected()
+        session.receive(CoreSession.sampleV31IdentityReply)
+        XCTAssertTrue(session.setupHints.isEmpty)
+        XCTAssertTrue(CoreSession.isSetupDone(.hintTransmitEditData, for: "roland-v31"))
+
+        let fresh = CoreSession(locale: "en")
+        fresh.connected()
+        fresh.receive(CoreSession.sampleV31IdentityReply)
+        XCTAssertTrue(fresh.setupHints.isEmpty)
+
+        CoreSession.clearSetupMemory()
     }
 
     func testDisconnectClearsConnection() {

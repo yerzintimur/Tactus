@@ -58,10 +58,12 @@ ui-connect-prompt = Connect your drum module with a USB cable.
 ui-firmware-newer = This firmware is newer than we've tested. Everything should still work.
 ui-firmware-older = This firmware is older than we've tested. Everything should still work.
 ui-firmware-unknown = This firmware hasn't been tested. Everything should still work.
-# Shown in the Connection section until the module reports a panel edit. The
-# setting is not in the address map, so only the drummer can switch it on; the
-# value is the module's own menu path, as the profile gives it.
-ui-hint-transmit-edit-data = To hear what you change on the module's own panel, turn on Transmit Edit Data on the module, under { $value }. Until then the app notices kit changes only.
+# Module setup: the switches only the drummer can flip on the module itself,
+# listed at the foot of the main screen until each is seen flipped. Transmit
+# Edit Data is not in the address map; the value is the module's own menu
+# path, as the profile gives it.
+ui-section-setup = Module setup
+ui-hint-transmit-edit-data = Turn on Transmit Edit Data on the module ({ $value }) to hear what you change on its panel.
 
 ui-section-kit = Kit
 ui-label-current-kit = Current kit

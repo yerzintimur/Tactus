@@ -17,20 +17,28 @@ import Tactus
 struct SetlistScreen: View {
     @EnvironmentObject private var session: CoreSession
     @State private var showingRename = false
-    /// Which set list is open (0-based). The module holds 32; their names live in
-    /// the module, so the picker offers numbers and the name appears once read.
+    /// Which set list is open (0-based). The names live in the module; the core
+    /// reads them in the background after connect, so a row says "Set list 3 ·
+    /// Rock Night" once its name is known and "Set list 3" until then.
     @State private var number: UInt32 = 0
-
-    private static let setlistCount: UInt32 = 32
 
     var body: some View {
         List {
             Section {
-                Picker(session.text(.sectionSetlist), selection: $number) {
-                    ForEach(0..<Self.setlistCount, id: \.self) { index in
-                        Text(session.text(.valueSetlistNumber, "\(index + 1)")).tag(index)
+                // Not a Picker: its row keeps the chosen value on one short
+                // trailing line, and "Set list 3 · Rock Night" gets cut off
+                // there. A two-line row gives the name the full width.
+                NavigationLink {
+                    SetlistChooser(selection: $number)
+                } label: {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(session.text(.sectionSetlist))
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        Text(session.text(.valueSetlistNumber, Self.rowValue(current)))
                     }
                 }
+                .accessibilityElement(children: .combine)
                 .accessibilityIdentifier("setlist-picker")
 
                 if let setlist = session.setlist, !setlist.name.isEmpty {
@@ -117,10 +125,53 @@ struct SetlistScreen: View {
         return session.text(.valueSetlistStep, "\(position + 1): \(kit.displayNumber)\(name)")
     }
 
+    /// The chosen list as the core lists it, or a bare number before the core
+    /// has a profile to count lists with.
+    private var current: SetlistRef {
+        session.setlists.first { $0.number == number }
+            ?? SetlistRef(number: number, displayNumber: number + 1, name: "")
+    }
+
+    /// The number and, once read, the name — the same shape as a kit row.
+    static func rowValue(_ list: SetlistRef) -> String {
+        list.name.isEmpty
+            ? "\(list.displayNumber)"
+            : "\(list.displayNumber) · \(list.name)"
+    }
+
     /// A set list holds a fixed number of steps; a full one can't take another.
     private var canAdd: Bool {
         guard let setlist = session.setlist else { return false }
         return setlist.steps.count < Int(setlist.capacity)
+    }
+}
+
+/// Choose which set list to open: every list the module holds, named once the
+/// core has read its name (in the background after connect), the open one
+/// marked. One full-width row per list, so a name is never cut off.
+struct SetlistChooser: View {
+    @EnvironmentObject private var session: CoreSession
+    @Environment(\.dismiss) private var dismiss
+    @Binding var selection: UInt32
+
+    var body: some View {
+        List(session.setlists, id: \.number) { list in
+            Button {
+                selection = list.number
+                dismiss()
+            } label: {
+                HStack {
+                    Text(session.text(.valueSetlistNumber, SetlistScreen.rowValue(list)))
+                    Spacer()
+                    if list.number == selection {
+                        Image(systemName: "checkmark").accessibilityHidden(true)
+                    }
+                }
+            }
+            .tint(.primary)
+            .accessibilityAddTraits(list.number == selection ? .isSelected : [])
+        }
+        .navigationTitle(session.text(.sectionSetlist))
     }
 }
 
